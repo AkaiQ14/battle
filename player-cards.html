@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>ترتيب البطاقات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      .card-wrapper {
+        transition: all 0.3s ease;
+        touch-action: none;
+      }
+      
+      .card-wrapper:hover {
+        transform: scale(1.02);
+      }
+      
+      .position-indicator {
+        transition: all 0.2s ease;
+      }
+      
+      #cardGrid {
+        gap: 1rem;
+        padding: 0.5rem;
+      }
+      
+      .card-wrapper img,
+      .card-wrapper video {
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+      
+      #continueBtn {
+        position: sticky;
+        bottom: 20px;
+        z-index: 100;
+        margin-top: 2rem;
+      }
+    }
+    
+    /* Touch feedback */
+    .card-wrapper:active {
+      transform: scale(0.98);
+    }
+    
+    /* Drag feedback */
+    .dragging {
+      transform: scale(1.05) !important;
+      z-index: 1000 !important;
+      opacity: 0.8 !important;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.8) !important;
+      border: 2px solid #3b82f6 !important;
+    }
+    
+    .drop-target {
+      border: 2px dashed #10b981 !important;
+      background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+  </style>
+</head>
+<body class="bg-[#4B0E1F] text-white p-6 min-h-screen flex flex-col items-center space-y-6" style="font-family: Cairo, sans-serif; background-image: url('./images/NN.jpg'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center center; background-color: rgb(75, 14, 31); border: 3px solid #ffffffe3; box-sizing: border-box;">
+  <p id="instruction" class="text-xl">اللاعب اكاي رتب بطاقاتك</p>
+
+  <div id="cardGrid" class="flex flex-wrap justify-center gap-6 w-full max-w-6xl mx-auto">
+    <!-- Cards will be populated here -->
+  </div>
+
+  <!-- Your abilities -->
+  <section id="abilitiesPanel" class="w-full max-w-6xl mx-auto mt-4 p-3 rounded bg-black/20 border border-yellow-600">
+    <p class="font-bold mb-2">قدراتك (اضغط لطلب استخدامها):</p>
+    <div id="playerAbilities" class="flex flex-wrap gap-2">
+      <!-- Abilities will be populated here -->
+    </div>
+    <p id="abilityStatus" class="mt-2 text-sm opacity-80">اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.</p>
+  </section>
+
+  <!-- Opponent abilities (view-only) -->
+  <section id="opponentAbilitiesPanel" class="w-full max-w-6xl mx-auto mt-4 p-3 rounded bg-black/20 border border-yellow-600 hidden">
+    <p class="font-bold mb-2">قدرات الخصم (عرض فقط):</p>
+    <div id="opponentAbilities" class="flex flex-wrap gap-2"></div>
+  </section>
+
+  <button id="continueBtn" onclick="submitPicks()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-xl font-bold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95" disabled="">✅ تم إرسال الترتيب</button>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnaTr8kIsNdJTKhZQIpcs7ZcocnXCd1sE",
+      authDomain: "card-8a025.firebaseapp.com",
+      projectId: "card-8a025",
+      storageBucket: "card-8a025.firebasestorage.app",
+      messagingSenderId: "752630162630",
+      appId: "1:752630162630:web:2ea00951368f2636e0a3c7"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.auth = getAuth(app);
+  </script>
+
+  <!-- Card Manager Script -->
+  <script src="js/card-manager.js"></script>
+  <script type="module" src="js/player-cards-simple.js"></script>
+
+</body>
+</html>
