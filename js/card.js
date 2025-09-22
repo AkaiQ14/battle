@@ -16,6 +16,338 @@ try {
   gameSetupProgress = {};
 }
 
+/* ---------------------- Swap Deck System - Early Definition ---------------------- */
+// Track swap deck usage for each player
+let swapDeckUsed = {
+  player1: false,
+  player2: false
+};
+
+// Load swap deck usage from localStorage
+function loadSwapDeckUsage() {
+  try {
+    const saved = localStorage.getItem('swapDeckUsed');
+    if (saved) {
+      swapDeckUsed = JSON.parse(saved);
+    }
+  } catch (error) {
+    console.warn('Error loading swap deck usage:', error);
+  }
+}
+
+// Save swap deck usage to localStorage
+function saveSwapDeckUsage() {
+  try {
+    localStorage.setItem('swapDeckUsed', JSON.stringify(swapDeckUsed));
+  } catch (error) {
+    console.error('Error saving swap deck usage:', error);
+  }
+}
+
+// Get all available cards from the cards directory
+function getAllAvailableCards() {
+  const allCards = [
+    "cards/ShanksCard.webm", "cards/Akai.webm", "cards/madara.webm", "cards/Nana-card.png", "cards/Vengeance.png",
+    "cards/Crocodile.png", "cards/MeiMei-card.png", "cards/Elizabeth.png", "cards/ace.png", "cards/Adult-gon-card.webp",
+    "cards/aizen.webm", "cards/Aizetsu-card.webp", "cards/Akutagawa-card.png", "cards/alex20armstrong.webp", "cards/AllForOneCard.webm",
+    "cards/Alluka-card.png", "cards/Android18-card.png", "cards/ArmorTitan-card.webp", "cards/Arthur-card.png", "cards/Asui-card.png",
+    "cards/Atsuya-card.png", "cards/AyanokojiCard.webm", "cards/Ban-card.png", "cards/Bardooock.png", "cards/bartolomeo-card.png",
+    "cards/BeastKing-card.png", "cards/BigM.webp", "cards/Bisky-card.png", "cards/brook.png", "cards/Btakuya-card.png",
+    "cards/caesar-card.png", "cards/cardo20ppsd.webp", "cards/CartTitan-card.png", "cards/cavendish-card.png", "cards/Charllotte-card.png",
+    "cards/Choi-jong-in-.webp", "cards/Chopper-card.png", "cards/ColossialTitan-card.png", "cards/Dabi-card.png", "cards/Danteee.png",
+    "cards/dazai-card.png", "cards/DiamondJozu.webp", "cards/DragonBB-67-card.png", "cards/edward elric.png", "cards/Elfaria Albis.png",
+    "cards/Endeavor.png", "cards/ErenCard.webm", "cards/esdeath.webp", "cards/Eso-card.png", "cards/FemaleTitan-card.webp",
+    "cards/franklin_card.png", "cards/Franky-card.png", "cards/Frierennnnn.png", "cards/Friezaaa.webp", "cards/fubuki.webp",
+    "cards/Fuegoleonn .png", "cards/Gadjah.webp", "cards/GaiMou-card.png", "cards/Galand-card.png", "cards/Ganju-card.png",
+    "cards/Genthru-card.png", "cards/geten.webp", "cards/Geto-card.png", "cards/ghiaccio.png", "cards/Gilthunder.png",
+    "cards/Gin-freecss-card.png", "cards/gloxinia.png", "cards/Go-Gunhee-card.webm", "cards/Gogeta.webm", "cards/GojoCard.webm",
+    "cards/Goku UI.webm", "cards/Gordon-card.png", "cards/Hachigen-card.png", "cards/HakuKi-card.webp", "cards/Hantengu-card.png",
+    "cards/Haruta jjk.png", "cards/Haschwalth-card.png", "cards/Hawk-card.png", "cards/Hawks.webm", "cards/hinata.png",
+    "cards/Hisagi-card.png", "cards/Ichibe-card.png", "cards/Igris-card.webp", "cards/ino.png", "cards/Inosuke-card.png",
+    "cards/Inumaki-card.png", "cards/Ippo-card.png", "cards/Iron-card.png", "cards/Isaac mcdougal.png", "cards/Ishida-card.webp",
+    "cards/Itadori-card.png", "cards/Itchigo-card .png", "cards/Jack-card.png", "cards/Jaw-card.webp", "cards/Jirobo.webp",
+    "cards/Johan-card.png", "cards/joker.webm", "cards/Jozi jjk.png", "cards/judarr.webp", "cards/jugo.png",
+    "cards/julius wistoria.png", "cards/Kaguraaaa.png", "cards/Kaito-card .png", "cards/Kalluto-card.png", "cards/Karaku-card.png",
+    "cards/KeiSha-card.png", "cards/kenjaku-card.png", "cards/Kenzo-card.png", "cards/kimimaro.png", "cards/Kingkaiii.png",
+    "cards/Kirach.png", "cards/KiSui-card.png", "cards/Knov-card.png", "cards/konan.png", "cards/konohamaru.webp",
+    "cards/kota izumi.png", "cards/Krilin-card.webp", "cards/KudoShinichi-card.png", "cards/Kukoshibo-card.png", "cards/Kuma-card.png",
+    "cards/Kurapika-card.png", "cards/kurenai.png", "cards/Kurogiri-card.png", "cards/Kyoga-card.png", "cards/Langriiss.webp",
+    "cards/law.webm", "cards/laxus.png", "cards/Lemillion-card.png", "cards/Lille-baroo-card.png", "cards/Lily-card.png",
+    "cards/Lucci-card.png", "cards/Luck.png", "cards/LuffyGear5Card.webm", "cards/lumiere silvamillion.png", "cards/lyon vastia.png",
+    "cards/obito.webm", "cards/mahito-card.png", "cards/Mahoraga.png", "cards/Mai-card.png", "cards/Maki zenen.png",
+    "cards/Makio-card.png", "cards/mansherry.png", "cards/Masamichi-card.png", "cards/Matsumoto-card.webp", "cards/Mayuri-card.webp",
+    "cards/MeiMei-card.png", "cards/Meleoron-card.png", "cards/Merlin-card.webp", "cards/MeruemCard.webm", "cards/MetalBat-card.png",
+    "cards/Mezo-card.webp", "cards/Min-Byung-Gyu-card.png", "cards/Mina-card.png", "cards/minato.png", "cards/Miruku bnha.png",
+    "cards/Momo-hinamori-card.webp", "cards/MomoYaorozu-card.webp", "cards/Monspeet-card.png", "cards/MouBu-card.png", "cards/MouGou-card.png",
+    "cards/Nachttt.webp", "cards/Nami.webp", "cards/Nana-card.png", "cards/nanami-card.png", "cards/naobito-card.webp",
+    "cards/Nejire-card.png", "cards/NietroCard.webm", "cards/Noelll.png", "cards/Oden-card.png", "cards/Okabe-card.png",
+    "cards/Orihime-card.png", "cards/Overhaul-card.png", "cards/Panda-card.webp", "cards/Paragusss.png", "cards/Pariston-card.png",
+    "cards/Picollooo.png", "cards/pizarro.webp", "cards/poseidon.png", "cards/Queen-card.webp", "cards/Raditzz.png",
+    "cards/RaiDo%20kingdom.webp", "cards/RaiDokingdom.webp", "cards/Renpa-card.png", "cards/Rhyaa.png", "cards/Rika-card.png",
+    "cards/rin.png", "cards/Rojuro-card.png", "cards/Roy Mustang.png", "cards/Runge-card.png", "cards/Runge-card.webp",
+    "cards/sai.png", "cards/SakamotoCard.webm", "cards/Senjumaru-card.png", "cards/Senritsu-card.webp", "cards/ShanksCard.webm",
+    "cards/shikamaru.webm", "cards/Shin-card.png", "cards/Shinji-card.webp", "cards/shino.png", "cards/Shinobu-card.png",
+    "cards/Shinpei-card.webp", "cards/Shizuku-card.png", "cards/ShouBunKun-card.png", "cards/ShouHeiKun-card .png", "cards/silver%20fullbuster.webp",
+    "cards/SilverCard.webm", "cards/silverfullbuster.webp", "cards/Stain-card.png", "cards/Stark-card.png", "cards/sting eucliffe.png",
+    "cards/suzuno.png", "cards/takuma-card.webp", "cards/Tank-card.png", "cards/Teach-card.png", "cards/Tenma-card.png",
+    "cards/tenten.webp", "cards/Tier Harribel.png", "cards/tobirama.png", "cards/Todoroki.png", "cards/Tosen-card.webp",
+    "cards/UmibozoCard.webm", "cards/Ur.png", "cards/Uvogin-card.png", "cards/VanAugur-card.webp", "cards/Vegapunk-crad.webp",
+    "cards/Vegetto.webm", "cards/Vengeance.png", "cards/Videl-card.webp", "cards/Vista-card.png", "cards/WarHammerTitan-card.png",
+    "cards/whitebeard.webm", "cards/Yoo-Jinho-card.png", "cards/Yoruichi-card.webp", "cards/YujiroHanma-card.png", "cards/Yusaku.png",
+    "cards/Zagred-card.png", "cards/Zamasuuu.webm", "cards/zaratras.png", "cards/Zeno kingdom.png", "cards/Zeo Thorzeus.png",
+    "cards/zetsu.png", "cards/Zohakuten.png"
+  ];
+  
+  return allCards;
+}
+
+// Generate 3 random cards for swap deck (excluding player's current cards)
+function generateSwapCards(playerParam) {
+  console.log('🎲 generateSwapCards called for:', playerParam);
+  const allCards = getAllAvailableCards();
+  const playerName = playerParam === 'player1' ? player1 : player2;
+  const playerCards = picks[playerName] || [];
+  
+  console.log('Player cards:', playerCards);
+  console.log('All cards count:', allCards.length);
+  
+  // Filter out cards that the player already has
+  const availableCards = allCards.filter(card => !playerCards.includes(card));
+  
+  console.log('Available cards count:', availableCards.length);
+  
+  // Shuffle and pick 3 random cards
+  const shuffled = availableCards.sort(() => 0.5 - Math.random());
+  const selectedCards = shuffled.slice(0, 3);
+  
+  console.log('Selected swap cards:', selectedCards);
+  return selectedCards;
+}
+
+// Open swap deck modal
+function openSwapDeckModal(playerParam) {
+  console.log('🎯 openSwapDeckModal called for:', playerParam);
+  console.log('Current players:', { player1, player2 });
+  console.log('Current round:', round);
+  console.log('Swap deck usage:', swapDeckUsed);
+  
+  const playerName = playerParam === 'player1' ? player1 : player2;
+  
+  // Check if player has already used swap deck
+  if (swapDeckUsed[playerParam]) {
+    showToast(`! ${playerName} استخدم دكة البدلاء مسبقاً في هذه المعركة`, 'warning');
+    return;
+  }
+  
+  const modal = document.getElementById("swapDeckModal");
+  const title = document.getElementById("swapDeckTitle");
+  const currentCardDisplay = document.getElementById("currentCardDisplay");
+  const swapCardsGrid = document.getElementById("swapCardsGrid");
+  const confirmBtn = document.getElementById("confirmSwapBtn");
+  
+  console.log('Modal elements check:', {
+    modal: !!modal,
+    title: !!title,
+    currentCardDisplay: !!currentCardDisplay,
+    swapCardsGrid: !!swapCardsGrid,
+    confirmBtn: !!confirmBtn
+  });
+  
+  if (!modal || !title || !currentCardDisplay || !swapCardsGrid || !confirmBtn) {
+    console.error('❌ Required modal elements not found');
+    return;
+  }
+  
+  console.log('✅ All modal elements found, proceeding...');
+  
+  // Update title
+  title.textContent = `دكة البدلاء - ${playerName}`;
+  
+  // Show current card
+  const currentCardSrc = picks[playerName]?.[round];
+  if (currentCardSrc) {
+    currentCardDisplay.innerHTML = "";
+    currentCardDisplay.appendChild(createMedia(currentCardSrc, ""));
+  } else {
+    currentCardDisplay.innerHTML = '<div style="color: #ffed7a; font-size: 12px; display: flex; align-items: center; justify-content: center; height: 100%;">لا توجد بطاقة</div>';
+  }
+  
+  // Generate and display 3 random swap cards
+  const swapCards = generateSwapCards(playerParam);
+  swapCardsGrid.innerHTML = "";
+  
+  // Store swap cards in modal data
+  modal.dataset.swapCards = JSON.stringify(swapCards);
+  
+  swapCards.forEach((cardSrc, index) => {
+    const cardOption = document.createElement("div");
+    cardOption.className = "swap-card-option";
+    cardOption.onclick = () => {
+      // Remove previous selection
+      swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => opt.classList.remove('selected'));
+      
+      // Select current card
+      cardOption.classList.add('selected');
+      
+      // Enable confirm button
+      confirmBtn.disabled = false;
+    };
+    
+    // Create media element
+    const media = createMedia(cardSrc, "swap-card-media");
+    cardOption.appendChild(media);
+    
+    // Add card number
+    const cardNumber = document.createElement("div");
+    cardNumber.className = "swap-card-number";
+    cardNumber.textContent = `${index + 1}`;
+    cardOption.appendChild(cardNumber);
+    
+    swapCardsGrid.appendChild(cardOption);
+  });
+  
+  // Reset confirm button
+  confirmBtn.disabled = true;
+  
+  // Store current player for confirm action
+  modal.dataset.playerParam = playerParam;
+  
+  modal.classList.add("active");
+  console.log('🎉 Modal opened successfully!');
+}
+
+// Close swap deck modal
+function closeSwapDeckModal() {
+  const modal = document.getElementById("swapDeckModal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+}
+
+// Confirm swap
+function confirmSwap() {
+  const modal = document.getElementById("swapDeckModal");
+  const playerParam = modal.dataset.playerParam;
+  const playerName = playerParam === 'player1' ? player1 : player2;
+  
+  const selectedCard = modal.querySelector('.swap-card-option.selected');
+  if (!selectedCard) {
+    showToast("! يرجى اختيار بطاقة للتبديل", 'error');
+    return;
+  }
+  
+  const selectedIndex = Array.from(modal.querySelectorAll('.swap-card-option')).indexOf(selectedCard);
+  const swapCards = modal.dataset.swapCards ? JSON.parse(modal.dataset.swapCards) : generateSwapCards(playerParam);
+  const newCardSrc = swapCards[selectedIndex];
+  
+  if (!newCardSrc) {
+    showToast("! خطأ في اختيار البطاقة", 'error');
+    return;
+  }
+  
+  // Perform the swap
+  if (picks[playerName] && picks[playerName][round]) {
+    const oldCardSrc = picks[playerName][round];
+    picks[playerName][round] = newCardSrc;
+    
+    // Save updated picks to localStorage
+    try {
+      // Update StrategicOrdered if it exists
+      const strategicOrderedKey = `${playerParam}StrategicOrdered`;
+      const strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
+      if (Array.isArray(strategicOrdered) && strategicOrdered[round]) {
+        strategicOrdered[round] = newCardSrc;
+        localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
+      }
+      
+      // Update StrategicPicks if it exists
+      const strategicPicksKey = `${playerParam}StrategicPicks`;
+      const strategicPicks = JSON.parse(localStorage.getItem(strategicPicksKey) || '[]');
+      if (Array.isArray(strategicPicks) && strategicPicks[round]) {
+        strategicPicks[round] = newCardSrc;
+        localStorage.setItem(strategicPicksKey, JSON.stringify(strategicPicks));
+      }
+      
+      // Update gameCardSelection if it exists
+      const gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
+      if (gameCardSelection[`${playerParam}Cards`] && gameCardSelection[`${playerParam}Cards`][round]) {
+        gameCardSelection[`${playerParam}Cards`][round] = newCardSrc;
+        localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
+      }
+      
+      console.log(`تم تبديل البطاقة للاعب ${playerName}: ${oldCardSrc} -> ${newCardSrc}`);
+      
+      // Mark swap deck as used
+      swapDeckUsed[playerParam] = true;
+      saveSwapDeckUsage();
+      
+      // Disable swap deck button
+      const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
+      if (swapBtn) {
+        swapBtn.classList.add('disabled');
+        swapBtn.disabled = true;
+        swapBtn.textContent = 'مستخدمة';
+      }
+      
+      // Refresh the display
+      renderVs();
+      
+      // Close modal
+      closeSwapDeckModal();
+      
+      // Show success message
+      showToast(`تم تبديل البطاقة بنجاح للاعب ${playerName}`, 'success');
+      
+    } catch (error) {
+      console.error('Error saving swap:', error);
+      showToast("! خطأ في حفظ التبديل", 'error');
+    }
+  } else {
+    showToast("! خطأ في العثور على البطاقة الحالية", 'error');
+  }
+}
+
+// Update swap deck buttons state
+function updateSwapDeckButtons() {
+  const swapBtn1 = document.getElementById('swapDeckBtn1');
+  const swapBtn2 = document.getElementById('swapDeckBtn2');
+  
+  if (swapBtn1) {
+    if (swapDeckUsed.player1) {
+      swapBtn1.classList.add('disabled');
+      swapBtn1.disabled = true;
+      swapBtn1.textContent = 'مستخدمة';
+    } else {
+      swapBtn1.classList.remove('disabled');
+      swapBtn1.disabled = false;
+      swapBtn1.textContent = 'دكة البدلاء';
+    }
+  }
+  
+  if (swapBtn2) {
+    if (swapDeckUsed.player2) {
+      swapBtn2.classList.add('disabled');
+      swapBtn2.disabled = true;
+      swapBtn2.textContent = 'مستخدمة';
+    } else {
+      swapBtn2.classList.remove('disabled');
+      swapBtn2.disabled = false;
+      swapBtn2.textContent = 'دكة البدلاء';
+    }
+  }
+}
+
+// Make swap deck functions globally available immediately
+window.openSwapDeckModal = openSwapDeckModal;
+window.closeSwapDeckModal = closeSwapDeckModal;
+window.confirmSwap = confirmSwap;
+
+console.log('Swap deck functions loaded and available:', {
+  openSwapDeckModal: typeof window.openSwapDeckModal,
+  closeSwapDeckModal: typeof window.closeSwapDeckModal,
+  confirmSwap: typeof window.confirmSwap
+});
+
 // Load round count from gameSetupProgress
 let roundCount = 5;
 let startingHP = 5;
@@ -60,6 +392,7 @@ try {
 
 // Dynamic picks loading function
 function loadPlayerPicks() {
+  console.log('📋 loadPlayerPicks called');
   let picks = {};
   
   try {
@@ -135,11 +468,21 @@ function loadPlayerPicks() {
     console.log('Using fallback cards for player2:', picks[player2]);
   }
   
+  console.log('📋 loadPlayerPicks result:', picks);
   return picks;
 }
 
 // Load picks dynamically
 let picks = loadPlayerPicks();
+console.log('📋 Initial picks loaded:', picks);
+console.log('📋 Player names:', { player1, player2 });
+console.log('📋 Current round:', round);
+console.log('📋 Swap deck usage:', swapDeckUsed);
+console.log('📋 Window functions available:', {
+  openSwapDeckModal: typeof window.openSwapDeckModal,
+  closeSwapDeckModal: typeof window.closeSwapDeckModal,
+  confirmSwap: typeof window.confirmSwap
+});
 
 let round = parseInt(localStorage.getItem("currentRound") || "0");
 
@@ -390,6 +733,7 @@ function getPendingRequests(){
 
 /* ---------------------- Media ---------------------- */
 function createMedia(url, className){
+  console.log('🖼️ createMedia called:', url, className);
   // Fix card paths for Netlify compatibility
   let fixedUrl = url;
   if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('images/')) {
@@ -418,6 +762,7 @@ function createMedia(url, className){
       this.style.display = 'none';
     };
     if (className) v.className=className;
+    console.log('🎥 Video element created:', v.src);
     return v;
   } else {
     const img=document.createElement("img");
@@ -432,6 +777,7 @@ function createMedia(url, className){
       this.style.display = 'none';
     };
     if (className) img.className=className;
+    console.log('🖼️ Image element created:', img.src);
     return img;
   }
 }
@@ -1242,6 +1588,8 @@ window.closeTransferModal = closeTransferModal;
 window.openTransferModal = openTransferModal;
 window.openRestoreModal = openRestoreModal;
 
+
+
 /* ---------------------- Transfer modal ---------------------- */
 function openTransferModal(fromKey, fromName, toName){
   const list = loadAbilities(fromKey);
@@ -1410,6 +1758,9 @@ function renderRound(){
   } else {
     console.warn('Confirm button not found');
   }
+  
+  // Update swap deck buttons state
+  updateSwapDeckButtons();
 }
 
 function confirmWinner(){
@@ -1592,12 +1943,21 @@ function refreshCardData() {
 
 // Initialize and render with error handling
 try {
+  console.log('Initializing game...');
   initializeGameData();
+  
+  // Load swap deck usage
+  loadSwapDeckUsage();
+  
+  console.log('Swap deck usage loaded:', swapDeckUsed);
   
   // Clear used abilities for new game if current round is 0
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
   if (currentRound === 0) {
     clearUsedAbilities();
+    // Reset swap deck usage for new game
+    swapDeckUsed = { player1: false, player2: false };
+    saveSwapDeckUsage();
   }
   
   renderRound();
@@ -2163,11 +2523,48 @@ function removeAllAbilityNotifications() {
   }
 }
 
-// Show toast notification (disabled - no top notifications)
+// Show toast notification
 function showToast(message, type = 'info') {
-  // Disabled to prevent top notifications
-  console.log('Toast disabled:', message, type);
-  return;
+  console.log('🍞 showToast called:', message, type);
+  const wrap = document.createElement("div");
+  wrap.style.cssText = `
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:18px; z-index:3000; background:#222; color:#fff;
+    border:2px solid #ffffff; border-radius:12px; padding:10px 14px;
+    box-shadow:0 8px 18px rgba(0,0,0,.35); font-weight:700;
+    font-family:"Cairo",sans-serif;
+  `;
+  
+  const msg = document.createElement("div");
+  
+  // Check if message starts with "!" and style it red
+  if (message.startsWith("! ")) {
+    const icon = document.createElement("span");
+    icon.textContent = "!";
+    icon.style.color = "#dc2626"; // Red color
+    icon.style.fontWeight = "bold";
+    icon.style.fontSize = "18px";
+    
+    const text = document.createElement("span");
+    text.textContent = message.substring(2); // Remove "! " from the beginning
+    
+    msg.appendChild(icon);
+    msg.appendChild(text);
+  } else {
+    msg.textContent = message;
+  }
+  
+  wrap.appendChild(msg);
+  document.body.appendChild(wrap);
+  
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    if (wrap.parentNode) {
+      wrap.parentNode.removeChild(wrap);
+    }
+  }, 3000);
+  
+  console.log('🍞 Toast notification created and added to DOM');
 }
 
 // Initialize BroadcastChannel if available
