@@ -181,7 +181,10 @@ function openSwapDeckModal(playerParam) {
   
   swapCards.forEach((cardSrc, index) => {
     const cardOption = document.createElement("div");
-    cardOption.className = "swap-card-option";
+    cardOption.className = "swap-card-option number-only";
+    cardOption.dataset.cardSrc = cardSrc;
+    cardOption.dataset.cardIndex = index;
+    
     cardOption.onclick = () => {
       // Remove previous selection
       swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => opt.classList.remove('selected'));
@@ -193,11 +196,7 @@ function openSwapDeckModal(playerParam) {
       confirmBtn.disabled = false;
     };
     
-    // Create media element
-    const media = createMedia(cardSrc, "swap-card-media");
-    cardOption.appendChild(media);
-    
-    // Add card number
+    // Add card number only (no media initially)
     const cardNumber = document.createElement("div");
     cardNumber.className = "swap-card-number";
     cardNumber.textContent = `${index + 1}`;
@@ -236,16 +235,45 @@ function confirmSwap() {
     return;
   }
   
-  const selectedIndex = Array.from(modal.querySelectorAll('.swap-card-option')).indexOf(selectedCard);
-  const swapCards = modal.dataset.swapCards ? JSON.parse(modal.dataset.swapCards) : generateSwapCards(playerParam);
-  const newCardSrc = swapCards[selectedIndex];
+  // Get card source from selected card data
+  const newCardSrc = selectedCard.dataset.cardSrc;
   
   if (!newCardSrc) {
     showToast("! خطأ في اختيار البطاقة", 'error');
     return;
   }
   
-  // Perform the swap
+  // Remove number-only class and show the selected card image
+  selectedCard.classList.remove('number-only');
+  
+  const cardNumber = selectedCard.querySelector('.swap-card-number');
+  if (cardNumber) {
+    cardNumber.style.display = 'none';
+  }
+  
+  // Create and show media element
+  const media = createMedia(newCardSrc, "swap-card-media");
+  selectedCard.insertBefore(media, selectedCard.firstChild);
+  
+  // Update confirm button text
+  const confirmBtn = document.getElementById("confirmSwapBtn");
+  if (confirmBtn) {
+    confirmBtn.textContent = "تأكيد التبديل";
+    confirmBtn.disabled = false;
+  }
+  
+  // Add final confirmation step
+  selectedCard.onclick = () => {
+    // Perform the actual swap
+    performSwap(playerParam, playerName, newCardSrc);
+  };
+  
+  // Show message to user
+  showToast("تم اختيار البطاقة! اضغط عليها مرة أخرى لتأكيد التبديل", 'info');
+}
+
+// Perform the actual swap
+function performSwap(playerParam, playerName, newCardSrc) {
   if (picks[playerName] && picks[playerName][round]) {
     const oldCardSrc = picks[playerName][round];
     picks[playerName][round] = newCardSrc;
