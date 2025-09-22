@@ -849,6 +849,7 @@
       margin-bottom: 8px;
       border: 1px solid rgba(58, 13, 21, 0.3);
       object-fit: contain;
+      display: block;
     }
 
     .swap-card-number {
@@ -864,6 +865,82 @@
       font-size: 32px;
       color: white;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .swap-card-option .swap-card-media {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(58, 13, 21, 0.3);
+      object-fit: contain;
+      display: block;
+    }
+    
+    .swap-card-option:not(.number-only) .swap-card-media {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(58, 13, 21, 0.3);
+      object-fit: contain;
+      display: block;
+    }
+    
+    .swap-card-option img,
+    .swap-card-option video {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(58, 13, 21, 0.3);
+      object-fit: contain;
+      display: block;
+    }
+    
+    .swap-card-option:not(.number-only) img,
+    .swap-card-option:not(.number-only) video {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(58, 13, 21, 0.3);
+      object-fit: contain;
+      display: block;
+    }
+    
+    .swap-card-option:not(.number-only) {
+      background: linear-gradient(145deg, #f3c21a, #e6b800);
+      color: #3a0d15;
+      border-color: var(--gold);
+    }
+    
+    /* Force media to be visible */
+    .swap-card-option img,
+    .swap-card-option video {
+      width: 100% !important;
+      height: 120px !important;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 2px solid red !important;
+      object-fit: contain;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    
+    /* Force media to be visible in selected card */
+    .swap-card-option.selected img,
+    .swap-card-option.selected video {
+      width: 100% !important;
+      height: 120px !important;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 2px solid red !important;
+      object-fit: contain;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
 
     .transfer-animation {

@@ -252,8 +252,28 @@ function confirmSwap() {
   }
   
   // Create and show media element
+  console.log('Creating media for card:', newCardSrc);
   const media = createMedia(newCardSrc, "swap-card-media");
-  selectedCard.insertBefore(media, selectedCard.firstChild);
+  console.log('Media element created:', media);
+  console.log('Media src:', media.src);
+  console.log('Media className:', media.className);
+  
+  // Clear any existing media
+  const existingMedia = selectedCard.querySelector('.swap-card-media');
+  if (existingMedia) {
+    existingMedia.remove();
+  }
+  
+  selectedCard.appendChild(media);
+  console.log('Media added to selected card');
+  console.log('Selected card children:', selectedCard.children.length);
+  
+  // Add fallback text
+  const fallbackText = document.createElement('div');
+  fallbackText.textContent = `البطاقة المختارة: ${newCardSrc}`;
+  fallbackText.style.color = 'red';
+  fallbackText.style.fontWeight = 'bold';
+  selectedCard.appendChild(fallbackText);
   
   // Update confirm button text
   const confirmBtn = document.getElementById("confirmSwapBtn");
