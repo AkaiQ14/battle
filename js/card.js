@@ -392,11 +392,11 @@ function getPendingRequests(){
 function createMedia(url, className){
   // Fix card paths for Netlify compatibility
   let fixedUrl = url;
-  if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('cards/')) {
+  if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('images/')) {
     if (fixedUrl.startsWith('CARD/')) {
-      fixedUrl = fixedUrl.replace('CARD/', 'cards/');
-    } else if (!fixedUrl.startsWith('cards/')) {
-      fixedUrl = 'cards/' + fixedUrl;
+      fixedUrl = fixedUrl.replace('CARD/', 'images/');
+    } else if (!fixedUrl.startsWith('images/')) {
+      fixedUrl = 'images/' + fixedUrl;
     }
   }
   

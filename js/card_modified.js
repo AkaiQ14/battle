@@ -119,11 +119,11 @@ function loadPlayerPicks() {
   
   // Ensure picks has valid data for both players
   if (!picks[player1] || !Array.isArray(picks[player1]) || picks[player1].length === 0) {
-    picks[player1] = ["cards/ShanksCard.webm", "cards/Akai.webm", "cards/madara.webm", "cards/Nana-card.png", "cards/Vengeance.png"];
+    picks[player1] = ["images/ShanksCard.webm", "images/Akai.webm", "images/madara.webm", "images/Nana-card.png", "images/Vengeance.png"];
     console.log('Using fallback cards for player1:', picks[player1]);
   }
   if (!picks[player2] || !Array.isArray(picks[player2]) || picks[player2].length === 0) {
-    picks[player2] = ["cards/Akai.webm", "cards/ShanksCard.webm", "cards/Crocodile.png", "cards/MeiMei-card.png", "cards/Elizabeth.png"];
+    picks[player2] = ["images/Akai.webm", "images/ShanksCard.webm", "images/Crocodile.png", "images/MeiMei-card.png", "images/Elizabeth.png"];
     console.log('Using fallback cards for player2:', picks[player2]);
   }
   
@@ -380,11 +380,11 @@ function getPendingRequests(){
 function createMedia(url, className){
   // Fix card paths for Netlify compatibility
   let fixedUrl = url;
-  if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('cards/')) {
+  if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('images/')) {
     if (fixedUrl.startsWith('CARD/')) {
-      fixedUrl = fixedUrl.replace('CARD/', 'cards/');
-    } else if (!fixedUrl.startsWith('cards/')) {
-      fixedUrl = 'cards/' + fixedUrl;
+      fixedUrl = fixedUrl.replace('CARD/', 'images/');
+    } else if (!fixedUrl.startsWith('images/')) {
+      fixedUrl = 'images/' + fixedUrl;
     }
   }
   
