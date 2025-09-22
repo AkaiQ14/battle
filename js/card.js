@@ -527,6 +527,9 @@ window.confirmSwap = function() {
   } catch (error) {
     console.error('Error in performSwap:', error);
     alert('خطأ في التبديل: ' + error.message);
+    
+    // Don't close modal on error
+    console.log('Keeping modal open due to error');
   }
 };
 
@@ -546,7 +549,20 @@ function performSwap(playerParam, playerName, newCardSrc) {
     const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
     const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
     console.log('Player picks:', playerPicks);
+    console.log('Player picks key:', playerPicksKey);
+    console.log('Player picks length:', playerPicks ? playerPicks.length : 'undefined');
+    
+    // Check if player picks exist
+    if (!playerPicks || !Array.isArray(playerPicks)) {
+      throw new Error('بيانات البطاقات غير موجودة. تأكد من أن اللاعب قد اختار بطاقاته أولاً.');
+    }
+    
+    // Check if current round is valid
+    if (currentRound < 0 || currentRound >= playerPicks.length) {
+      throw new Error(`الجولة ${currentRound} غير صحيحة. عدد الجولات المتاحة: ${playerPicks.length}`);
+    }
   
+    // Check if card exists for current round
     if (playerPicks[currentRound]) {
       const oldCardSrc = playerPicks[currentRound];
       console.log('Old card:', oldCardSrc);
@@ -603,7 +619,10 @@ function performSwap(playerParam, playerName, newCardSrc) {
       console.log('Swap completed successfully!');
     } else {
       console.error('No card found for current round:', currentRound);
-      throw new Error('لا توجد بطاقة في هذه الجولة');
+      console.error('Player picks:', playerPicks);
+      console.error('Player picks length:', playerPicks ? playerPicks.length : 'undefined');
+      console.error('Current round card:', playerPicks[currentRound]);
+      throw new Error(`لا توجد بطاقة في الجولة ${currentRound}. تأكد من أن اللاعب قد اختار بطاقاته أولاً.`);
     }
   } catch (error) {
     console.error('Error in performSwap:', error);
