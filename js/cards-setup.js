@@ -15,6 +15,7 @@ let gameState = {
 
 // Load existing data
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, starting initialization...');
   loadExistingData();
   createCardsGrid();
   updateDisplay();
@@ -22,12 +23,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadExistingData() {
   const savedData = localStorage.getItem('gameSetupProgress');
+  console.log('Saved data from localStorage:', savedData);
+  
   if (savedData) {
     const data = JSON.parse(savedData);
+    console.log('Parsed data:', data);
     gameState = { ...gameState, ...data };
     
     // Get rounds from setup data
     gameState.rounds = data.rounds || 11;
+    console.log('Loaded rounds:', gameState.rounds);
+    
+    // If rounds is still not set, try to get it from other sources
+    if (!gameState.rounds || gameState.rounds === 0) {
+      const namesData = localStorage.getItem('gameSetupProgress');
+      if (namesData) {
+        const namesSetup = JSON.parse(namesData);
+        gameState.rounds = namesSetup.rounds || 11;
+        console.log('Rounds from names setup:', gameState.rounds);
+      }
+    }
     
     // Initialize card selection based on rounds
     const cardsNeeded = gameState.rounds;
@@ -61,9 +76,15 @@ function loadExistingData() {
     if (setupData) {
       const setup = JSON.parse(setupData);
       gameState.rounds = setup.rounds || 11;
+    } else {
+      // Default to 11 rounds if no data found
+      gameState.rounds = 11;
+      console.log('Using default rounds:', gameState.rounds);
     }
     generateRandomCards();
   }
+  
+  console.log('Final gameState:', gameState);
 }
 
 // Generate random cards for each player
@@ -311,20 +332,29 @@ function selectCard(cardNumber) {
   const cardDiv = document.querySelector(`[data-card-number="${cardNumber}"]`);
   const currentPlayerData = gameState[gameState.currentPlayer];
   
+  console.log('Selecting card:', cardNumber, 'Current player:', gameState.currentPlayer);
+  console.log('Current selected cards:', currentPlayerData.selectedCards);
+  
   // Check if card is already selected
   if (currentPlayerData.selectedCards.includes(cardNumber)) {
     // Deselect card
     const index = currentPlayerData.selectedCards.indexOf(cardNumber);
     currentPlayerData.selectedCards.splice(index, 1);
     cardDiv.classList.remove('selected');
+    console.log('Card deselected:', cardNumber);
   } else {
     // Select card if less than required cards selected
     const cardsNeeded = gameState.rounds;
     if (currentPlayerData.selectedCards.length < cardsNeeded) {
       currentPlayerData.selectedCards.push(cardNumber);
       cardDiv.classList.add('selected');
+      console.log('Card selected:', cardNumber);
+    } else {
+      console.log('Cannot select more cards, already have:', currentPlayerData.selectedCards.length);
     }
   }
+  
+  console.log('After selection:', currentPlayerData.selectedCards);
   
   // Update display
   updateDisplay();
@@ -427,11 +457,14 @@ function updateDisplay() {
   currentPlayerText.textContent = `${playerName} اختر ${cardsNeeded} كرت`;
   
   // Show continue button when current player has required cards
+  console.log('Selected cards:', currentPlayerData.selectedCards.length, 'Needed:', cardsNeeded);
   if (currentPlayerData.selectedCards.length === cardsNeeded) {
     continueSection.style.display = 'block';
     continueBtn.textContent = 'متابعة';
+    console.log('Continue button should be visible');
   } else {
     continueSection.style.display = 'none';
+    console.log('Continue button hidden');
   }
 }
 
