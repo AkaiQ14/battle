@@ -232,65 +232,67 @@ function openSwapDeckModal(playerParam) {
   // Store swap cards in modal data
   modal.dataset.swapCards = JSON.stringify(swapCards);
   
+  // Check if there's a confirmed card for this player
+  const confirmedCard = confirmedSwapCards[playerParam];
+  
+  // If there's a confirmed card, disable confirm button
+  if (confirmedCard) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "تم التأكيد";
+  }
   
   swapCards.forEach((cardSrc, index) => {
     const cardOption = document.createElement("div");
-    cardOption.className = "swap-card-option number-only";
+    const isConfirmed = confirmedCard && confirmedCard.cardSrc === cardSrc;
     
-    // Add card number only
-    const cardNumber = document.createElement("div");
-    cardNumber.className = "swap-card-number";
-    cardNumber.textContent = `${index + 1}`;
-    cardOption.appendChild(cardNumber);
+    if (isConfirmed) {
+      cardOption.className = "swap-card-option confirmed";
+      // Show the confirmed card image
+      const media = createMedia(cardSrc, "swap-card-media");
+      cardOption.appendChild(media);
+    } else {
+      cardOption.className = "swap-card-option number-only";
+      // Add card number only
+      const cardNumber = document.createElement("div");
+      cardNumber.className = "swap-card-number";
+      cardNumber.textContent = `${index + 1}`;
+      cardOption.appendChild(cardNumber);
+    }
     
     cardOption.dataset.cardSrc = cardSrc;
     cardOption.dataset.cardIndex = index;
     
     cardOption.onclick = () => {
+      // Check if a card is already selected and confirmed
+      const alreadySelected = swapCardsGrid.querySelector('.swap-card-option.confirmed');
+      if (alreadySelected) {
+        showToast("! تم اختيار البطاقة بالفعل", 'warning');
+        return;
+      }
+      
       // Remove previous selection
-      swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => {
-        opt.classList.remove('selected');
-        // Reset to number-only state
-        opt.classList.add('number-only');
-        const existingMedia = opt.querySelector('.swap-card-media');
-        if (existingMedia) {
-          existingMedia.remove();
-        }
-        const number = opt.querySelector('.swap-card-number');
-        if (number) {
-          number.style.display = 'block';
-        }
-      });
+      swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => opt.classList.remove('selected'));
       
       // Select current card
       cardOption.classList.add('selected');
       
-      // Show the card image
-      cardOption.classList.remove('number-only');
-      
-      // Hide number and show image
-      const cardNumber = cardOption.querySelector('.swap-card-number');
-      if (cardNumber) {
-        cardNumber.style.display = 'none';
-      }
-      
-      // Create and show media element
-      const media = createMedia(cardSrc, "swap-card-media");
-      cardOption.appendChild(media);
-      
       // Enable confirm button
       confirmBtn.disabled = false;
+      
+      // Show preview message
+      showToast("تم اختيار الرقم! اضغط على تأكيد التبديل لرؤية البطاقة", 'info');
     };
     
     swapCardsGrid.appendChild(cardOption);
   });
   
-  // Reset confirm button
-  confirmBtn.disabled = true;
+  // Reset confirm button only if no confirmed card
+  if (!confirmedCard) {
+    confirmBtn.disabled = true;
+  }
   
   // Store current player for confirm action
   modal.dataset.playerParam = playerParam;
-  modal.dataset.playerName = playerName;
   
   modal.classList.add("active");
 }
@@ -307,7 +309,7 @@ function closeSwapDeckModal() {
 function confirmSwap() {
   const modal = document.getElementById("swapDeckModal");
   const playerParam = modal.dataset.playerParam;
-  const playerName = modal.dataset.playerName;
+  const playerName = playerParam === 'player1' ? player1 : player2;
   
   const selectedCard = modal.querySelector('.swap-card-option.selected');
   if (!selectedCard) {
@@ -323,32 +325,45 @@ function confirmSwap() {
     return;
   }
   
-  // Perform the swap
-  performSwap(playerParam, playerName, newCardSrc);
-}
-
-// Cancel swap
-function cancelSwap() {
-  const modal = document.getElementById("swapDeckModal");
-  const playerParam = modal.dataset.playerParam;
+  // Mark card as confirmed and show the image
+  selectedCard.classList.add('confirmed');
+  selectedCard.classList.remove('number-only');
   
-  // Mark swap deck as used even if cancelled
-  swapDeckUsed[playerParam] = true;
-  saveSwapDeckUsage();
-  
-  // Disable swap deck button
-  const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
-  if (swapBtn) {
-    swapBtn.classList.add('disabled');
-    swapBtn.disabled = true;
-    swapBtn.textContent = 'مستخدمة';
+  // Hide number and show image
+  const cardNumber = selectedCard.querySelector('.swap-card-number');
+  if (cardNumber) {
+    cardNumber.style.display = 'none';
   }
   
-  // Close modal
-  closeSwapDeckModal();
+  // Create and show media element
+  const media = createMedia(newCardSrc, "swap-card-media");
+  selectedCard.appendChild(media);
   
-  // Show message
-  showToast("تم إلغاء التبديل", 'info');
+  // Show success message with card info
+  showToast(`تم تأكيد البطاقة! البطاقة المختارة: ${newCardSrc.split('/').pop()}`, 'success');
+  
+  // Save confirmed card for this player
+  confirmedSwapCards[playerParam] = {
+    cardSrc: newCardSrc,
+    cardIndex: selectedCard.dataset.cardIndex
+  };
+  saveConfirmedSwapCards();
+  
+  // Disable all other cards
+  swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
+    card.style.opacity = '0.5';
+    card.style.pointerEvents = 'none';
+  });
+  
+  // Disable confirm button
+  const confirmBtn = document.getElementById("confirmSwapBtn");
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "تم التأكيد";
+  }
+  
+  // Perform the swap immediately
+  performSwap(playerParam, playerName, newCardSrc);
 }
 
 // Perform the actual swap

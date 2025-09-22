@@ -838,8 +838,59 @@
     
     .swap-card-option.number-only.selected::after {
       background: white;
-      color: #4a9eff;
-      border: 2px solid #4a9eff;
+      color: #ff9800;
+      border: 2px solid #ff9800;
+    }
+    
+    .swap-card-option.number-only.selected {
+      background: linear-gradient(145deg, #ff9800, #f57c00);
+      border-color: #ff9800;
+      color: white;
+      animation: pulse 1s infinite;
+    }
+    
+    .swap-card-option.number-only.selected .swap-card-number {
+      color: white;
+      font-size: 32px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .swap-card-option.number-only.selected::after {
+      content: '?';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: white;
+      color: #ff9800;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      border: 2px solid #ff9800;
+    }
+    
+    .swap-card-option.number-only.selected::before {
+      content: 'اختيار مؤقت';
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
     
     .swap-card-option.confirmed {
@@ -870,33 +921,6 @@
       opacity: 0.5 !important;
       pointer-events: none !important;
       cursor: not-allowed;
-    }
-    
-    .swap-card-option.selected {
-      background: linear-gradient(145deg, #ffed7a, #f3c21a);
-      color: #3a0d15;
-      border-color: #fff;
-      border-width: 3px;
-      box-shadow: 0 0 20px rgba(243, 194, 26, 0.6);
-      transform: scale(1.05);
-    }
-    
-    .swap-card-option.selected::after {
-      content: '✓';
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: #3a0d15;
-      color: #f3c21a;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: bold;
-      border: 2px solid #f3c21a;
     }
 
     .swap-card-media {
@@ -1252,8 +1276,8 @@
           <!-- 3 random swap cards will be populated here -->
         </div>
         <div class="modal-buttons">
-          <button class="modal-btn cancel" id="cancelSwapBtn" onclick="cancelSwap()">إلغاء</button>
-          <button class="modal-btn confirm" id="confirmSwapBtn" onclick="confirmSwap()" disabled>تأكيد التبديل</button>
+          <button class="modal-btn" onclick="confirmSwap()" id="confirmSwapBtn" disabled>تأكيد التبديل</button>
+          <button class="modal-btn cancel" onclick="closeSwapDeckModal()">إلغاء</button>
         </div>
       </div>
     </div>
