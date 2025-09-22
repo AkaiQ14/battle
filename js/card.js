@@ -409,15 +409,20 @@ window.closeSwapDeckModal = function() {
 
 window.confirmSwap = function() {
   console.log('🎯 confirmSwap called');
+  
+  // Get modal and check if it exists
   const modal = document.getElementById("swapDeckModal");
   if (!modal) {
     console.error('Modal not found');
+    alert('خطأ: النافذة المنبثقة غير موجودة');
     return;
   }
   
+  // Get player parameter
   const playerParam = modal.dataset.playerParam;
   if (!playerParam) {
     console.error('Player param not found');
+    alert('خطأ: معامل اللاعب غير موجود');
     return;
   }
   
@@ -426,11 +431,15 @@ window.confirmSwap = function() {
   const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
   const playerName = playerParam === 'player1' ? player1Name : player2Name;
   
+  console.log('Player info:', { playerParam, playerName });
+  
+  // Get selected card
   const selectedCard = modal.querySelector('.swap-card-option.selected');
   console.log('Selected card:', selectedCard);
   
   if (!selectedCard) {
     console.error('No card selected');
+    alert('يرجى اختيار بطاقة أولاً');
     return;
   }
   
@@ -440,6 +449,7 @@ window.confirmSwap = function() {
   
   if (!newCardSrc) {
     console.error('No card source found');
+    alert('خطأ: مصدر البطاقة غير موجود');
     return;
   }
   
@@ -493,17 +503,30 @@ window.confirmSwap = function() {
   // Perform the swap immediately
   console.log('Performing swap...');
   try {
-    performSwap(playerParam, playerName, newCardSrc);
-    console.log('Swap completed!');
-    
-    // Disable confirm button after successful swap
-    const confirmBtn = document.getElementById("confirmSwapBtn");
-    if (confirmBtn) {
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = "تم التأكيد";
+    // Call performSwap function
+    if (typeof performSwap === 'function') {
+      performSwap(playerParam, playerName, newCardSrc);
+      console.log('Swap completed successfully!');
+      
+      // Disable confirm button after successful swap
+      const confirmBtn = document.getElementById("confirmSwapBtn");
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "تم التأكيد";
+      }
+      
+      // Close modal
+      closeSwapDeckModal();
+      
+      // Show success message
+      alert('تم تبديل البطاقة بنجاح!');
+    } else {
+      console.error('performSwap function not found');
+      alert('خطأ: دالة التبديل غير موجودة');
     }
   } catch (error) {
     console.error('Error in performSwap:', error);
+    alert('خطأ في التبديل: ' + error.message);
   }
 };
 
@@ -514,23 +537,23 @@ window.confirmSwap = function() {
 function performSwap(playerParam, playerName, newCardSrc) {
   console.log('🔄 performSwap called with:', { playerParam, playerName, newCardSrc });
   
-  // Get current round
-  const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
-  console.log('Current round:', currentRound);
-  
-  // Get player picks from localStorage
-  const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
-  const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
-  console.log('Player picks:', playerPicks);
-  
-  if (playerPicks[currentRound]) {
-    const oldCardSrc = playerPicks[currentRound];
-    console.log('Old card:', oldCardSrc);
-    playerPicks[currentRound] = newCardSrc;
-    console.log('New card set:', newCardSrc);
+  try {
+    // Get current round
+    const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
+    console.log('Current round:', currentRound);
     
-    // Save updated picks to localStorage
-    try {
+    // Get player picks from localStorage
+    const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
+    const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
+    console.log('Player picks:', playerPicks);
+  
+    if (playerPicks[currentRound]) {
+      const oldCardSrc = playerPicks[currentRound];
+      console.log('Old card:', oldCardSrc);
+      playerPicks[currentRound] = newCardSrc;
+      console.log('New card set:', newCardSrc);
+      
+      // Save updated picks to localStorage
       // Update StrategicPicks
       localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
       console.log('StrategicPicks updated:', playerPicks);
@@ -570,35 +593,21 @@ function performSwap(playerParam, playerName, newCardSrc) {
       
       // Refresh the display
       console.log('Refreshing display...');
-      try {
-        if (typeof renderVs === 'function') {
-          renderVs();
-          console.log('Display refreshed successfully');
-        } else {
-          console.error('renderVs function not found');
-        }
-      } catch (error) {
-        console.error('Error refreshing display:', error);
+      if (typeof renderVs === 'function') {
+        renderVs();
+        console.log('Display refreshed successfully');
+      } else {
+        console.error('renderVs function not found');
       }
       
-      // Close modal
-      console.log('Closing modal...');
-      try {
-        if (typeof closeSwapDeckModal === 'function') {
-          closeSwapDeckModal();
-          console.log('Modal closed successfully');
-        } else {
-          console.error('closeSwapDeckModal function not found');
-        }
-      } catch (error) {
-        console.error('Error closing modal:', error);
-      }
-      
-      // Swap completed successfully
-      
-    } catch (error) {
-      console.error('Error saving swap:', error);
+      console.log('Swap completed successfully!');
+    } else {
+      console.error('No card found for current round:', currentRound);
+      throw new Error('لا توجد بطاقة في هذه الجولة');
     }
+  } catch (error) {
+    console.error('Error in performSwap:', error);
+    throw error;
   }
 }
 
@@ -637,6 +646,26 @@ window.openSwapDeckModal = openSwapDeckModal;
 window.closeSwapDeckModal = closeSwapDeckModal;
 window.confirmSwap = confirmSwap;
 window.performSwap = performSwap;
+
+// Test if functions are available
+console.log('Global functions test:', {
+  openSwapDeckModal: typeof window.openSwapDeckModal,
+  closeSwapDeckModal: typeof window.closeSwapDeckModal,
+  confirmSwap: typeof window.confirmSwap,
+  performSwap: typeof window.performSwap
+});
+
+// Test confirmSwap function
+window.testConfirmSwap = function() {
+  console.log('🧪 Testing confirmSwap function...');
+  if (typeof window.confirmSwap === 'function') {
+    console.log('✅ confirmSwap function is available');
+    return true;
+  } else {
+    console.error('❌ confirmSwap function is NOT available');
+    return false;
+  }
+};
 
 // Swap deck functions loaded and available
 
