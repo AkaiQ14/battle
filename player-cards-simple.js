@@ -201,10 +201,34 @@ async function loadGameData() {
     renderCards(picks);
     renderAbilities(myAbilities);
     
-    // الاستماع للتغييرات في الوقت الفعلي
-    GameService.listenToGame(gameId, (updatedData) => {
+    // الاستماع للتغييرات في الوقت الفعلي مع تحديث قوي
+    const unsubscribe = GameService.listenToGame(gameId, (updatedData) => {
+      console.log('Firebase data updated:', updatedData);
       updateGameData(updatedData);
+      
+      // إجبار تحديث الواجهة
+      setTimeout(() => {
+        renderCards(picks);
+        renderAbilities(myAbilities);
+      }, 100);
     });
+    
+    // حفظ unsubscribe function للتنظيف لاحقاً
+    window.firebaseUnsubscribe = unsubscribe;
+    
+    // تحديث دوري كل 3 ثوان كبديل للمزامنة
+    const syncInterval = setInterval(async () => {
+      try {
+        const freshData = await GameService.getGame(gameId);
+        console.log('Periodic sync check:', freshData);
+        updateGameData(freshData);
+      } catch (e) {
+        console.warn('Periodic sync failed:', e);
+      }
+    }, 3000);
+    
+    // حفظ interval للتنظيف لاحقاً
+    window.syncInterval = syncInterval;
     
     console.log('Game data loaded successfully:', { playerName, picks: picks.length, myAbilities: myAbilities.length, rounds });
     
@@ -328,6 +352,16 @@ function initializeCardManager() {
     setTimeout(initializeCardManager, 100);
   }
 }
+
+// تنظيف الموارد عند إغلاق الصفحة
+window.addEventListener('beforeunload', () => {
+  if (window.firebaseUnsubscribe) {
+    window.firebaseUnsubscribe();
+  }
+  if (window.syncInterval) {
+    clearInterval(window.syncInterval);
+  }
+});
 
 function loadPlayerCards() {
   if (!cardManager) {
@@ -858,6 +892,16 @@ async function requestUseAbility(abilityText) {
       if (abilityStatus) {
         abilityStatus.textContent = "✅ تم حفظ استخدام القدرة في السيرفر";
       }
+      
+      // إجبار تحديث فوري للبيانات
+      setTimeout(async () => {
+        try {
+          const freshData = await GameService.getGame(gameId);
+          updateGameData(freshData);
+        } catch (e) {
+          console.warn('Immediate ability sync failed:', e);
+        }
+      }, 500);
     } catch (e) {
       console.warn('Firebase ability save failed:', e);
       if (abilityStatus) {
@@ -1174,6 +1218,16 @@ async function submitPicks() {
         await GameService.saveCardOrderRealtime(gameId, player, ordered);
         localStorage.setItem('currentGameId', gameId);
         console.log('Card order saved to Firebase with real-time sync');
+        
+        // إجبار تحديث فوري للبيانات
+        setTimeout(async () => {
+          try {
+            const freshData = await GameService.getGame(gameId);
+            updateGameData(freshData);
+          } catch (e) {
+            console.warn('Immediate sync failed:', e);
+          }
+        }, 500);
       } catch (e) {
         console.warn('Firebase save failed, but localStorage saved:', e);
       }
