@@ -339,9 +339,18 @@ window.openSwapDeckModal = function(playerParam) {
     
     if (isConfirmed) {
       cardOption.className = "swap-card-option confirmed";
-      // Show the confirmed card image
-      const media = createMedia(cardSrc, "swap-card-media");
-      cardOption.appendChild(media);
+  // Show the confirmed card image
+  const media = createMedia(cardSrc, "swap-card-media");
+  if (media) {
+    media.style.width = '100%';
+    media.style.height = '120px';
+    media.style.borderRadius = '12px';
+    media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+    media.style.objectFit = 'contain';
+    media.style.display = 'block';
+    media.style.border = '2px solid #ffffff';
+    cardOption.appendChild(media);
+  }
     } else {
       cardOption.className = "swap-card-option number-only";
       // Add card number only
@@ -444,9 +453,24 @@ window.confirmSwap = function() {
     cardNumber.style.display = 'none';
   }
   
-  // Create and show media element
+  // Clear existing media and create new one
+  const existingMedia = selectedCard.querySelector('.swap-card-media');
+  if (existingMedia) {
+    existingMedia.remove();
+  }
+  
+  // Create and show media element with proper styling
   const media = createMedia(newCardSrc, "swap-card-media");
-  selectedCard.appendChild(media);
+  if (media) {
+    media.style.width = '100%';
+    media.style.height = '120px';
+    media.style.borderRadius = '12px';
+    media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+    media.style.objectFit = 'contain';
+    media.style.display = 'block';
+    media.style.border = '2px solid #ffffff';
+    selectedCard.appendChild(media);
+  }
   
   // Card confirmed successfully
   
@@ -466,18 +490,18 @@ window.confirmSwap = function() {
     });
   }
   
-  // Disable confirm button
-  const confirmBtn = document.getElementById("confirmSwapBtn");
-  if (confirmBtn) {
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "تم التأكيد";
-  }
-  
   // Perform the swap immediately
   console.log('Performing swap...');
   try {
     performSwap(playerParam, playerName, newCardSrc);
     console.log('Swap completed!');
+    
+    // Disable confirm button after successful swap
+    const confirmBtn = document.getElementById("confirmSwapBtn");
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "تم التأكيد";
+    }
   } catch (error) {
     console.error('Error in performSwap:', error);
   }
