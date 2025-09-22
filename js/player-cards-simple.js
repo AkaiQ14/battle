@@ -237,67 +237,33 @@ function updateGameData(gameData) {
     }
   }
   
-  // تحديث القدرات مع المزامنة الفورية
+  // تحديث القدرات
   if (playerData.abilities) {
-    const normalizedAbilities = normalizeAbilityList(playerData.abilities);
-    
-    // تحديث حالة الاستخدام من Firebase
-    if (playerData.usedAbilities) {
-      const usedSet = new Set(playerData.usedAbilities);
-      myAbilities = normalizedAbilities.map(ability => ({
-        ...ability,
-        used: usedSet.has(ability.text) || tempUsed.has(ability.text)
-      }));
-    } else {
-      myAbilities = normalizedAbilities;
-    }
-    
+    myAbilities = normalizeAbilityList(playerData.abilities);
     renderAbilities(myAbilities);
   }
   
-  // تحديث البطاقات مع المزامنة الفورية
+  // تحديث البطاقات
   if (playerData.cards) {
     picks = playerData.cards;
     
-    // التحقق من وجود ترتيب مرسل في Firebase أولاً
-    if (playerData.cardOrder && playerData.cardOrder.length === picks.length) {
-      submittedOrder = playerData.cardOrder.slice();
+    // التحقق من وجود ترتيب مرسل للعبة الحالية
+    const savedOrder = JSON.parse(localStorage.getItem(ORDER_LOCAL_KEY) || "[]");
+    const currentGameId = localStorage.getItem('currentGameId');
+    
+    if (currentGameId && gameId && currentGameId === gameId && 
+        savedOrder && savedOrder.length === picks.length) {
+      submittedOrder = savedOrder.slice();
       hideOpponentPanel();
       renderCards(submittedOrder, submittedOrder);
-      
-      // تحديث localStorage للمزامنة المحلية
-      localStorage.setItem(ORDER_LOCAL_KEY, JSON.stringify(submittedOrder));
-      
-      // تحديث حالة الزر
-      if (continueBtn) {
-        continueBtn.disabled = true;
-        continueBtn.textContent = '✅ تم إرسال الترتيب';
-      }
     } else {
-      // التحقق من localStorage كبديل
-      const savedOrder = JSON.parse(localStorage.getItem(ORDER_LOCAL_KEY) || "[]");
-      const currentGameId = localStorage.getItem('currentGameId');
-      
-      if (currentGameId && gameId && currentGameId === gameId && 
-          savedOrder && savedOrder.length === picks.length) {
-        submittedOrder = savedOrder.slice();
-        hideOpponentPanel();
-        renderCards(submittedOrder, submittedOrder);
-      } else {
-        submittedOrder = null;
-        renderCards(picks, null);
-        loadOpponentAbilities();
-        
-        // إعادة تعيين الزر
-        if (continueBtn) {
-          continueBtn.disabled = false;
-          continueBtn.textContent = 'متابعة';
-        }
-      }
+      submittedOrder = null;
+      renderCards(picks, null);
+      loadOpponentAbilities();
     }
   }
   
-  console.log('Game data updated with real-time sync:', { playerData, rounds, playerName });
+  console.log('Game data updated:', { playerData, rounds, playerName });
 }
 
 // Render abilities
@@ -824,7 +790,7 @@ function checkAbilityRequests() {
   }
 }
 
-async function requestUseAbility(abilityText) {
+function requestUseAbility(abilityText) {
   // Check if ability is already used
   const isAlreadyUsed = myAbilities.find(a => a.text === abilityText)?.used;
   if (isAlreadyUsed) {
@@ -849,24 +815,7 @@ async function requestUseAbility(abilityText) {
     abilityStatus.textContent = "تم إرسال طلب استخدام القدرة…";
   }
   
-  // Save ability usage to Firebase with real-time sync
-  if (gameId) {
-    try {
-      await GameService.saveAbilityUsage(gameId, player, abilityText, true);
-      console.log('Ability usage saved to Firebase with real-time sync');
-      
-      if (abilityStatus) {
-        abilityStatus.textContent = "✅ تم حفظ استخدام القدرة في السيرفر";
-      }
-    } catch (e) {
-      console.warn('Firebase ability save failed:', e);
-      if (abilityStatus) {
-        abilityStatus.textContent = "⚠️ تم حفظ الطلب محلياً فقط";
-      }
-    }
-  }
-  
-  // Create ability request (fallback)
+  // Create ability request
   const requestId = `${playerParam}_${Date.now()}`;
   const request = {
     id: requestId,
@@ -1168,12 +1117,11 @@ async function submitPicks() {
       detail: { gameId, playerName, ordered } 
     }));
     
-    // Save to Firebase with real-time sync if gameId is available
+    // Save to Firebase if gameId is available
     if (gameId) {
       try {
-        await GameService.saveCardOrderRealtime(gameId, player, ordered);
+        await GameService.saveCardOrder(gameId, player, ordered);
         localStorage.setItem('currentGameId', gameId);
-        console.log('Card order saved to Firebase with real-time sync');
       } catch (e) {
         console.warn('Firebase save failed, but localStorage saved:', e);
       }
