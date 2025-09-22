@@ -841,6 +841,36 @@
       color: #4a9eff;
       border: 2px solid #4a9eff;
     }
+    
+    .swap-card-option.confirmed {
+      background: linear-gradient(145deg, #4CAF50, #45a049);
+      border-color: #4CAF50;
+      color: white;
+    }
+    
+    .swap-card-option.confirmed::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: white;
+      color: #4CAF50;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      border: 2px solid #4CAF50;
+    }
+    
+    .swap-card-option[style*="opacity: 0.5"] {
+      opacity: 0.5 !important;
+      pointer-events: none !important;
+      cursor: not-allowed;
+    }
 
     .swap-card-media {
       width: 100%;

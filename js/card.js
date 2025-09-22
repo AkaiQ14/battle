@@ -193,13 +193,44 @@ function openSwapDeckModal(playerParam) {
   // Store swap cards in modal data
   modal.dataset.swapCards = JSON.stringify(swapCards);
   
+  // Check if there's a confirmed card from previous session
+  const confirmedCardIndex = modal.dataset.confirmedCardIndex;
+  
+  // If there's a confirmed card, disable confirm button
+  if (confirmedCardIndex) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "تم التأكيد";
+  }
+  
   swapCards.forEach((cardSrc, index) => {
     const cardOption = document.createElement("div");
-    cardOption.className = "swap-card-option number-only";
+    const isConfirmed = confirmedCardIndex && parseInt(confirmedCardIndex) === index;
+    
+    if (isConfirmed) {
+      cardOption.className = "swap-card-option confirmed";
+      // Show the confirmed card image
+      const media = createMedia(cardSrc, "swap-card-media");
+      cardOption.appendChild(media);
+    } else {
+      cardOption.className = "swap-card-option number-only";
+      // Add card number only
+      const cardNumber = document.createElement("div");
+      cardNumber.className = "swap-card-number";
+      cardNumber.textContent = `${index + 1}`;
+      cardOption.appendChild(cardNumber);
+    }
+    
     cardOption.dataset.cardSrc = cardSrc;
     cardOption.dataset.cardIndex = index;
     
     cardOption.onclick = () => {
+      // Check if a card is already selected and confirmed
+      const alreadySelected = swapCardsGrid.querySelector('.swap-card-option.confirmed');
+      if (alreadySelected) {
+        showToast("! تم اختيار البطاقة بالفعل", 'warning');
+        return;
+      }
+      
       // Remove previous selection
       swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => opt.classList.remove('selected'));
       
@@ -210,17 +241,13 @@ function openSwapDeckModal(playerParam) {
       confirmBtn.disabled = false;
     };
     
-    // Add card number only (no media initially)
-    const cardNumber = document.createElement("div");
-    cardNumber.className = "swap-card-number";
-    cardNumber.textContent = `${index + 1}`;
-    cardOption.appendChild(cardNumber);
-    
     swapCardsGrid.appendChild(cardOption);
   });
   
-  // Reset confirm button
-  confirmBtn.disabled = true;
+  // Reset confirm button only if no confirmed card
+  if (!confirmedCardIndex) {
+    confirmBtn.disabled = true;
+  }
   
   // Store current player for confirm action
   modal.dataset.playerParam = playerParam;
@@ -256,9 +283,11 @@ function confirmSwap() {
     return;
   }
   
-  // Remove number-only class and show the selected card image
+  // Mark card as confirmed and show the image
+  selectedCard.classList.add('confirmed');
   selectedCard.classList.remove('number-only');
   
+  // Hide number and show image
   const cardNumber = selectedCard.querySelector('.swap-card-number');
   if (cardNumber) {
     cardNumber.style.display = 'none';
@@ -266,31 +295,26 @@ function confirmSwap() {
   
   // Create and show media element
   const media = createMedia(newCardSrc, "swap-card-media");
-  
-  // Clear any existing media
-  const existingMedia = selectedCard.querySelector('.swap-card-media');
-  if (existingMedia) {
-    existingMedia.remove();
-  }
-  
   selectedCard.appendChild(media);
   
+  // Save confirmed card index
+  modal.dataset.confirmedCardIndex = selectedCard.dataset.cardIndex;
   
-  // Update confirm button text
+  // Disable all other cards
+  swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
+    card.style.opacity = '0.5';
+    card.style.pointerEvents = 'none';
+  });
+  
+  // Disable confirm button
   const confirmBtn = document.getElementById("confirmSwapBtn");
   if (confirmBtn) {
-    confirmBtn.textContent = "تأكيد التبديل";
-    confirmBtn.disabled = false;
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "تم التأكيد";
   }
   
-  // Add final confirmation step
-  selectedCard.onclick = () => {
-    // Perform the actual swap
-    performSwap(playerParam, playerName, newCardSrc);
-  };
-  
-  // Show message to user
-  showToast("تم اختيار البطاقة! اضغط عليها مرة أخرى لتأكيد التبديل", 'info');
+  // Perform the swap immediately
+  performSwap(playerParam, playerName, newCardSrc);
 }
 
 // Perform the actual swap
