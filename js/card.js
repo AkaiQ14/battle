@@ -475,8 +475,12 @@ window.confirmSwap = function() {
   
   // Perform the swap immediately
   console.log('Performing swap...');
-  performSwap(playerParam, playerName, newCardSrc);
-  console.log('Swap completed!');
+  try {
+    performSwap(playerParam, playerName, newCardSrc);
+    console.log('Swap completed!');
+  } catch (error) {
+    console.error('Error in performSwap:', error);
+  }
 };
 
 // Functions are now available globally
@@ -505,6 +509,7 @@ function performSwap(playerParam, playerName, newCardSrc) {
     try {
       // Update StrategicPicks
       localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
+      console.log('StrategicPicks updated:', playerPicks);
       
       // Update StrategicOrdered if it exists
       const strategicOrderedKey = `${playerParam}StrategicOrdered`;
@@ -512,6 +517,7 @@ function performSwap(playerParam, playerName, newCardSrc) {
       if (Array.isArray(strategicOrdered) && strategicOrdered[currentRound]) {
         strategicOrdered[currentRound] = newCardSrc;
         localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
+        console.log('StrategicOrdered updated:', strategicOrdered);
       }
       
       // Update gameCardSelection if it exists
@@ -519,11 +525,13 @@ function performSwap(playerParam, playerName, newCardSrc) {
       if (gameCardSelection[`${playerParam}Cards`] && gameCardSelection[`${playerParam}Cards`][currentRound]) {
         gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
         localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
+        console.log('gameCardSelection updated:', gameCardSelection);
       }
       
       // Mark swap deck as used
       swapDeckUsed[playerParam] = true;
       saveSwapDeckUsage();
+      console.log('Swap deck marked as used for:', playerParam);
       
       // Disable swap deck button
       const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
@@ -531,15 +539,36 @@ function performSwap(playerParam, playerName, newCardSrc) {
         swapBtn.classList.add('disabled');
         swapBtn.disabled = true;
         swapBtn.textContent = 'مستخدمة';
+        console.log('Swap button disabled for:', playerParam);
+      } else {
+        console.error('Swap button not found for:', playerParam);
       }
       
       // Refresh the display
       console.log('Refreshing display...');
-      renderVs();
+      try {
+        if (typeof renderVs === 'function') {
+          renderVs();
+          console.log('Display refreshed successfully');
+        } else {
+          console.error('renderVs function not found');
+        }
+      } catch (error) {
+        console.error('Error refreshing display:', error);
+      }
       
       // Close modal
       console.log('Closing modal...');
-      closeSwapDeckModal();
+      try {
+        if (typeof closeSwapDeckModal === 'function') {
+          closeSwapDeckModal();
+          console.log('Modal closed successfully');
+        } else {
+          console.error('closeSwapDeckModal function not found');
+        }
+      } catch (error) {
+        console.error('Error closing modal:', error);
+      }
       
       // Swap completed successfully
       
