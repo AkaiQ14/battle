@@ -184,10 +184,14 @@ function generateSwapCards(playerParam) {
 
 // Open swap deck modal
 function openSwapDeckModal(playerParam) {
+  console.log('🎯 openSwapDeckModal called with:', playerParam);
+  
   // Get player names from localStorage
   const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
   const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
   const playerName = playerParam === 'player1' ? player1Name : player2Name;
+  
+  console.log('Player names:', { player1Name, player2Name, playerName });
   
   // Check if player has already used swap deck
   if (swapDeckUsed[playerParam]) {
@@ -200,6 +204,14 @@ function openSwapDeckModal(playerParam) {
   const currentCardDisplay = document.getElementById("currentCardDisplay");
   const swapCardsGrid = document.getElementById("swapCardsGrid");
   const confirmBtn = document.getElementById("confirmSwapBtn");
+  
+  console.log('Modal elements check:', {
+    modal: !!modal,
+    title: !!title,
+    currentCardDisplay: !!currentCardDisplay,
+    swapCardsGrid: !!swapCardsGrid,
+    confirmBtn: !!confirmBtn
+  });
   
   if (!modal || !title || !currentCardDisplay || !swapCardsGrid || !confirmBtn) {
     console.error('❌ Required modal elements not found');
@@ -371,6 +383,7 @@ function openSwapDeckModal(playerParam) {
   modal.dataset.playerParam = playerParam;
   
   modal.classList.add("active");
+  console.log('🎉 Modal opened successfully!');
 }
 
 // Close swap deck modal
@@ -379,6 +392,26 @@ function closeSwapDeckModal() {
   if (modal) {
     modal.classList.remove("active");
   }
+}
+
+// Make functions globally available
+window.openSwapDeckModal = openSwapDeckModal;
+window.closeSwapDeckModal = closeSwapDeckModal;
+window.confirmSwap = confirmSwap;
+
+// Debug: Test if functions are available
+console.log('Functions available:', {
+  openSwapDeckModal: typeof window.openSwapDeckModal,
+  closeSwapDeckModal: typeof window.closeSwapDeckModal,
+  confirmSwap: typeof window.confirmSwap
+});
+
+// Test function call
+console.log('Testing function call...');
+try {
+  window.openSwapDeckModal('player1');
+} catch (error) {
+  console.error('Error calling openSwapDeckModal:', error);
 }
 
 // Confirm swap
