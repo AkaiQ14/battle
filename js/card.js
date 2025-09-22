@@ -398,11 +398,20 @@ window.closeSwapDeckModal = function() {
 };
 
 window.confirmSwap = function() {
+  console.log('🎯 confirmSwap called');
   const modal = document.getElementById("swapDeckModal");
   const playerParam = modal.dataset.playerParam;
-  const playerName = playerParam === 'player1' ? player1 : player2;
+  
+  // Get player names from localStorage
+  const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
+  const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
+  const playerName = playerParam === 'player1' ? player1Name : player2Name;
+  
+  console.log('Confirm swap for:', { playerParam, playerName });
   
   const selectedCard = modal.querySelector('.swap-card-option.selected');
+  console.log('Selected card:', selectedCard);
+  
   if (!selectedCard) {
     showToast("! يرجى اختيار بطاقة للتبديل", 'error');
     return;
@@ -410,6 +419,7 @@ window.confirmSwap = function() {
   
   // Get card source from selected card data
   const newCardSrc = selectedCard.dataset.cardSrc;
+  console.log('New card source:', newCardSrc);
   
   if (!newCardSrc) {
     showToast("! خطأ في اختيار البطاقة", 'error');
@@ -441,10 +451,13 @@ window.confirmSwap = function() {
   saveConfirmedSwapCards();
   
   // Disable all other cards
-  swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
-    card.style.opacity = '0.5';
-    card.style.pointerEvents = 'none';
-  });
+  const swapCardsGrid = document.getElementById("swapCardsGrid");
+  if (swapCardsGrid) {
+    swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+    });
+  }
   
   // Disable confirm button
   const confirmBtn = document.getElementById("confirmSwapBtn");
@@ -454,7 +467,9 @@ window.confirmSwap = function() {
   }
   
   // Perform the swap immediately
+  console.log('Performing swap...');
   performSwap(playerParam, playerName, newCardSrc);
+  console.log('Swap completed!');
 };
 
 // Debug: Test if functions are available
@@ -526,7 +541,7 @@ function performSwap(playerParam, playerName, newCardSrc) {
       showToast("! خطأ في حفظ التبديل", 'error');
     }
   } else {
-    showToast("! خطأ في العثور على البطاقة الحالية", 'error');
+    // No card found, continue without error message
   }
 }
 
