@@ -237,18 +237,21 @@ window.openSwapDeckModal = function(playerParam) {
   }
   
   // Try StrategicOrdered if StrategicPicks is empty
+  let strategicOrderedData = [];
   if (!currentCardSrc) {
     const strategicOrderedKey = playerParam === 'player1' ? 'player1StrategicOrdered' : 'player2StrategicOrdered';
-    const strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
-    if (strategicOrdered[currentRound]) {
-      currentCardSrc = strategicOrdered[currentRound];
+    strategicOrderedData = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
+    if (strategicOrderedData[currentRound]) {
+      currentCardSrc = strategicOrderedData[currentRound];
     }
   }
   
   // Try gameCardSelection if still no card
+  let playerCardsKey = '';
+  let gameCardSelection = {};
   if (!currentCardSrc) {
-    const gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
-    const playerCardsKey = playerParam === 'player1' ? 'player1Cards' : 'player2Cards';
+    gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
+    playerCardsKey = playerParam === 'player1' ? 'player1Cards' : 'player2Cards';
     if (gameCardSelection[playerCardsKey] && gameCardSelection[playerCardsKey][currentRound]) {
       currentCardSrc = gameCardSelection[playerCardsKey][currentRound];
     }
@@ -291,7 +294,7 @@ window.openSwapDeckModal = function(playerParam) {
     playerParam,
     currentRound,
     strategicPicks,
-    strategicOrdered,
+    strategicOrderedData,
     gameCardSelection,
     picks: typeof picks !== 'undefined' ? picks : 'undefined',
     player1: typeof player1 !== 'undefined' ? player1 : 'undefined',
@@ -302,7 +305,7 @@ window.openSwapDeckModal = function(playerParam) {
     playerParam,
     currentRound,
     strategicPicks: strategicPicks[currentRound],
-    strategicOrdered: strategicOrdered[currentRound],
+    strategicOrdered: strategicOrderedData[currentRound],
     gameCardSelection: gameCardSelection[playerCardsKey]?.[currentRound],
     finalCardSrc: currentCardSrc
   });
