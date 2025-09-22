@@ -1241,9 +1241,36 @@ window.confirmTransfer = confirmTransfer;
 window.closeTransferModal = closeTransferModal;
 window.openTransferModal = openTransferModal;
 window.openRestoreModal = openRestoreModal;
-window.openSwapDeckModal = openSwapDeckModal;
-window.closeSwapDeckModal = closeSwapDeckModal;
-window.confirmSwap = confirmSwap;
+
+// Make swap deck functions globally available (moved here for early availability)
+window.openSwapDeckModal = function(playerParam) {
+  console.log('Swap deck modal called for:', playerParam);
+  console.log('Current players:', { player1, player2 });
+  console.log('Swap deck usage:', swapDeckUsed);
+  
+  // Check if elements exist
+  const modal = document.getElementById("swapDeckModal");
+  console.log('Modal element:', modal);
+  
+  if (!modal) {
+    console.error('Swap deck modal not found!');
+    return;
+  }
+  
+  // Show modal immediately
+  modal.classList.add("active");
+  console.log('Modal shown immediately');
+};
+window.closeSwapDeckModal = function() {
+  console.log('Close swap deck modal called');
+  const modal = document.getElementById("swapDeckModal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+};
+window.confirmSwap = function() {
+  console.log('Confirm swap called');
+};
 
 /* ---------------------- Swap Deck System ---------------------- */
 // Track swap deck usage for each player
@@ -1348,6 +1375,9 @@ function generateSwapCards(playerParam) {
 
 // Open swap deck modal
 function openSwapDeckModal(playerParam) {
+  console.log('Opening swap deck modal for:', playerParam);
+  console.log('Current players:', { player1, player2 });
+  
   const playerName = playerParam === 'player1' ? player1 : player2;
   
   // Check if player has already used swap deck
@@ -1361,6 +1391,8 @@ function openSwapDeckModal(playerParam) {
   const currentCardDisplay = document.getElementById("currentCardDisplay");
   const swapCardsGrid = document.getElementById("swapCardsGrid");
   const confirmBtn = document.getElementById("confirmSwapBtn");
+  
+  console.log('Modal elements found:', { modal, title, currentCardDisplay, swapCardsGrid, confirmBtn });
   
   // Update title
   title.textContent = `دكة البدلاء - ${playerName}`;
@@ -1377,6 +1409,9 @@ function openSwapDeckModal(playerParam) {
   // Generate and display 3 random swap cards
   const swapCards = generateSwapCards(playerParam);
   swapCardsGrid.innerHTML = "";
+  
+  // Store swap cards in modal data
+  modal.dataset.swapCards = JSON.stringify(swapCards);
   
   let selectedCardIndex = -1;
   
@@ -1437,7 +1472,9 @@ function confirmSwap() {
   }
   
   const selectedIndex = Array.from(modal.querySelectorAll('.swap-card-option')).indexOf(selectedCard);
-  const swapCards = generateSwapCards(playerParam);
+  
+  // Get the swap cards from the modal data
+  const swapCards = modal.dataset.swapCards ? JSON.parse(modal.dataset.swapCards) : generateSwapCards(playerParam);
   const newCardSrc = swapCards[selectedIndex];
   
   if (!newCardSrc) {
@@ -1535,6 +1572,45 @@ function updateSwapDeckButtons() {
       swapBtn2.textContent = 'دكة البدلاء';
     }
   }
+}
+
+// Make swap deck functions globally available (override temporary functions)
+// Only override if the functions are defined
+if (typeof openSwapDeckModal === 'function') {
+  window.openSwapDeckModal = openSwapDeckModal;
+  console.log('openSwapDeckModal overridden with actual implementation');
+} else {
+  console.warn('openSwapDeckModal not defined yet');
+}
+
+if (typeof closeSwapDeckModal === 'function') {
+  window.closeSwapDeckModal = closeSwapDeckModal;
+  console.log('closeSwapDeckModal overridden with actual implementation');
+} else {
+  console.warn('closeSwapDeckModal not defined yet');
+}
+
+if (typeof confirmSwap === 'function') {
+  window.confirmSwap = confirmSwap;
+  console.log('confirmSwap overridden with actual implementation');
+} else {
+  console.warn('confirmSwap not defined yet');
+}
+
+console.log('Swap deck functions overridden with actual implementations');
+
+console.log('Swap deck functions defined and available:', {
+  openSwapDeckModal: typeof window.openSwapDeckModal,
+  closeSwapDeckModal: typeof window.closeSwapDeckModal,
+  confirmSwap: typeof window.confirmSwap
+});
+
+// Test the function
+console.log('Testing openSwapDeckModal function...');
+if (typeof window.openSwapDeckModal === 'function') {
+  console.log('Function is available and callable');
+} else {
+  console.error('Function is not available!');
 }
 
 /* ---------------------- Transfer modal ---------------------- */
@@ -1890,10 +1966,13 @@ function refreshCardData() {
 
 // Initialize and render with error handling
 try {
+  console.log('Initializing game...');
   initializeGameData();
   
   // Load swap deck usage
   loadSwapDeckUsage();
+  
+  console.log('Swap deck usage loaded:', swapDeckUsed);
   
   // Clear used abilities for new game if current round is 0
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
@@ -2467,11 +2546,45 @@ function removeAllAbilityNotifications() {
   }
 }
 
-// Show toast notification (disabled - no top notifications)
+// Show toast notification
 function showToast(message, type = 'info') {
-  // Disabled to prevent top notifications
-  console.log('Toast disabled:', message, type);
-  return;
+  const wrap = document.createElement("div");
+  wrap.style.cssText = `
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:18px; z-index:3000; background:#222; color:#fff;
+    border:2px solid #ffffff; border-radius:12px; padding:10px 14px;
+    box-shadow:0 8px 18px rgba(0,0,0,.35); font-weight:700;
+    font-family:"Cairo",sans-serif;
+  `;
+  
+  const msg = document.createElement("div");
+  
+  // Check if message starts with "!" and style it red
+  if (message.startsWith("! ")) {
+    const icon = document.createElement("span");
+    icon.textContent = "!";
+    icon.style.color = "#dc2626"; // Red color
+    icon.style.fontWeight = "bold";
+    icon.style.fontSize = "18px";
+    
+    const text = document.createElement("span");
+    text.textContent = message.substring(2); // Remove "! " from the beginning
+    
+    msg.appendChild(icon);
+    msg.appendChild(text);
+  } else {
+    msg.textContent = message;
+  }
+  
+  wrap.appendChild(msg);
+  document.body.appendChild(wrap);
+  
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    if (wrap.parentNode) {
+      wrap.parentNode.removeChild(wrap);
+    }
+  }, 3000);
 }
 
 // Initialize BroadcastChannel if available
