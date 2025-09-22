@@ -400,7 +400,15 @@ window.closeSwapDeckModal = function() {
 window.confirmSwap = function() {
   console.log('🎯 confirmSwap called');
   const modal = document.getElementById("swapDeckModal");
+  if (!modal) {
+    console.error('Modal not found');
+    return;
+  }
   const playerParam = modal.dataset.playerParam;
+  if (!playerParam) {
+    console.error('Player param not found');
+    return;
+  }
   
   // Get player names from localStorage
   const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
@@ -413,7 +421,15 @@ window.confirmSwap = function() {
   console.log('Selected card:', selectedCard);
   
   if (!selectedCard) {
-    showToast("! يرجى اختيار بطاقة للتبديل", 'error');
+    try {
+      if (typeof showToast === 'function') {
+        showToast("! يرجى اختيار بطاقة للتبديل", 'error');
+      } else {
+        console.error('showToast function not found');
+      }
+    } catch (error) {
+      console.error('Error showing error message:', error);
+    }
     return;
   }
   
@@ -422,7 +438,15 @@ window.confirmSwap = function() {
   console.log('New card source:', newCardSrc);
   
   if (!newCardSrc) {
-    showToast("! خطأ في اختيار البطاقة", 'error');
+    try {
+      if (typeof showToast === 'function') {
+        showToast("! خطأ في اختيار البطاقة", 'error');
+      } else {
+        console.error('showToast function not found');
+      }
+    } catch (error) {
+      console.error('Error showing error message:', error);
+    }
     return;
   }
   
@@ -441,7 +465,15 @@ window.confirmSwap = function() {
   selectedCard.appendChild(media);
   
   // Show success message with card info
-  showToast(`تم تأكيد البطاقة! البطاقة المختارة: ${newCardSrc.split('/').pop()}`, 'success');
+  try {
+    if (typeof showToast === 'function') {
+      showToast(`تم تأكيد البطاقة! البطاقة المختارة: ${newCardSrc.split('/').pop()}`, 'success');
+    } else {
+      console.error('showToast function not found in confirmSwap');
+    }
+  } catch (error) {
+    console.error('Error showing success message in confirmSwap:', error);
+  }
   
   // Save confirmed card for this player
   confirmedSwapCards[playerParam] = {
@@ -468,8 +500,21 @@ window.confirmSwap = function() {
   
   // Perform the swap immediately
   console.log('Performing swap...');
-  performSwap(playerParam, playerName, newCardSrc);
-  console.log('Swap completed!');
+  try {
+    performSwap(playerParam, playerName, newCardSrc);
+    console.log('Swap completed successfully!');
+  } catch (error) {
+    console.error('Error in performSwap:', error);
+    try {
+      if (typeof showToast === 'function') {
+        showToast("! خطأ في تنفيذ التبديل", 'error');
+      } else {
+        console.error('showToast function not found');
+      }
+    } catch (toastError) {
+      console.error('Error showing error message:', toastError);
+    }
+  }
 };
 
 // Debug: Test if functions are available
@@ -540,23 +585,66 @@ function performSwap(playerParam, playerName, newCardSrc) {
       
       // Refresh the display
       console.log('Refreshing display...');
-      renderVs();
+      try {
+        if (typeof renderVs === 'function') {
+          renderVs();
+          console.log('Display refreshed successfully');
+        } else {
+          console.error('renderVs function not found');
+        }
+      } catch (error) {
+        console.error('Error refreshing display:', error);
+      }
       
       // Close modal
       console.log('Closing modal...');
-      closeSwapDeckModal();
+      try {
+        if (typeof closeSwapDeckModal === 'function') {
+          closeSwapDeckModal();
+          console.log('Modal closed successfully');
+        } else {
+          console.error('closeSwapDeckModal function not found');
+        }
+      } catch (error) {
+        console.error('Error closing modal:', error);
+      }
       
       // Show success message
       console.log('Showing success message...');
-      showToast(`تم تبديل البطاقة بنجاح للاعب ${playerName}`, 'success');
+      try {
+        if (typeof showToast === 'function') {
+          showToast(`تم تبديل البطاقة بنجاح للاعب ${playerName}`, 'success');
+          console.log('Success message shown');
+        } else {
+          console.error('showToast function not found');
+        }
+      } catch (error) {
+        console.error('Error showing success message:', error);
+      }
       
     } catch (error) {
       console.error('Error saving swap:', error);
-      showToast("! خطأ في حفظ التبديل", 'error');
+      try {
+        if (typeof showToast === 'function') {
+          showToast("! خطأ في حفظ التبديل", 'error');
+        } else {
+          console.error('showToast function not found');
+        }
+      } catch (toastError) {
+        console.error('Error showing error message:', toastError);
+      }
     }
   } else {
     console.log('No card found for current round:', currentRound);
-    showToast("! لا توجد بطاقة في هذه الجولة", 'error');
+    try {
+      if (typeof showToast === 'function') {
+        showToast("! لا توجد بطاقة في هذه الجولة", 'error');
+      } else {
+        console.error('showToast function not found');
+      }
+    } catch (error) {
+      console.error('Error showing error message:', error);
+    }
   }
 }
 
@@ -594,11 +682,13 @@ function updateSwapDeckButtons() {
 window.openSwapDeckModal = openSwapDeckModal;
 window.closeSwapDeckModal = closeSwapDeckModal;
 window.confirmSwap = confirmSwap;
+window.performSwap = performSwap;
 
 console.log('Swap deck functions loaded and available:', {
   openSwapDeckModal: typeof window.openSwapDeckModal,
   closeSwapDeckModal: typeof window.closeSwapDeckModal,
-  confirmSwap: typeof window.confirmSwap
+  confirmSwap: typeof window.confirmSwap,
+  performSwap: typeof window.performSwap
 });
 
 // Load round count from gameSetupProgress
