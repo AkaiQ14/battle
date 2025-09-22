@@ -35,6 +35,14 @@ if (instruction) {
   instruction.innerText = `اللاعب ${playerName || 'اللاعب'} رتب بطاقاتك`;
 }
 
+// Check if required elements exist
+if (!abilitiesWrap) {
+  console.error('playerAbilities element not found');
+}
+if (!abilityStatus) {
+  console.error('abilityStatus element not found');
+}
+
 let picks = [];
 let submittedOrder = null;
 let opponentName = "الخصم";
@@ -42,11 +50,80 @@ let opponentName = "الخصم";
 // Initialize card manager
 let cardManager = null;
 
+// Socket.IO initialization
+const socket = io();
+const gameID = gameId || 'default-game';
+const playerRole = playerParam;
+
+// Check if socket is initialized
+if (!socket) {
+  console.error('Socket not initialized');
+}
+
+socket.emit("joinGame", { gameID, role: playerRole, playerName: playerName });
+
 // ===== Ability state =====
 let myAbilities = [];                 // authoritative list for this player (objects: {text, used})
 const tempUsed = new Set();           // optimistic, per-request (text)
+const pendingRequests = new Map();    // requestId -> abilityText
 
 /* ================== Helpers ================== */
+
+// Normalize to [{text, used}]
+function normalizeAbilityList(arr) {
+  const list = Array.isArray(arr) ? arr : [];
+  return list.map(a => {
+    if (typeof a === "string") return { text: a.trim(), used: false };
+    if (a && typeof a === "object") return { text: String(a.text || "").trim(), used: !!a.used };
+    return null;
+  }).filter(Boolean).filter(a => a.text);
+}
+
+function renderBadges(container, abilities, { clickable = false, onClick } = {}) {
+  if (!container) {
+    console.error('Container not found for renderBadges');
+    return;
+  }
+  
+  container.innerHTML = "";
+  const list = Array.isArray(abilities) ? abilities : [];
+  console.log('Rendering badges:', { list, clickable });
+  
+  list.forEach(ab => {
+    const isUsed = !!ab.used;
+    const el = document.createElement(clickable ? "button" : "span");
+    el.textContent = ab.text;
+    el.className =
+      "px-3 py-1 rounded-lg font-bold border " +
+      (clickable
+        ? (isUsed
+            ? "bg-gray-500/60 text-black/60 border-gray-600 cursor-not-allowed"
+            : "bg-yellow-400 hover:bg-yellow-300 text-black border-yellow-500")
+        : "bg-gray-400/70 text-black border-gray-500");
+    if (clickable) {
+      if (isUsed) { 
+        el.disabled = true; 
+        el.setAttribute("aria-disabled", "true"); 
+      } else if (onClick) { 
+        el.onclick = () => {
+          console.log('Ability clicked:', ab.text);
+          onClick(ab.text);
+        }; 
+      }
+    }
+    container.appendChild(el);
+  });
+  
+  console.log('Badges rendered successfully');
+}
+
+function hideOpponentPanel() {
+  if (oppPanel) {
+    oppPanel.classList.add("hidden");
+    if (oppWrap) oppWrap.innerHTML = "";
+  }
+}
+
 function createMedia(url, className, onClick) {
   // Use card manager if available, otherwise fallback to original method
   if (cardManager) {
@@ -66,6 +143,7 @@ function createMedia(url, className, onClick) {
     vid.style.height = "100%";
     vid.style.objectFit = "contain";
     vid.style.borderRadius = "12px";
+    vid.style.border = "1px solid white";
     vid.style.display = "block";
     if (onClick) vid.onclick = onClick;
     return vid;
@@ -78,86 +156,11 @@ function createMedia(url, className, onClick) {
     img.style.height = "100%";
     img.style.objectFit = "contain";
     img.style.borderRadius = "12px";
+    img.style.border = "1px solid white";
     img.style.display = "block";
     if (onClick) img.onclick = onClick;
     return img;
   }
-}
-
-// Normalize to [{text, used}]
-function normalizeAbilityList(arr) {
-  const list = Array.isArray(arr) ? arr : [];
-  return list
-    .map(a => {
-      if (typeof a === "string") return { text: a.trim(), used: false };
-      if (a && typeof a === "object") {
-        return { text: String(a.text || "").trim(), used: !!a.used };
-      }
-      return null;
-    })
-    .filter(Boolean)
-    .filter(a => a.text);
-}
-
-function hideOpponentPanel() {
-  if (oppPanel) {
-    oppPanel.classList.add("hidden");
-    oppWrap.innerHTML = "";
-  }
-}
-
-function renderBadges(container, abilities, { clickable = false, onClick } = {}) {
-  if (!container) return;
-  
-  container.innerHTML = "";
-  const list = Array.isArray(abilities) ? abilities : [];
-
-  list.forEach(ab => {
-    // Fix the object display issue
-    const abilityText = typeof ab === 'string' ? ab : (ab.text || ab);
-    const isUsed = typeof ab === 'object' ? !!ab.used : false;
-    
-    const el = document.createElement(clickable ? "button" : "span");
-    el.textContent = abilityText;
-
-    el.className =
-      "px-3 py-1 rounded-lg font-bold border " +
-      (clickable
-        ? (isUsed
-            ? "bg-gray-500/60 text-black/60 border-gray-600 cursor-not-allowed"
-            : "bg-yellow-400 hover:bg-yellow-300 text-black border-yellow-500")
-        : "bg-gray-400/70 text-black border-gray-500");
-
-    if (clickable) {
-      if (isUsed) {
-        el.disabled = true;
-        el.setAttribute("aria-disabled", "true");
-      } else if (onClick) {
-        el.onclick = (e) => {
-          e.preventDefault();
-          console.log('Ability clicked:', abilityText);
-          onClick(abilityText);
-        };
-        // Add touch events for mobile
-        el.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('Ability touched:', abilityText);
-          onClick(abilityText);
-        }, { passive: false });
-        
-        // Add click events for desktop
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('Ability clicked:', abilityText);
-          onClick(abilityText);
-        });
-      }
-    }
-
-    container.appendChild(el);
-  });
 }
 
 /* ================== Load Game Data from Firebase ================== */
@@ -392,6 +395,158 @@ function loadPlayerCards() {
 
 /* ================== Abilities (self) ================== */
 
+// Initialize abilities - request from server immediately
+if (abilityStatus) {
+  abilityStatus.textContent = "بانتظار مزامنة القدرات من المستضيف…";
+}
+
+// Add default abilities as fallback
+const defaultAbilities = [
+  'قدرة الهجوم السريع',
+  'قدرة الدفاع القوي',
+  'قدرة الشفاء',
+  'قدرة التخفي',
+  'قدرة القوة الخارقة'
+];
+
+// Set default abilities immediately
+myAbilities = defaultAbilities.map(text => ({ text, used: false }));
+console.log('Setting default abilities:', myAbilities);
+if (abilitiesWrap) {
+  renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+  console.log('Rendered abilities in UI');
+} else {
+  console.error('abilitiesWrap not found');
+}
+if (abilityStatus) {
+  abilityStatus.textContent = "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.";
+}
+
+// Request abilities from server
+if (socket) {
+  socket.emit("requestAbilities", { gameID, playerName });
+  console.log('Requested abilities from server');
+} else {
+  console.error('Socket not available for ability request');
+}
+
+/* ================== Opponent abilities (view-only) ================== */
+if (socket) {
+  socket.emit("getPlayers", { gameID });
+  socket.on("players", (names = []) => {
+    const two = Array.isArray(names) ? names : [];
+    const opponent = two.find(n => n && n !== playerName) || null;
+    if (opponent) socket.emit("requestAbilities", { gameID, playerName: opponent });
+  });
+}
+
+// Abilities router
+if (socket) {
+  socket.on("receiveAbilities", ({ abilities, player }) => {
+    console.log('Received abilities:', { abilities, player, playerName });
+    const list = normalizeAbilityList(abilities);
+    if (player === playerName || !player) {
+      myAbilities = list.map(a => ({ ...a, used: a.used || tempUsed.has(a.text) }));
+      console.log('Setting myAbilities:', myAbilities);
+      if (abilitiesWrap) {
+        renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+      }
+      if (abilityStatus) {
+        abilityStatus.textContent = myAbilities.length
+          ? "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف."
+          : "لا توجد قدرات متاحة حالياً.";
+      }
+      return;
+    }
+    if (submittedOrder && submittedOrder.length === picks.length) { 
+      hideOpponentPanel(); 
+      return; 
+    }
+    if (oppWrap) {
+      renderBadges(oppWrap, list, { clickable: false });
+    }
+  });
+}
+
+function requestUseAbility(abilityText) {
+  console.log('Requesting ability:', abilityText);
+  if (abilityStatus) {
+    abilityStatus.textContent = "تم إرسال طلب استخدام القدرة…";
+  }
+  const requestId = `${playerName}:${Date.now()}`;
+  tempUsed.add(abilityText);
+  pendingRequests.set(requestId, abilityText);
+  myAbilities = (myAbilities || []).map(a => a.text === abilityText ? { ...a, used: true } : a);
+  if (abilitiesWrap) {
+    renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+  }
+  
+  // Create ability request for host
+  const request = {
+    id: requestId,
+    playerName: playerName,
+    playerParam: playerParam,
+    abilityText: abilityText,
+    timestamp: Date.now(),
+    status: 'pending'
+  };
+  
+  // Save request to localStorage for host to see
+  try {
+    const requests = JSON.parse(localStorage.getItem('abilityRequests') || '[]');
+    requests.push(request);
+    localStorage.setItem('abilityRequests', JSON.stringify(requests));
+    
+    // Trigger storage event for host page
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'abilityRequests',
+      newValue: localStorage.getItem('abilityRequests'),
+      oldValue: localStorage.getItem('abilityRequests'),
+      storageArea: localStorage
+    }));
+    
+    console.log('Ability request sent to host via localStorage:', request);
+  } catch (e) {
+    console.error('Error saving ability request:', e);
+  }
+  
+  // Also try socket if available
+  if (socket) {
+    socket.emit("requestUseAbility", { gameID, playerName, abilityText, requestId });
+    console.log('Ability request sent via socket:', { gameID, playerName, abilityText, requestId });
+  }
+}
+
+if (socket) {
+  socket.on("abilityRequestResult", ({ requestId, ok, reason }) => {
+    const abilityText = pendingRequests.get(requestId);
+    if (abilityText) pendingRequests.delete(requestId);
+
+    if (!ok) {
+      if (abilityText) {
+        tempUsed.delete(abilityText);
+        myAbilities = (myAbilities || []).map(a => a.text === abilityText ? { ...a, used: false } : a);
+      }
+      if (abilitiesWrap) {
+        renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+      }
+      if (socket) {
+        socket.emit("requestAbilities", { gameID, playerName });
+      }
+
+      if (abilityStatus) {
+        if (reason === "already_used") abilityStatus.textContent = "❌ القدرة تم استخدامها بالفعل. اطلب قدرة أخرى.";
+        else if (reason === "ability_not_found") abilityStatus.textContent = "❌ القدرة غير معروفة لدى المستضيف.";
+        else abilityStatus.textContent = "❌ تعذر تنفيذ الطلب.";
+      }
+    } else {
+      if (abilityStatus) {
+        abilityStatus.textContent = "✅ تم قبول الطلب من المستضيف.";
+      }
+    }
+  });
+}
+
 // Load abilities from localStorage
 function loadPlayerAbilities() {
   const abilitiesKey = `${playerParam}Abilities`;
@@ -613,6 +768,29 @@ window.addEventListener('abilityToggled', function(e) {
     if (changedPlayerParam === playerParam) {
       // ✅ مزامنة فورية
       forceImmediateAbilitySync(changedPlayerParam, abilityText, isUsed);
+      
+      // Also update myAbilities directly
+      const abilityIndex = myAbilities.findIndex(ab => ab.text === abilityText);
+      if (abilityIndex !== -1) {
+        myAbilities[abilityIndex].used = isUsed;
+        console.log(`Ability "${abilityText}" set to used: ${isUsed}`);
+        
+        // Re-render abilities
+        if (abilitiesWrap) {
+          renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+        }
+        
+        // Update status message
+        if (abilityStatus) {
+          if (isUsed) {
+            abilityStatus.textContent = "القدرة مستخدمة - انتظر إعادة التفعيل من المضيف";
+            abilityStatus.style.color = "#ff6b35";
+          } else {
+            abilityStatus.textContent = "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.";
+            abilityStatus.style.color = "#32c675";
+          }
+        }
+      }
     }
 
     loadOpponentAbilities();
@@ -790,216 +968,103 @@ function checkAbilityRequests() {
   }
 }
 
-function requestUseAbility(abilityText) {
-  // Check if ability is already used
-  const isAlreadyUsed = myAbilities.find(a => a.text === abilityText)?.used;
-  if (isAlreadyUsed) {
-    console.log(`Ability ${abilityText} is already used`);
-    return;
-  }
-  
-  // Immediately disable the ability and mark as pending
-  tempUsed.add(abilityText);
-  myAbilities = (myAbilities || []).map(a =>
-    a.text === abilityText ? { ...a, used: true } : a
-  );
-  
-  // Update UI immediately to show disabled state
-  if (abilitiesWrap) {
-    renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
-  }
-  
-  console.log(`Ability ${abilityText} disabled immediately - UI updated`);
-  
-  if (abilityStatus) {
-    abilityStatus.textContent = "تم إرسال طلب استخدام القدرة…";
-  }
-  
-  // Create ability request
-  const requestId = `${playerParam}_${Date.now()}`;
-  const request = {
-    id: requestId,
-    playerName: playerName,
-    playerParam: playerParam,
-    abilityText: abilityText,
-    timestamp: Date.now(),
-    status: 'pending'
-  };
-  
-  // Save request to localStorage
-  try {
-    const requests = JSON.parse(localStorage.getItem('abilityRequests') || '[]');
-    requests.push(request);
-    localStorage.setItem('abilityRequests', JSON.stringify(requests));
-    
-    // Trigger storage event for host page
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'abilityRequests',
-      newValue: localStorage.getItem('abilityRequests'),
-      oldValue: localStorage.getItem('abilityRequests'),
-      storageArea: localStorage
-    }));
-    
-    console.log('Ability request sent:', request);
-  } catch (e) {
-    console.error('Error saving ability request:', e);
-  }
-  
-  // Show pending status
-  if (abilityStatus) {
-    abilityStatus.textContent = "⏳ في انتظار موافقة المستضيف...";
-  }
-  
-  console.log(`Ability ${abilityText} disabled immediately and marked as pending for ${playerParam}`);
-}
-
 /* ================== Mobile Detection ================== */
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 /* ================== Cards UI ================== */
+/* ============ Unique-number dropdown logic (from order.js) ============ */
+function buildOptions(select, N, forbiddenSet, currentValue) {
+  select.innerHTML = "";
+  const def = document.createElement("option"); 
+  def.value = ""; 
+  def.textContent = "-- الترتيب --"; 
+  select.appendChild(def);
+  
+  for (let i = 1; i <= N; i++) {
+    if (!forbiddenSet.has(String(i)) || String(i) === String(currentValue)) {
+      const opt = document.createElement("option");
+      opt.value = i; 
+      opt.textContent = i; 
+      select.appendChild(opt);
+    }
+  }
+  
+  if (currentValue && Array.from(select.options).some(o => o.value === String(currentValue))) {
+    select.value = String(currentValue);
+  } else {
+    select.value = "";
+  }
+}
+
+function snapshotChosen(selects) {
+  const values = selects.map(s => s.value || "");
+  const chosenSet = new Set(values.filter(Boolean));
+  return { chosenSet, values };
+}
+
+function refreshAllSelects(selects, N) {
+  const { chosenSet, values } = snapshotChosen(selects);
+  selects.forEach((sel, idx) => buildOptions(sel, N, chosenSet, values[idx]));
+  const allChosen = values.filter(Boolean).length === N && chosenSet.size === N;
+  if (continueBtn) {
+    continueBtn.classList.toggle("hidden", !allChosen);
+    continueBtn.disabled = !allChosen;
+  }
+}
+
 function renderCards(pickList, lockedOrder = null) {
   if (!grid) return;
   
   grid.innerHTML = "";
-
-  const display = (Array.isArray(lockedOrder) && lockedOrder.length === pickList.length)
-    ? lockedOrder
-    : pickList;
-    
-  console.log('Rendering cards:', { pickList, lockedOrder, display, isMobile });
-
-  // Add safety check to prevent forEach error
-  if (!Array.isArray(display) || display.length === 0) {
-    console.warn('No cards to display:', { pickList, lockedOrder, display });
-    return;
-  }
-
-  display.forEach((url, index) => {
+  const display = (Array.isArray(lockedOrder) && lockedOrder.length === pickList.length) ? lockedOrder : pickList;
+  const selects = [];
+  
+  display.forEach((url) => {
     const wrapper = document.createElement("div");
-    wrapper.className = "flex flex-col items-center space-y-2 card-wrapper";
-    wrapper.setAttribute('data-index', index);
-    wrapper.setAttribute('data-url', url);
-    
-    console.log(`Card ${index + 1}: ${url}`);
+    wrapper.className = "flex flex-col items-center space-y-2";
 
-    const media = createMedia(url, "w-36 h-48 object-contain rounded shadow cursor-pointer");
-    
-    // Position indicator for mobile (always show)
-    const positionIndicator = document.createElement("div");
-    positionIndicator.className = "w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm position-indicator";
-    positionIndicator.textContent = index + 1;
+    // Media + shield wrapper (prevents right-click/drag and hides URL affordances)
+    const mediaWrap = document.createElement("div");
+    mediaWrap.className = "nosave";
+    const media = createMedia(url, "w-36 h-48 object-contain rounded shadow");
+    const shield = document.createElement("div");
+    shield.className = "shield";
+    mediaWrap.appendChild(media);
+    mediaWrap.appendChild(shield);
 
     const select = document.createElement("select");
     select.className = "w-24 p-1 rounded bg-gray-800 text-white text-center text-lg orderSelect";
-    // Always show dropdown for both mobile and desktop
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "-- الترتيب --";
-    select.appendChild(defaultOption);
-
-    for (let j = 1; j <= pickList.length; j++) {
-      const option = document.createElement("option");
-      option.value = j;
-      option.textContent = j;
-      select.appendChild(option);
-    }
+    const def = document.createElement("option"); 
+    def.value = ""; 
+    def.textContent = "-- الترتيب --"; 
+    select.appendChild(def);
 
     if (Array.isArray(lockedOrder) && lockedOrder.length === pickList.length) {
-      // Find the position of this card in the locked order
       const orderIndex = lockedOrder.findIndex(u => u === url);
-      console.log(`Card ${url} found at position ${orderIndex + 1} in locked order`);
       if (orderIndex >= 0) {
+        const opt = document.createElement("option");
+        opt.value = String(orderIndex + 1);
+        opt.textContent = String(orderIndex + 1);
+        select.appendChild(opt);
         select.value = String(orderIndex + 1);
         select.disabled = true;
-        positionIndicator.textContent = orderIndex + 1;
-        positionIndicator.className = "w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm position-indicator";
-        
-        // Add visual confirmation for submitted order
-        wrapper.style.border = "2px solid #10b981";
-        wrapper.style.borderRadius = "12px";
-        wrapper.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
-      }
-    } else {
-      // Enhanced mobile touch interaction
-      select.onchange = () => {
-        const allSelects = document.querySelectorAll(".orderSelect");
-        const values = Array.from(allSelects).map((s) => s.value);
-        const unique = new Set(values.filter(Boolean));
-        
-        // Update position indicator immediately
-        const selectedValue = parseInt(select.value);
-        console.log(`Card ${index + 1} selected position: ${selectedValue}`);
-        if (selectedValue && selectedValue >= 1 && selectedValue <= pickList.length) {
-          positionIndicator.textContent = selectedValue;
-          positionIndicator.className = "w-8 h-8 rounded-full bg-yellow-500 text-black flex items-center justify-center font-bold text-sm position-indicator";
-        } else {
-          positionIndicator.textContent = index + 1;
-          positionIndicator.className = "w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm position-indicator";
-        }
-        
-        if (continueBtn) {
-          continueBtn.classList.toggle("hidden", unique.size !== pickList.length);
-          continueBtn.disabled = unique.size !== pickList.length;
-        }
-      };
-      
-      // Add touch events for better mobile interaction
-      if (isMobile) {
-        select.addEventListener('touchstart', (e) => {
-          e.stopPropagation();
-          // Add visual feedback
-          wrapper.style.transform = 'scale(1.02)';
-          wrapper.style.transition = 'transform 0.1s ease';
-        });
-        
-        select.addEventListener('touchend', (e) => {
-          e.stopPropagation();
-          // Remove visual feedback
-          wrapper.style.transform = 'scale(1)';
-        });
-        
-        // Add click event for better compatibility
-        select.addEventListener('click', (e) => {
-          e.stopPropagation();
-        });
       }
     }
 
-    wrapper.appendChild(media);
-    wrapper.appendChild(positionIndicator);
+    wrapper.appendChild(mediaWrap);
     wrapper.appendChild(select);
     grid.appendChild(wrapper);
+    selects.push(select);
   });
 
-  // Add mobile instructions for number selection (only once)
-  if (isMobile && !Array.isArray(lockedOrder) && !document.querySelector('.mobile-instructions')) {
-    const instructions = document.createElement("div");
-    instructions.className = "mobile-instructions w-full text-center text-yellow-300 text-sm mb-4 p-2 bg-black/30 rounded";
-    instructions.innerHTML = "📱 اختر ترتيب كل بطاقة من القائمة المنسدلة | تأكد من اختيار ترتيب مختلف لكل بطاقة | الرقم الأزرق يظهر الترتيب الحالي";
-    grid.parentNode.insertBefore(instructions, grid);
-  }
-  
-  // Add success message for submitted order
-  if (Array.isArray(lockedOrder) && lockedOrder.length === pickList.length && !document.querySelector('.order-success-message')) {
-    const successMessage = document.createElement("div");
-    successMessage.className = "order-success-message w-full text-center text-green-400 text-lg mb-4 p-3 bg-green-900/30 rounded border border-green-500";
-    successMessage.innerHTML = "✅ تم إرسال ترتيب البطاقات بنجاح! البطاقات مرتبة حسب اختيارك";
-    grid.parentNode.insertBefore(successMessage, grid);
-  }
-
-  if (continueBtn) {
-    if (Array.isArray(lockedOrder) && lockedOrder.length === pickList.length) {
-      continueBtn.classList.remove("hidden");
-      continueBtn.disabled = true;
-      continueBtn.textContent = "✅ تم إرسال الترتيب";
-      
-      // إخفاء التعليمات المتنقلة عند عرض البطاقات المرتبة
-      const mobileInstructions = document.querySelector('.mobile-instructions');
-      if (mobileInstructions) {
-        mobileInstructions.remove();
-      }
-    } else {
+  if (Array.isArray(lockedOrder) && lockedOrder.length === pickList.length) {
+    if (continueBtn) {
+      continueBtn.classList.add("hidden");
+    }
+  } else {
+    refreshAllSelects(selects, pickList.length);
+    selects.forEach(sel => sel.addEventListener("change", () => refreshAllSelects(selects, pickList.length)));
+    if (continueBtn) {
       continueBtn.classList.add("hidden");
       continueBtn.disabled = false;
       continueBtn.textContent = "متابعة";
@@ -1485,7 +1550,310 @@ window.addEventListener('message', function(e) {
   }
 });
 
+// Open battle view for player
+function openBattleView() {
+  try {
+    // Check if button is disabled
+    const viewBattleBtn = document.getElementById('viewBattleBtn');
+    if (viewBattleBtn && viewBattleBtn.disabled) {
+      alert('المعركة لم تبدأ بعد. يرجى انتظار المضيف لبدء المعركة.');
+      return;
+    }
+    
+    // Get current game ID and player number
+    const currentGameId = gameId || 'default';
+    const playerNumber = player || '1';
+    
+    // Generate the player view URL
+    const baseUrl = window.location.origin + window.location.pathname.replace('player-cards.html', '');
+    const playerViewUrl = `${baseUrl}player-view.html?player=${playerNumber}&gameId=${currentGameId}`;
+    
+    console.log(`Opening battle view for player ${playerNumber}: ${playerViewUrl}`);
+    
+    // Open in new tab (not a separate window)
+    const newWindow = window.open(playerViewUrl, '_blank');
+    
+    if (!newWindow) {
+      alert('تم منع النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+      return;
+    }
+    
+    // Focus the new window
+    newWindow.focus();
+    
+    // Show success message
+    showToast('تم فتح صفحة عرض التحدي بنجاح!', 'success');
+    
+  } catch (error) {
+    console.error('Error opening battle view:', error);
+    alert('حدث خطأ في فتح صفحة عرض التحدي: ' + error.message);
+  }
+}
+
+// Check battle status and enable/disable battle view button
+function checkBattleStatus() {
+  try {
+    const viewBattleBtn = document.getElementById('viewBattleBtn');
+    if (!viewBattleBtn) return;
+    
+    // Check if battle has started by looking for battle started flag
+    const battleStarted = localStorage.getItem('battleStarted') === 'true';
+    
+    if (battleStarted) {
+      // Enable button
+      viewBattleBtn.disabled = false;
+      viewBattleBtn.className = "bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg text-xl font-bold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95";
+      viewBattleBtn.textContent = "عرض التحدي";
+      console.log('Battle view button enabled');
+    } else {
+      // Keep disabled
+      viewBattleBtn.disabled = true;
+      viewBattleBtn.className = "bg-gray-500 text-gray-300 px-8 py-3 rounded-lg text-xl font-bold shadow-lg cursor-not-allowed opacity-50";
+      viewBattleBtn.textContent = "عرض التحدي";
+      console.log('Battle view button disabled');
+    }
+  } catch (error) {
+    console.error('Error checking battle status:', error);
+  }
+}
+
+// Start monitoring battle status
+function startBattleStatusMonitoring() {
+  // Check initially
+  checkBattleStatus();
+  
+  // Listen for localStorage changes
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'battleStarted') {
+      checkBattleStatus();
+    }
+    
+    // Listen for host notifications
+    if (e.key === 'playerNotification') {
+      try {
+        const notification = JSON.parse(e.newValue || '{}');
+        if (notification.type === 'ability_toggle' && notification.playerParam === playerParam) {
+          console.log('Host toggled ability:', notification);
+          
+          // Update ability state immediately
+          const abilityIndex = myAbilities.findIndex(ab => ab.text === notification.abilityText);
+          if (abilityIndex !== -1) {
+            myAbilities[abilityIndex].used = notification.isUsed;
+            console.log(`Ability "${notification.abilityText}" set to used: ${notification.isUsed}`);
+            
+            // Re-render abilities
+            if (abilitiesWrap) {
+              renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+            }
+            
+            // Update status message
+            if (abilityStatus) {
+              if (notification.isUsed) {
+                abilityStatus.textContent = "القدرة مستخدمة - انتظر إعادة التفعيل من المضيف";
+                abilityStatus.style.color = "#ff6b35";
+              } else {
+                abilityStatus.textContent = "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.";
+                abilityStatus.style.color = "#32c675";
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error handling player notification:', error);
+      }
+    }
+  });
+  
+  // Check periodically
+  setInterval(checkBattleStatus, 2000);
+  
+  // Initialize BroadcastChannel if available
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      window.broadcastChannel = new BroadcastChannel('ability-updates');
+      window.broadcastChannel.onmessage = function(event) {
+        const notification = event.data;
+        if (notification.type === 'ability_toggle' && notification.playerParam === playerParam) {
+          console.log('BroadcastChannel notification received:', notification);
+          
+          // Update ability state immediately
+          const abilityIndex = myAbilities.findIndex(ab => ab.text === notification.abilityText);
+          if (abilityIndex !== -1) {
+            myAbilities[abilityIndex].used = notification.isUsed;
+            console.log(`Ability "${notification.abilityText}" set to used: ${notification.isUsed}`);
+            
+            // Re-render abilities
+            if (abilitiesWrap) {
+              renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+            }
+            
+            // Update status message
+            if (abilityStatus) {
+              if (notification.isUsed) {
+                abilityStatus.textContent = "القدرة مستخدمة - انتظر إعادة التفعيل من المضيف";
+                abilityStatus.style.color = "#ff6b35";
+              } else {
+                abilityStatus.textContent = "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.";
+                abilityStatus.style.color = "#32c675";
+              }
+            }
+          }
+        }
+      };
+    }
+  } catch (e) {
+    console.log('BroadcastChannel not supported');
+  }
+  
+  // Check for host notifications every 500ms
+  setInterval(() => {
+    try {
+      const allNotifications = JSON.parse(localStorage.getItem('allPlayerNotifications') || '[]');
+      const latestNotification = allNotifications[allNotifications.length - 1];
+      
+      if (latestNotification && 
+          latestNotification.type === 'ability_toggle' && 
+          latestNotification.playerParam === playerParam &&
+          latestNotification.timestamp > (window.lastProcessedNotification || 0)) {
+        
+        console.log('Found new host notification:', latestNotification);
+        window.lastProcessedNotification = latestNotification.timestamp;
+        
+        // Update ability state immediately
+        const abilityIndex = myAbilities.findIndex(ab => ab.text === latestNotification.abilityText);
+        if (abilityIndex !== -1) {
+          myAbilities[abilityIndex].used = latestNotification.isUsed;
+          console.log(`Ability "${latestNotification.abilityText}" set to used: ${latestNotification.isUsed}`);
+          
+          // Re-render abilities
+          if (abilitiesWrap) {
+            renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+          }
+          
+          // Update status message
+          if (abilityStatus) {
+            if (latestNotification.isUsed) {
+              abilityStatus.textContent = "القدرة مستخدمة - انتظر إعادة التفعيل من المضيف";
+              abilityStatus.style.color = "#ff6b35";
+            } else {
+              abilityStatus.textContent = "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.";
+              abilityStatus.style.color = "#32c675";
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking host notifications:', error);
+    }
+  }, 500);
+}
+
+// Initialize battle status monitoring when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(startBattleStatusMonitoring, 1000);
+  
+  // Check for pending host notifications
+  setTimeout(() => {
+    try {
+      const notification = JSON.parse(localStorage.getItem('playerNotification') || '{}');
+      if (notification.type === 'ability_toggle' && notification.playerParam === playerParam) {
+        console.log('Found pending host notification:', notification);
+        
+        // Update ability state immediately
+        const abilityIndex = myAbilities.findIndex(ab => ab.text === notification.abilityText);
+        if (abilityIndex !== -1) {
+          myAbilities[abilityIndex].used = notification.isUsed;
+          console.log(`Ability "${notification.abilityText}" set to used: ${notification.isUsed}`);
+          
+          // Re-render abilities
+          if (abilitiesWrap) {
+            renderBadges(abilitiesWrap, myAbilities, { clickable: true, onClick: requestUseAbility });
+          }
+          
+          // Update status message
+          if (abilityStatus) {
+            if (notification.isUsed) {
+              abilityStatus.textContent = "القدرة مستخدمة - انتظر إعادة التفعيل من المضيف";
+              abilityStatus.style.color = "#ff6b35";
+            } else {
+              abilityStatus.textContent = "اضغط على القدرة لطلب استخدامها. سيتم إشعار المستضيف.";
+              abilityStatus.style.color = "#32c675";
+            }
+          }
+        }
+        
+        // Clear the notification
+        localStorage.removeItem('playerNotification');
+      }
+    } catch (error) {
+      console.error('Error checking pending notifications:', error);
+    }
+  }, 500);
+});
+
+// Show toast notification
+function showToast(message, type = 'info') {
+  try {
+    // Remove existing toast
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+      existingToast.remove();
+    }
+    
+    // Create new toast
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 2px solid #10B981;
+      font-family: "Cairo", sans-serif;
+      font-weight: 600;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    `;
+    
+    // Add type-specific styling
+    if (type === 'success') {
+      toast.style.borderColor = '#10B981';
+    } else if (type === 'error') {
+      toast.style.borderColor = '#EF4444';
+    } else if (type === 'warning') {
+      toast.style.borderColor = '#F59E0B';
+    }
+    
+    document.body.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => {
+      toast.style.opacity = '1';
+    }, 100);
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Error showing toast:', error);
+  }
+}
+
 // Make functions available globally
 window.submitPicks = submitPicks;
 window.clearOldGameData = clearOldGameData;
 window.clearUsedAbilities = clearUsedAbilities;
+window.openBattleView = openBattleView;

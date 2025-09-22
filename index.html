@@ -35,7 +35,7 @@
     
     body{
       font-family: "Cairo", sans-serif;
-      background: #8B1538 url('images/NN.jpg') center/cover no-repeat;
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/NN.jpg') center/cover no-repeat;
       color: var(--text);
       min-height: 100vh;
       margin: 0;
@@ -50,19 +50,8 @@
       box-sizing: border-box;
     }
     
-    /* Geometric background elements */
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 200px;
-      height: 200px;
-      background: linear-gradient(45deg, rgba(220, 38, 38, 0.1), transparent);
-      clip-path: polygon(0 0, 100% 0, 0 100%);
-      z-index: 0;
-    }
     
+    /* Geometric background elements */
     body::after {
       content: '';
       position: absolute;
@@ -72,11 +61,11 @@
       height: 150px;
       background: linear-gradient(45deg, transparent, rgba(220, 38, 38, 0.05));
       clip-path: polygon(100% 0, 100% 100%, 0 100%);
-      z-index: 0;
+      z-index: 1;
     }
     
     .login-container {
-      background: var(--panel);
+      background: rgba(45, 45, 45, 0.545);
       border: 2px solid rgba(220, 38, 38, 0.3);
       border-radius: var(--radius-large);
       padding: 40px;

@@ -14,8 +14,8 @@
       --text: #FFFFFF;
       --blue: #4A90E2;
       --red: #FF6B6B;
-      --yellow: #FFD700;
-      --yellow-light: #FFFF00;
+      --yellow: #ffffff;
+      --yellow-light: #ffffff;
       --purple: #8B5CF6;
       --green: #10B981;
       --dark-green: #059669;
@@ -29,7 +29,11 @@
     
     body {
       font-family: "Cairo", sans-serif;
-      background: var(--bg);
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('./images/NN.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center center;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -38,14 +42,11 @@
       justify-content: center;
       padding: 20px;
       position: relative;
-      background-image: url('./images/NN.jpg');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      background-position: center center;
       border: 3px solid #ffffffe3;
       box-sizing: border-box;
+      font-weight: bold;
     }
+    
     
     .main-title {
       font-size: 3rem;
@@ -85,7 +86,7 @@
       border-radius: 8px;
       font-family: "Cairo", sans-serif;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
@@ -93,55 +94,94 @@
       justify-content: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       min-height: 60px;
+      position: relative;
+      overflow: hidden;
     }
     
     .player1-btn {
-      background: var(--purple);
-      color: white;
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      color: #000000;
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
     }
     
     .player1-btn:hover {
-      background: #7C3AED;
+      background: linear-gradient(145deg, #ffffff, #ededed);
+      color: #000000;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
     }
     
     .player2-btn {
-      background: var(--blue);
-      color: white;
+      background: linear-gradient(145deg, #ff6b6b, #e63946, #c92a2a);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 20px rgba(230, 57, 70, 0.35);
     }
     
     .player2-btn:hover {
-      background: #357ABD;
+      background: linear-gradient(145deg, #ff7b7b, #ff4d5a, #e63946);
+      color: #ffffff;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 25px rgba(230, 57, 70, 0.45);
+      border: 2px solid #ffffff;
     }
     
     .battle-btn {
-      background: var(--dark-green);
-      color: white;
+      background: linear-gradient(145deg, #32c675, #28a745, #1e7e34);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 20px rgba(50, 198, 117, 0.4);
     }
     
     .battle-btn:hover {
-      background: #047857;
+      background: linear-gradient(145deg, #3dd47a, #32c675, #28a745);
+      color: #ffffff;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 25px rgba(50, 198, 117, 0.5);
+      border: 2px solid #ffffff;
     }
     
     .battle-btn:disabled {
-      background: #666;
-      color: #999;
+      background: #cccccc;
+      color: #666666;
+      border: 2px solid #cccccc;
       cursor: not-allowed;
       transform: none;
     }
     
     .battle-btn:disabled:hover {
-      background: #666;
+      background: #cccccc;
+      color: #666666;
       transform: none;
     }
     
+    /* Shimmer sweep animation like buttons in card.html */
+    .copy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 140%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      pointer-events: none;
+      animation: shimmerSweep 2.2s linear infinite;
+    }
+
+    .copy-btn:hover::before {
+      left: 120%;
+    }
+
+    @keyframes shimmerSweep {
+      0% { left: -120%; }
+      100% { left: 120%; }
+    }
+
     .copy-btn.copied {
       background: #28A745 !important;
+      color: white !important;
+      border: 2px solid #28A745 !important;
     }
     
     .status-indicator {
@@ -217,21 +257,25 @@
       width: 100%;
       max-width: 800px;
       margin-top: 2rem;
+      position: relative;
+      z-index: 10;
     }
     
     .ability-panel {
       flex: 1;
-      background: rgba(0,0,0,0.3);
-      border: 2px solid var(--yellow);
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #ffffff;
       border-radius: 12px;
       padding: 15px;
       min-height: 200px;
+      position: relative;
+      z-index: 10;
     }
     
     .ability-panel-title {
       color: white;
       font-size: 18px;
-      font-weight: 700;
+      font-weight: bold;
       margin-bottom: 10px;
       text-align: center;
     }
@@ -239,9 +283,31 @@
     .ability-panel-subtitle {
       color: white;
       font-size: 12px;
+      font-weight: bold;
       text-align: right;
       margin-bottom: 15px;
-      opacity: 0.8;
+    }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 2px solid var(--green);
+      font-family: "Cairo", sans-serif;
+      font-weight: 600;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .toast.show {
+      opacity: 1;
     }
     
     .ability-item {
@@ -251,7 +317,7 @@
       margin-bottom: 8px;
       border-radius: 6px;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: bold;
       text-align: right;
     }
     
@@ -261,7 +327,7 @@
       padding: 8px 15px;
       border-radius: 20px;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: bold;
       text-align: center;
       margin: 5px 0;
       border: 1px solid var(--yellow);

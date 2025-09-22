@@ -15,8 +15,8 @@
       --text: #FFFFFF;
       --blue: #4A90E2;
       --red: #FF6B6B;
-      --yellow: #FFD700;
-      --yellow-light: #FFFF00;
+      --yellow: #6B7280;
+      --yellow-light: #9CA3AF;
     }
     
     * {
@@ -27,7 +27,7 @@
     
     body {
       font-family: "Cairo", sans-serif;
-      background: #8B1538 url('images/NN.jpg') center/cover no-repeat;
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/NN.jpg') center/cover no-repeat;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -40,12 +40,14 @@
       overflow: hidden;
     }
     
+    
     .container {
       width: 100%;
-      max-width: 800px;
+      max-width: 900px;
       position: relative;
       z-index: 1;
-      transform: scale(0.9);
+      transform: scale(0.95);
+      padding: 30px;
     }
     
     .page-title {
@@ -57,18 +59,83 @@
     }
     
     .current-player-section {
-      background: var(--dark-bg);
+      background-image: url('images/box.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
       color: var(--text);
-      padding: 15px 20px;
-      border-radius: 8px;
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 20px;
+      padding: 25px 40px;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 30px;
       text-align: center;
-      border: 2px solid var(--yellow);
       margin-left: 20px;
       margin-right: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideInFromTop 0.6s ease-out;
+      min-height: 100px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 15px;
     }
+    
+    
+    .current-player-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent);
+      transition: left 0.6s ease;
+    }
+    
+    .current-player-section:hover::before {
+      left: 100%;
+    }
+    
+    .current-player-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    .current-player-section .player-name {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 800;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .current-player-section .instruction-text {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
+      font-size: 20px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    @keyframes slideInFromTop {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    
     
     .continue-section {
       text-align: center;
@@ -78,17 +145,58 @@
     }
     
     .continue-btn {
-      background: var(--blue);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: var(--text);
       border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: 600;
+      border-radius: 15px;
+      padding: 16px 32px;
+      font-size: 18px;
+      font-weight: 700;
       font-family: "Cairo", sans-serif;
       cursor: pointer;
       width: auto;
-      max-width: 200px;
+      max-width: 250px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 8px 25px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .continue-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .continue-btn:hover::before {
+      left: 100%;
+    }
+    
+    .continue-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 
+        0 12px 35px rgba(102, 126, 234, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #7c94f0 0%, #8a5fb8 100%);
+    }
+    
+    .continue-btn:active {
+      transform: translateY(-1px);
+      box-shadow: 
+        0 6px 20px rgba(102, 126, 234, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
     .cards-grid {
@@ -100,52 +208,78 @@
     }
     
     .card-number {
-      width: 100%;
+      width: 80px;
       height: 80px;
-      background: var(--yellow);
-      border: 2px solid transparent;
-      border-radius: 8px;
+      background: transparent;
+      border: none;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 24px;
       font-weight: 700;
-      color: #1A1A1A;
+      color: #ffffff;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: none;
+      margin: 0 auto;
+    }
+    
+    .card-number::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('images/eye.png') center/contain no-repeat;
+      border-radius: 50%;
+      z-index: -1;
+      opacity: 0.9;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     }
     
     .card-number:hover {
-      background: var(--yellow-light);
+      background: transparent;
       transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+    
+    .card-number:hover::before {
+      filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+      opacity: 1;
     }
     
     .card-number.selected {
-      background: #B8860B;
-      color: white;
-      border-color: #fff;
+      background: transparent;
+      color: #ffffff;
       transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(255,255,255,0.3);
+    }
+    
+    .card-number.selected::before {
+      filter: brightness(1.3) drop-shadow(0 0 15px rgba(255,255,255,0.6));
+      opacity: 1;
     }
     
     .card-number.selected::after {
       content: '✓';
       position: absolute;
-      top: -5px;
-      right: -5px;
-      background: var(--blue);
-      color: white;
-      width: 20px;
-      height: 20px;
+      top: -8px;
+      right: -8px;
+      background: #ffffff;
+      color: #1a1a1a;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: bold;
-      border: 2px solid white;
+      border: 2px solid #1a1a1a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     
 
@@ -153,16 +287,75 @@
     @media (max-width: 768px) {
       .container {
         max-width: 100%;
+        padding: 20px;
+        transform: scale(1);
+      }
+      
+      .current-player-section {
+        padding: 20px 30px;
+        font-size: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        min-height: 80px;
+        max-width: 500px;
+      }
+      
+      .current-player-section .player-name {
+        font-size: 22px;
+      }
+      
+      .current-player-section .instruction-text {
+        font-size: 18px;
+      }
+      
+      .continue-btn {
+        padding: 14px 28px;
+        font-size: 16px;
+        border-radius: 12px;
       }
       
       .cards-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
+        gap: 10px;
         padding: 15px;
       }
       
       .card-number {
-        height: 60px;
+        width: 65px;
+        height: 65px;
+        font-size: 20px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .current-player-section {
+        padding: 15px 25px;
+        font-size: 18px;
+        min-height: 70px;
+        max-width: 400px;
+      }
+      
+      .current-player-section .player-name {
+        font-size: 20px;
+      }
+      
+      .current-player-section .instruction-text {
+        font-size: 16px;
+      }
+      
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 10px;
+      }
+      
+      .card-number {
+        width: 55px;
+        height: 55px;
         font-size: 18px;
       }
     }
@@ -172,7 +365,8 @@
 <body>
   <div class="container">
     <div class="current-player-section" id="currentPlayerSection">
-      <span id="currentPlayerText">اللاعب عزوز اختر 11 كرت</span>
+      <span class="player-name" id="currentPlayerName">اكاي</span>
+      <span class="instruction-text" id="instructionText">اختر 11 كرت</span>
     </div>
     
     <div class="cards-grid" id="cardsGrid">
