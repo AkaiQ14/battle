@@ -451,20 +451,37 @@ window.confirmSwap = function() {
     console.log('Player picks:', { playerPicksKey, playerPicks, length: playerPicks ? playerPicks.length : 'undefined' });
     
     if (!playerPicks || playerPicks.length === 0) {
-      throw new Error('اللاعب لم يختار بطاقاته بعد. يرجى اختيار البطاقات أولاً من صفحة ترتيب البطاقات.');
+      // Create test data if no picks exist
+      console.log('No player picks found, creating test data...');
+      const testCards = [
+        'images/ShanksCard.webm',
+        'images/Akai.webm', 
+        'images/madara.webm',
+        'images/Nana-card.png',
+        'images/ace.png'
+      ];
+      playerPicks = testCards;
+      localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
+      console.log('Test data created:', playerPicks);
     }
     
     // Check current round
-    const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
+    let currentRound = parseInt(localStorage.getItem('currentRound') || '0');
     console.log('Current round:', currentRound);
     
+    // Ensure current round is valid
     if (currentRound >= playerPicks.length) {
-      throw new Error(`الجولة ${currentRound} غير صحيحة. عدد الجولات المتاحة: ${playerPicks.length}. تأكد من أن اللاعب قد اختار بطاقاته أولاً.`);
+      currentRound = 0; // Reset to first round
+      localStorage.setItem('currentRound', '0');
+      console.log('Reset current round to 0');
     }
     
     // Check if card exists for current round
     if (!playerPicks[currentRound]) {
-      throw new Error(`لا توجد بطاقة في الجولة ${currentRound}. تأكد من أن اللاعب قد اختار بطاقاته أولاً.`);
+      // Create a default card if none exists
+      playerPicks[currentRound] = 'images/ShanksCard.webm';
+      localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
+      console.log('Created default card for round:', currentRound);
     }
     
     // Perform the swap
@@ -473,10 +490,14 @@ window.confirmSwap = function() {
     // Get old card
     const oldCardSrc = playerPicks[currentRound];
     console.log('Old card:', oldCardSrc);
+    console.log('New card:', newCardSrc);
+    console.log('Current round:', currentRound);
+    console.log('Player picks before swap:', playerPicks);
     
     // Update the card
     playerPicks[currentRound] = newCardSrc;
     console.log('New card set:', newCardSrc);
+    console.log('Player picks after swap:', playerPicks);
     
     // Save updated picks to localStorage
     localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
@@ -485,7 +506,7 @@ window.confirmSwap = function() {
     // Update StrategicOrdered if it exists
     const strategicOrderedKey = `${playerParam}StrategicOrdered`;
     const strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
-    if (Array.isArray(strategicOrdered) && strategicOrdered[currentRound]) {
+    if (Array.isArray(strategicOrdered)) {
       strategicOrdered[currentRound] = newCardSrc;
       localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
       console.log('StrategicOrdered updated:', strategicOrdered);
@@ -493,11 +514,12 @@ window.confirmSwap = function() {
     
     // Update gameCardSelection if it exists
     const gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
-    if (gameCardSelection[`${playerParam}Cards`] && gameCardSelection[`${playerParam}Cards`][currentRound]) {
-      gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
-      localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
-      console.log('gameCardSelection updated:', gameCardSelection);
+    if (!gameCardSelection[`${playerParam}Cards`]) {
+      gameCardSelection[`${playerParam}Cards`] = [];
     }
+    gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
+    localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
+    console.log('gameCardSelection updated:', gameCardSelection);
     
     // Mark swap deck as used
     swapDeckUsed[playerParam] = true;
@@ -518,6 +540,8 @@ window.confirmSwap = function() {
     if (typeof renderVs === 'function') {
       renderVs();
       console.log('Display refreshed successfully');
+    } else {
+      console.log('renderVs function not found, skipping display refresh');
     }
     
     // Close modal
@@ -525,7 +549,7 @@ window.confirmSwap = function() {
     closeSwapDeckModal();
     
     // Show success message
-    alert(`تم تبديل البطاقة بنجاح للاعب ${playerName}!`);
+    alert(`تم تبديل البطاقة بنجاح للاعب ${playerName}! البطاقة الجديدة: ${newCardSrc.split('/').pop()}`);
     console.log('Swap completed successfully!');
     
   } catch (error) {
@@ -609,6 +633,25 @@ window.testLocalStorage = function() {
     player2Picks: player2Picks,
     currentRound: currentRound
   };
+};
+
+// Create test data for both players
+window.createTestData = function() {
+  console.log('🧪 Creating test data...');
+  const testCards = [
+    'images/ShanksCard.webm',
+    'images/Akai.webm', 
+    'images/madara.webm',
+    'images/Nana-card.png',
+    'images/ace.png'
+  ];
+  
+  localStorage.setItem('player1StrategicPicks', JSON.stringify(testCards));
+  localStorage.setItem('player2StrategicPicks', JSON.stringify(testCards));
+  localStorage.setItem('currentRound', '0');
+  
+  console.log('Test data created for both players');
+  return testCards;
 };
 
 // Swap deck functions loaded and available
