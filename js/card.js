@@ -398,55 +398,27 @@ window.closeSwapDeckModal = function() {
 };
 
 window.confirmSwap = function() {
-  console.log('🎯 confirmSwap called');
   const modal = document.getElementById("swapDeckModal");
-  if (!modal) {
-    console.error('Modal not found');
-    return;
-  }
+  if (!modal) return;
+  
   const playerParam = modal.dataset.playerParam;
-  if (!playerParam) {
-    console.error('Player param not found');
-    return;
-  }
+  if (!playerParam) return;
   
   // Get player names from localStorage
   const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
   const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
   const playerName = playerParam === 'player1' ? player1Name : player2Name;
   
-  console.log('Confirm swap for:', { playerParam, playerName });
-  
   const selectedCard = modal.querySelector('.swap-card-option.selected');
-  console.log('Selected card:', selectedCard);
   
   if (!selectedCard) {
-    try {
-      if (typeof showToast === 'function') {
-        showToast("! يرجى اختيار بطاقة للتبديل", 'error');
-      } else {
-        console.error('showToast function not found');
-      }
-    } catch (error) {
-      console.error('Error showing error message:', error);
-    }
     return;
   }
   
   // Get card source from selected card data
   const newCardSrc = selectedCard.dataset.cardSrc;
-  console.log('New card source:', newCardSrc);
   
   if (!newCardSrc) {
-    try {
-      if (typeof showToast === 'function') {
-        showToast("! خطأ في اختيار البطاقة", 'error');
-      } else {
-        console.error('showToast function not found');
-      }
-    } catch (error) {
-      console.error('Error showing error message:', error);
-    }
     return;
   }
   
@@ -464,16 +436,7 @@ window.confirmSwap = function() {
   const media = createMedia(newCardSrc, "swap-card-media");
   selectedCard.appendChild(media);
   
-  // Show success message with card info
-  try {
-    if (typeof showToast === 'function') {
-      showToast(`تم تأكيد البطاقة! البطاقة المختارة: ${newCardSrc.split('/').pop()}`, 'success');
-    } else {
-      console.error('showToast function not found in confirmSwap');
-    }
-  } catch (error) {
-    console.error('Error showing success message in confirmSwap:', error);
-  }
+  // Card confirmed successfully
   
   // Save confirmed card for this player
   confirmedSwapCards[playerParam] = {
@@ -499,56 +462,29 @@ window.confirmSwap = function() {
   }
   
   // Perform the swap immediately
-  console.log('Performing swap...');
-  try {
-    performSwap(playerParam, playerName, newCardSrc);
-    console.log('Swap completed successfully!');
-  } catch (error) {
-    console.error('Error in performSwap:', error);
-    try {
-      if (typeof showToast === 'function') {
-        showToast("! خطأ في تنفيذ التبديل", 'error');
-      } else {
-        console.error('showToast function not found');
-      }
-    } catch (toastError) {
-      console.error('Error showing error message:', toastError);
-    }
-  }
+  performSwap(playerParam, playerName, newCardSrc);
 };
 
-// Debug: Test if functions are available
-console.log('Functions available:', {
-  openSwapDeckModal: typeof window.openSwapDeckModal,
-  closeSwapDeckModal: typeof window.closeSwapDeckModal,
-  confirmSwap: typeof window.confirmSwap
-});
+// Functions are now available globally
 
 
 // Perform the actual swap
 function performSwap(playerParam, playerName, newCardSrc) {
-  console.log('🔄 performSwap called with:', { playerParam, playerName, newCardSrc });
-  
   // Get current round
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
-  console.log('Current round:', currentRound);
   
   // Get player picks from localStorage
   const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
   const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
-  console.log('Player picks:', playerPicks);
   
   if (playerPicks[currentRound]) {
     const oldCardSrc = playerPicks[currentRound];
-    console.log('Old card:', oldCardSrc);
     playerPicks[currentRound] = newCardSrc;
-    console.log('New card set:', newCardSrc);
     
     // Save updated picks to localStorage
     try {
       // Update StrategicPicks
       localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
-      console.log('StrategicPicks updated');
       
       // Update StrategicOrdered if it exists
       const strategicOrderedKey = `${playerParam}StrategicOrdered`;
@@ -556,7 +492,6 @@ function performSwap(playerParam, playerName, newCardSrc) {
       if (Array.isArray(strategicOrdered) && strategicOrdered[currentRound]) {
         strategicOrdered[currentRound] = newCardSrc;
         localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
-        console.log('StrategicOrdered updated');
       }
       
       // Update gameCardSelection if it exists
@@ -564,15 +499,11 @@ function performSwap(playerParam, playerName, newCardSrc) {
       if (gameCardSelection[`${playerParam}Cards`] && gameCardSelection[`${playerParam}Cards`][currentRound]) {
         gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
         localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
-        console.log('gameCardSelection updated');
       }
-      
-      console.log(`تم تبديل البطاقة للاعب ${playerName}: ${oldCardSrc} -> ${newCardSrc}`);
       
       // Mark swap deck as used
       swapDeckUsed[playerParam] = true;
       saveSwapDeckUsage();
-      console.log('Swap deck marked as used');
       
       // Disable swap deck button
       const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
@@ -580,70 +511,18 @@ function performSwap(playerParam, playerName, newCardSrc) {
         swapBtn.classList.add('disabled');
         swapBtn.disabled = true;
         swapBtn.textContent = 'مستخدمة';
-        console.log('Swap button disabled');
       }
       
       // Refresh the display
-      console.log('Refreshing display...');
-      try {
-        if (typeof renderVs === 'function') {
-          renderVs();
-          console.log('Display refreshed successfully');
-        } else {
-          console.error('renderVs function not found');
-        }
-      } catch (error) {
-        console.error('Error refreshing display:', error);
-      }
+      renderVs();
       
       // Close modal
-      console.log('Closing modal...');
-      try {
-        if (typeof closeSwapDeckModal === 'function') {
-          closeSwapDeckModal();
-          console.log('Modal closed successfully');
-        } else {
-          console.error('closeSwapDeckModal function not found');
-        }
-      } catch (error) {
-        console.error('Error closing modal:', error);
-      }
+      closeSwapDeckModal();
       
-      // Show success message
-      console.log('Showing success message...');
-      try {
-        if (typeof showToast === 'function') {
-          showToast(`تم تبديل البطاقة بنجاح للاعب ${playerName}`, 'success');
-          console.log('Success message shown');
-        } else {
-          console.error('showToast function not found');
-        }
-      } catch (error) {
-        console.error('Error showing success message:', error);
-      }
+      // Swap completed successfully
       
     } catch (error) {
       console.error('Error saving swap:', error);
-      try {
-        if (typeof showToast === 'function') {
-          showToast("! خطأ في حفظ التبديل", 'error');
-        } else {
-          console.error('showToast function not found');
-        }
-      } catch (toastError) {
-        console.error('Error showing error message:', toastError);
-      }
-    }
-  } else {
-    console.log('No card found for current round:', currentRound);
-    try {
-      if (typeof showToast === 'function') {
-        showToast("! لا توجد بطاقة في هذه الجولة", 'error');
-      } else {
-        console.error('showToast function not found');
-      }
-    } catch (error) {
-      console.error('Error showing error message:', error);
     }
   }
 }
@@ -684,12 +563,7 @@ window.closeSwapDeckModal = closeSwapDeckModal;
 window.confirmSwap = confirmSwap;
 window.performSwap = performSwap;
 
-console.log('Swap deck functions loaded and available:', {
-  openSwapDeckModal: typeof window.openSwapDeckModal,
-  closeSwapDeckModal: typeof window.closeSwapDeckModal,
-  confirmSwap: typeof window.confirmSwap,
-  performSwap: typeof window.performSwap
-});
+// Swap deck functions loaded and available
 
 // Load round count from gameSetupProgress
 let roundCount = 5;
