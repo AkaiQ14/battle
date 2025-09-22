@@ -390,6 +390,9 @@ try {
   console.error('Error loading player names:', e);
 }
 
+// Load round count first
+let round = parseInt(localStorage.getItem("currentRound") || "0");
+
 // Dynamic picks loading function
 function loadPlayerPicks() {
   console.log('📋 loadPlayerPicks called');
@@ -483,8 +486,6 @@ console.log('📋 Window functions available:', {
   closeSwapDeckModal: typeof window.closeSwapDeckModal,
   confirmSwap: typeof window.confirmSwap
 });
-
-let round = parseInt(localStorage.getItem("currentRound") || "0");
 
 // Scores init/persist with error handling
 let scores = {};
