@@ -446,7 +446,7 @@ window.confirmSwap = function() {
     
     // Check if player has selected cards first
     const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
-    const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
+    let playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
     
     console.log('Player picks:', { playerPicksKey, playerPicks, length: playerPicks ? playerPicks.length : 'undefined' });
     
@@ -460,7 +460,7 @@ window.confirmSwap = function() {
         'images/Nana-card.png',
         'images/ace.png'
       ];
-      playerPicks = testCards;
+      playerPicks = [...testCards];
       localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
       console.log('Test data created:', playerPicks);
     }
@@ -479,6 +479,7 @@ window.confirmSwap = function() {
     // Check if card exists for current round
     if (!playerPicks[currentRound]) {
       // Create a default card if none exists
+      playerPicks = [...playerPicks];
       playerPicks[currentRound] = 'images/ShanksCard.webm';
       localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
       console.log('Created default card for round:', currentRound);
@@ -495,6 +496,7 @@ window.confirmSwap = function() {
     console.log('Player picks before swap:', playerPicks);
     
     // Update the card
+    playerPicks = [...playerPicks];
     playerPicks[currentRound] = newCardSrc;
     console.log('New card set:', newCardSrc);
     console.log('Player picks after swap:', playerPicks);
@@ -505,18 +507,21 @@ window.confirmSwap = function() {
     
     // Update StrategicOrdered if it exists
     const strategicOrderedKey = `${playerParam}StrategicOrdered`;
-    const strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
+    let strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
     if (Array.isArray(strategicOrdered)) {
+      strategicOrdered = [...strategicOrdered];
       strategicOrdered[currentRound] = newCardSrc;
       localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
       console.log('StrategicOrdered updated:', strategicOrdered);
     }
     
     // Update gameCardSelection if it exists
-    const gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
+    let gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
     if (!gameCardSelection[`${playerParam}Cards`]) {
       gameCardSelection[`${playerParam}Cards`] = [];
     }
+    gameCardSelection = {...gameCardSelection};
+    gameCardSelection[`${playerParam}Cards`] = [...gameCardSelection[`${playerParam}Cards`]];
     gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
     localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
     console.log('gameCardSelection updated:', gameCardSelection);
