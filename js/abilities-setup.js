@@ -212,69 +212,42 @@ function removeAbility(player, index) {
 
 function addCustomAbility() {
   const input = document.getElementById('customAbility');
-  const ability = input.value.trim();
-  
-  if (!ability) {
-    console.log('يرجى إدخال قدرة صحيحة');
-    return;
-  }
-  
-  // Check if ability already exists in default abilities list
-  if (gameState.defaultAbilities.includes(ability)) {
-    console.log('هذه القدرة موجودة مسبقاً');
-    return;
-  }
-  
-  // Add to default abilities list
-  gameState.defaultAbilities.push(ability);
-  
-  // ✅ حفظ القدرات في localStorage - تبقى محفوظة دائماً
-  localStorage.setItem('savedAbilities', JSON.stringify(gameState.defaultAbilities));
-  
-  input.value = '';
-  displayAllAbilities();
-  saveProgress();
-  
-  // Show success feedback
-  const addBtn = document.querySelector('.btn-add');
-  const originalText = addBtn.textContent;
-  addBtn.textContent = '✅ تمت الإضافة';
-  addBtn.style.background = '#20c997';
-  
-  setTimeout(() => {
-    addBtn.textContent = originalText;
-    addBtn.style.background = '#28a745';
-  }, 1500);
-  
-  console.log(`تم إضافة القدرة "${ability}" وستبقى محفوظة دائماً - لا تُمسح أبداً`);
-}
-
-// إضافة مجموعة قدرات مرة واحدة
-function addBulkAbilities() {
   const textarea = document.getElementById('bulkAbilities');
-  const abilitiesText = textarea.value.trim();
+  const singleAbility = input.value.trim();
+  const bulkAbilities = textarea.value.trim();
   
-  if (!abilitiesText) {
-    alert('يرجى إدخال القدرات المراد إضافتها');
+  // Check if both fields are empty
+  if (!singleAbility && !bulkAbilities) {
+    alert('يرجى إدخال قدرة واحدة أو عدة قدرات');
     return;
   }
   
-  // تقسيم النص إلى أسطر وإزالة الأسطر الفارغة
-  const abilities = abilitiesText
-    .split('\n')
-    .map(ability => ability.trim())
-    .filter(ability => ability.length > 0);
+  let abilitiesToAdd = [];
   
-  if (abilities.length === 0) {
+  // Process single ability
+  if (singleAbility) {
+    abilitiesToAdd.push(singleAbility);
+  }
+  
+  // Process bulk abilities
+  if (bulkAbilities) {
+    const bulkList = bulkAbilities
+      .split('\n')
+      .map(ability => ability.trim())
+      .filter(ability => ability.length > 0);
+    abilitiesToAdd.push(...bulkList);
+  }
+  
+  if (abilitiesToAdd.length === 0) {
     alert('لم يتم العثور على قدرات صحيحة');
     return;
   }
   
-  // التحقق من القدرات المكررة
+  // Check for duplicates
   const newAbilities = [];
   const duplicates = [];
   
-  abilities.forEach(ability => {
+  abilitiesToAdd.forEach(ability => {
     if (gameState.defaultAbilities.includes(ability)) {
       duplicates.push(ability);
     } else {
@@ -282,7 +255,7 @@ function addBulkAbilities() {
     }
   });
   
-  // إضافة القدرات الجديدة
+  // Add new abilities
   if (newAbilities.length > 0) {
     gameState.defaultAbilities.push(...newAbilities);
     
@@ -291,34 +264,31 @@ function addBulkAbilities() {
     
     displayAllAbilities();
     saveProgress();
-    
-    // إظهار رسالة النجاح
-    const addBtn = document.querySelector('button[onclick="addBulkAbilities()"]');
-    const originalText = addBtn.textContent;
-    addBtn.textContent = `✅ تمت إضافة ${newAbilities.length} قدرة`;
-    addBtn.style.background = '#20c997';
-    
-    setTimeout(() => {
-      addBtn.textContent = originalText;
-      addBtn.style.background = '#007bff';
-    }, 2000);
-    
-    console.log(`تم إضافة ${newAbilities.length} قدرة جديدة:`, newAbilities);
   }
   
-  // إظهار رسالة القدرات المكررة
-  if (duplicates.length > 0) {
-    alert(`تم تجاهل ${duplicates.length} قدرة مكررة:\n${duplicates.join('\n')}`);
-  }
-  
-  // مسح النص
+  // Clear both fields
+  input.value = '';
   textarea.value = '';
   
-  // إظهار رسالة نهائية
-  if (newAbilities.length > 0) {
-    alert(`تم إضافة ${newAbilities.length} قدرة جديدة بنجاح!\n${duplicates.length > 0 ? `وتم تجاهل ${duplicates.length} قدرة مكررة` : ''}`);
+  // Show success feedback
+  const addBtn = document.querySelector('.btn-add');
+  const originalText = addBtn.textContent;
+  addBtn.textContent = `✅ تمت إضافة ${newAbilities.length} قدرة`;
+  addBtn.style.background = '#20c997';
+  
+  setTimeout(() => {
+    addBtn.textContent = originalText;
+    addBtn.style.background = '';
+  }, 1500);
+  
+  // Show message about duplicates if any
+  if (duplicates.length > 0) {
+    console.log(`تم تجاهل ${duplicates.length} قدرة مكررة: ${duplicates.join(', ')}`);
   }
+  
+  console.log(`تم إضافة ${newAbilities.length} قدرة جديدة وستبقى محفوظة دائماً - لا تُمسح أبداً`);
 }
+
 
 function setupEventListeners() {
   // Enter key in custom ability input
@@ -331,7 +301,7 @@ function setupEventListeners() {
   // Ctrl+Enter in bulk abilities textarea
   document.getElementById('bulkAbilities').addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.key === 'Enter') {
-      addBulkAbilities();
+      addCustomAbility();
     }
   });
 }
@@ -395,7 +365,6 @@ function goBack() {
 window.nextStep = nextStep;
 window.saveProgress = saveProgress;
 window.addCustomAbility = addCustomAbility;
-window.addBulkAbilities = addBulkAbilities;
 window.shuffleAbilities = shuffleAbilities;
 window.distributeAbilities = distributeAbilities;
 window.deleteAbility = deleteAbility;

@@ -15,7 +15,6 @@ let gameState = {
 
 // Load existing data
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, starting initialization...');
   loadExistingData();
   createCardsGrid();
   updateDisplay();
@@ -23,26 +22,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadExistingData() {
   const savedData = localStorage.getItem('gameSetupProgress');
-  console.log('Saved data from localStorage:', savedData);
-  
   if (savedData) {
     const data = JSON.parse(savedData);
-    console.log('Parsed data:', data);
     gameState = { ...gameState, ...data };
+    
+    // Load player names from the correct format
+    if (data.player1Name) {
+      gameState.player1.name = data.player1Name;
+    }
+    if (data.player2Name) {
+      gameState.player2.name = data.player2Name;
+    }
     
     // Get rounds from setup data
     gameState.rounds = data.rounds || 11;
-    console.log('Loaded rounds:', gameState.rounds);
-    
-    // If rounds is still not set, try to get it from other sources
-    if (!gameState.rounds || gameState.rounds === 0) {
-      const namesData = localStorage.getItem('gameSetupProgress');
-      if (namesData) {
-        const namesSetup = JSON.parse(namesData);
-        gameState.rounds = namesSetup.rounds || 11;
-        console.log('Rounds from names setup:', gameState.rounds);
-      }
-    }
     
     // Initialize card selection based on rounds
     const cardsNeeded = gameState.rounds;
@@ -76,21 +69,26 @@ function loadExistingData() {
     if (setupData) {
       const setup = JSON.parse(setupData);
       gameState.rounds = setup.rounds || 11;
-    } else {
-      // Default to 11 rounds if no data found
-      gameState.rounds = 11;
-      console.log('Using default rounds:', gameState.rounds);
+      
+      // Load player names from setup data
+      if (setup.player1Name) {
+        gameState.player1.name = setup.player1Name;
+        gameState.player1Name = setup.player1Name;
+      }
+      if (setup.player2Name) {
+        gameState.player2.name = setup.player2Name;
+        gameState.player2Name = setup.player2Name;
+      }
     }
     generateRandomCards();
   }
-  
-  console.log('Final gameState:', gameState);
 }
 
 // Generate random cards for each player
 function generateRandomCards() {
-  // Common cards (85% of total)
+  // Common cards (85% of total) - منظم حسب المجلد المرفق
   const commonCards = [
+    // الكروت الشائعة الأصلية
     'cards/Stark-card.png',
     'cards/Todoroki.png',
     'cards/CartTitan-card.png',
@@ -136,25 +134,97 @@ function generateRandomCards() {
     'cards/ArmorTitan-card.webp',
     'cards/Nachttt.webp',
     'cards/Tosen-card.webp',
-    // New common cards
+    
+    // الكروت الشائعة الجديدة من مجلد Common
+    'cards/Kalluto-card.png',
+    'cards/GaiMou-card.png',
+    'cards/Paragusss.png',
+    'cards/Haruta jjk.png',
+    'cards/Akutagawa-card.png',
+    'cards/Vista-card.png',
+    'cards/Jozi jjk.png',
+    'cards/Frierennnnn.png',
+    'cards/Tank-card.png',
+    'cards/Oden-card.png',
+    'cards/Ippo-card.png',
+    'cards/Kingkaiii.png',
+    'cards/MouGou-card.png',
+    'cards/jugo.png',
+    'cards/ghiaccio.png',
+    'cards/cavendish-card.png',
+    'cards/Tenma-card.png',
+    'cards/Rojuro-card.png',
+    'cards/Miruku bnha.png',
+    'cards/Kukoshibo-card.png',
+    'cards/Ganju-card.png',
+    'cards/Runge-card.png',
+    'cards/Rhyaa.png',
+    'cards/Meleoron-card.png',
+    'cards/Kirach.png',
+    'cards/lyon vastia.png',
+    'cards/julius wistoria.png',
+    'cards/Asui-card.png',
+    'cards/Jack-card.png',
+    'cards/sting eucliffe.png',
+    'cards/edward elric.png',
+    'cards/Zeno kingdom.png',
+    'cards/Uvogin-card.png',
+    'cards/Shinobu-card.png',
+    'cards/suzuno.png',
+    'cards/caesar-card.png',
+    'cards/Shin-card.png',
+    'cards/lumiere silvamillion.png',
+    'cards/kimimaro.png',
+    'cards/Kyoga-card.png',
+    'cards/Knov-card.png',
+    'cards/Kaguraaaa.png',
+    'cards/Chopper-card.png',
+    'cards/Franky-card.png',
+    'cards/Nejire-card.png',
+    'cards/Kurapika-card.png',
+    'cards/zaratras.png',
+    'cards/Zohakuten.png',
+    'cards/Zeo Thorzeus.png',
+    'cards/Mina-card.png',
+    'cards/MetalBat-card.png',
+    'cards/Makio-card.png',
+    'cards/Galand-card.png',
+    'cards/DiamondJozu.webp',
+    'cards/Matsumoto-card.webp',
+    'cards/MomoYaorozu-card.webp',
+    'cards/Ishida-card.webp',
+    'cards/Yoruichi-card.webp',
+    'cards/esdeath.webp',
+    'cards/Jaw-card.webp',
+    'cards/FemaleTitan-card.webp',
+    'cards/Aizetsu-card.webp',
+    'cards/tenten.webp',
+    'cards/Gadjah.webp',
+    'cards/naobito-card.webp',
+    'cards/Gilthunder.png',
+    'cards/Mai-card.png',
+    'cards/Maki zenen.png',
+    'cards/Itadori-card.png',
+    'cards/Picollooo.png',
+    'cards/Noelll.png',
+    'cards/shino.png',
+    'cards/Kenzo-card.png',
+    'cards/Masamichi-card.png',
+    'cards/ShouBunKun-card.png',
+    'cards/Bardooock.png',
+    'cards/mahito-card.png',
+    'cards/poseidon.png',
     'cards/geten.webp',
     'cards/alex20armstrong.webp',
     'cards/Shinpei-card.webp',
     'cards/Friezaaa.webp',
-    'cards/MetalBat-card.webp',
     'cards/VanAugur-card.webp',
     'cards/Zamasuuu.webp',
     'cards/Mayuri-card.webp',
-    'cards/ColossialTitan-card.webp',
-    'cards/Igris-card.webp',
     'cards/Runge-card.webp',
-    'cards/Mina-card.webp',
     'cards/takuma-card.webp',
-    'cards/lyonvastia.webp',
     'cards/Shinji-card.webp',
-    'cards/Shigaraki.webp',
     'cards/konohamaru.webp',
-    'cards/Kenzo-card.webp',
     'cards/fubuki.webp',
     'cards/Jirobo.webp',
     'cards/RaiDokingdom.webp',
@@ -196,11 +266,38 @@ function generateRandomCards() {
     'cards/BeastKing-card.png',
     'cards/rin.png',
     'cards/kota izumi.png',
-    'cards/Lille-baroo-card.png'
+    'cards/Lille-baroo-card.png',
+    'cards/Danteee.webp',
+    'cards/tenten.webp'
   ];
   
-  // Epic cards (part of 15% with Legendary)
+  // Epic cards (part of 15% with Legendary) - منظم حسب المجلد المرفق
   const epicCards = [
+    // الكروت الملحمية من مجلد Epic
+    'cards/nanami-card.png',
+    'cards/kenjaku-card.png',
+    'cards/Geto-card.png',
+    'cards/Yusaku.png',
+    'cards/Danteee.png',
+    'cards/Johan-card.png',
+    'cards/mansherry.png',
+    'cards/Teach-card.png',
+    'cards/tobirama.png',
+    'cards/BigM.webp',
+    'cards/Choi-jong-in-.webp',
+    'cards/judarr.webp',
+    'cards/Adult-gon-card.webp',
+    'cards/ColossialTitan-card.png',
+    'cards/gloxinia.png',
+    'cards/A4thRaikagee.png',
+    'cards/Igris-card.webp',
+    'cards/Queen-card.webp',
+    'cards/Mahoraga.png',
+    'cards/Ban-card.png',
+    'cards/dazai-card.png',
+    'cards/Orihime-card.png',
+    'cards/Zagred-card.png',
+    'cards/Lille-baroo-card.png',
     'cards/minato.png',
     'cards/ShouHeiKun-card .png',
     'cards/KudoShinichi-card.png',
@@ -225,14 +322,22 @@ function generateRandomCards() {
     'cards/Dabi-card.png'
   ];
   
-  // Legendary cards (part of 15% with Epic)
+  // Legendary cards (part of 15% with Epic) - منظم حسب المجلد المرفق
   const legendaryCards = [
-    'cards/law.webm',
+    // الكروت الأسطورية من مجلد Legendary
+    'cards/obito.webm',
+    'cards/whitebeard.webm',
+    'cards/SakamotoCard.webm',
+    'cards/GojoCard.webm',
+    'cards/Gogeta.webm',
     'cards/Vegetto.webm',
+    'cards/Hawks.webm',
+    'cards/Goku UI.webm',
+    'cards/shikamaru.webm',
+    'cards/law.webm',
     'cards/madara.webm',
     'cards/NietroCard.webm',
     'cards/aizen.webm',
-    'cards/Hawks.webm',
     'cards/AllForOneCard.webm',
     'cards/ErenCard.webm',
     'cards/LuffyGear5Card.webm',
@@ -242,10 +347,7 @@ function generateRandomCards() {
     'cards/MeruemCard.webm',
     'cards/SilverCard.webm',
     'cards/Akai.webm',
-    'cards/ShanksCard.webm',
-    // New legendary cards
-    'cards/shikamaru.webm',
-    'cards/Goku UI.webm'
+    'cards/ShanksCard.webm'
   ];
   
   // Calculate distribution: 85% Common, 15% Epic+Legendary
@@ -260,21 +362,47 @@ function generateRandomCards() {
   const shuffledCommon = [...commonCards].sort(() => Math.random() - 0.5);
   const shuffledEpicLegendary = [...epicLegendaryCards].sort(() => Math.random() - 0.5);
   
-  // Select cards based on distribution
-  const selectedCommon = shuffledCommon.slice(0, commonCount);
-  const selectedEpicLegendary = shuffledEpicLegendary.slice(0, epicLegendaryCount);
+  // Select cards based on distribution with no duplicates
+  const selectedCards = [];
+  const usedCards = new Set(); // Track used cards to prevent duplicates
   
-  // Combine and shuffle all selected cards
-  const allSelectedCards = [...selectedCommon, ...selectedEpicLegendary].sort(() => Math.random() - 0.5);
+  // Select common cards
+  let commonSelected = 0;
+  for (let card of shuffledCommon) {
+    if (commonSelected >= commonCount) break;
+    if (!usedCards.has(card)) {
+      selectedCards.push(card);
+      usedCards.add(card);
+      commonSelected++;
+    }
+  }
   
-  // Ensure positions 14 and 10 (0-indexed: 13 and 9) always get strong cards
-  const strongCards = [...epicCards, ...legendaryCards];
-  const shuffledStrong = [...strongCards].sort(() => Math.random() - 0.5);
+  // Select epic and legendary cards
+  let epicLegendarySelected = 0;
+  for (let card of shuffledEpicLegendary) {
+    if (epicLegendarySelected >= epicLegendaryCount) break;
+    if (!usedCards.has(card)) {
+      selectedCards.push(card);
+      usedCards.add(card);
+      epicLegendarySelected++;
+    }
+  }
   
-  // Replace cards at positions 9 and 13 with strong cards
+  // Shuffle all selected cards
+  const allSelectedCards = selectedCards.sort(() => Math.random() - 0.5);
+  
+  // ضمان ظهور بطاقة أسطورية في الموضع رقم 14 دائماً
+  const shuffledLegendary = [...legendaryCards].sort(() => Math.random() - 0.5);
+  
+  // استبدال البطاقة في الموضع 13 (رقم 14) ببطاقة أسطورية
   if (allSelectedCards.length > 13) {
-    allSelectedCards[9] = shuffledStrong[0] || allSelectedCards[9]; // Position 10
-    allSelectedCards[13] = shuffledStrong[1] || allSelectedCards[13]; // Position 14
+    for (let legendaryCard of shuffledLegendary) {
+      if (!usedCards.has(legendaryCard)) {
+        allSelectedCards[13] = legendaryCard; // الموضع 14 - بطاقة أسطورية فقط
+        usedCards.add(legendaryCard);
+        break;
+      }
+    }
   }
   
   // Distribute cards between players (20 each) - NO REPEATS
@@ -332,29 +460,20 @@ function selectCard(cardNumber) {
   const cardDiv = document.querySelector(`[data-card-number="${cardNumber}"]`);
   const currentPlayerData = gameState[gameState.currentPlayer];
   
-  console.log('Selecting card:', cardNumber, 'Current player:', gameState.currentPlayer);
-  console.log('Current selected cards:', currentPlayerData.selectedCards);
-  
   // Check if card is already selected
   if (currentPlayerData.selectedCards.includes(cardNumber)) {
     // Deselect card
     const index = currentPlayerData.selectedCards.indexOf(cardNumber);
     currentPlayerData.selectedCards.splice(index, 1);
     cardDiv.classList.remove('selected');
-    console.log('Card deselected:', cardNumber);
   } else {
     // Select card if less than required cards selected
     const cardsNeeded = gameState.rounds;
     if (currentPlayerData.selectedCards.length < cardsNeeded) {
       currentPlayerData.selectedCards.push(cardNumber);
       cardDiv.classList.add('selected');
-      console.log('Card selected:', cardNumber);
-    } else {
-      console.log('Cannot select more cards, already have:', currentPlayerData.selectedCards.length);
     }
   }
-  
-  console.log('After selection:', currentPlayerData.selectedCards);
   
   // Update display
   updateDisplay();
@@ -447,24 +566,38 @@ function savePlayerCards() {
 
 function updateDisplay() {
   const currentPlayerData = gameState[gameState.currentPlayer];
-  const currentPlayerText = document.getElementById('currentPlayerText');
+  const currentPlayerName = document.getElementById('currentPlayerName');
+  const instructionText = document.getElementById('instructionText');
   const continueSection = document.getElementById('continueSection');
   const continueBtn = document.getElementById('continueBtn');
   
-  // Update player name without selection count
-  const playerName = currentPlayerData.name || (gameState.currentPlayer === 'player1' ? 'اللاعب الأول' : 'اللاعب الثاني');
+  // Update player name - try multiple sources for the name
+  let playerName = currentPlayerData.name;
+  
+  // If no name in current player data, try the global player names
+  if (!playerName) {
+    if (gameState.currentPlayer === 'player1') {
+      playerName = gameState.player1Name || 'اللاعب الأول';
+    } else {
+      playerName = gameState.player2Name || 'اللاعب الثاني';
+    }
+  }
+  
   const cardsNeeded = gameState.rounds;
-  currentPlayerText.textContent = `${playerName} اختر ${cardsNeeded} كرت`;
+  const selectedCount = currentPlayerData.selectedCards.length;
+  
+  // Update the player name
+  currentPlayerName.textContent = playerName;
+  
+  // Update the instruction text
+  instructionText.textContent = `اختر ${cardsNeeded} كرت`;
   
   // Show continue button when current player has required cards
-  console.log('Selected cards:', currentPlayerData.selectedCards.length, 'Needed:', cardsNeeded);
-  if (currentPlayerData.selectedCards.length === cardsNeeded) {
+  if (selectedCount === cardsNeeded) {
     continueSection.style.display = 'block';
     continueBtn.textContent = 'متابعة';
-    console.log('Continue button should be visible');
   } else {
     continueSection.style.display = 'none';
-    console.log('Continue button hidden');
   }
 }
 

@@ -688,33 +688,39 @@ function renderAbilitiesPanel(key, container, fromName, toName){
         const icon = newUsedState ? "🔴" : "🟢";
         const playerName = fromName;
         
-        showToast(`${icon} ${action} القدرة "${ab.text}" للاعب ${playerName}`, [
-          {
-            label: "إشعار اللاعب",
-            onClick: () => {
-              // Send notification to player
-              const notification = {
-                type: 'ability_toggle',
-                playerParam: playerParam,
-                abilityText: ab.text,
-                isUsed: newUsedState,
-                timestamp: Date.now(),
-                fromHost: true
-              };
-              localStorage.setItem('playerNotification', JSON.stringify(notification));
-              
-              // Trigger storage event for immediate sync
-              window.dispatchEvent(new StorageEvent('storage', {
-                key: 'playerNotification',
-                newValue: localStorage.getItem('playerNotification'),
-                oldValue: localStorage.getItem('playerNotification'),
-                storageArea: localStorage
-              }));
-              
-              showToast(`📤 تم إرسال إشعار للاعب ${playerName}`);
-            }
+        console.log(`${icon} ${action} القدرة "${ab.text}" للاعب ${playerName}`);
+        // showToast disabled - actions removed
+        
+        // Send notification to player directly
+        const notification = {
+          type: 'ability_toggle',
+          playerParam: playerParam,
+          abilityText: ab.text,
+          isUsed: newUsedState,
+          timestamp: Date.now(),
+          fromHost: true
+        };
+        
+        // Store notification with unique key to force change detection
+        const notificationKey = `playerNotification_${Date.now()}`;
+        localStorage.setItem(notificationKey, JSON.stringify(notification));
+        localStorage.setItem('playerNotification', JSON.stringify(notification));
+        
+        // Also store in a way that player can detect
+        const playerNotifications = JSON.parse(localStorage.getItem('allPlayerNotifications') || '[]');
+        playerNotifications.push(notification);
+        localStorage.setItem('allPlayerNotifications', JSON.stringify(playerNotifications));
+        
+        // Try BroadcastChannel if available
+        try {
+          if (window.broadcastChannel) {
+            window.broadcastChannel.postMessage(notification);
           }
-        ]);
+        } catch (e) {
+          console.log('BroadcastChannel not available');
+        }
+        
+        console.log(`📤 تم إرسال إشعار للاعب ${playerName}:`, notification);
       }, isUsed);
       
       // Update button appearance for used abilities
@@ -729,19 +735,43 @@ function renderAbilitiesPanel(key, container, fromName, toName){
     });
   }
 
-  // Clear existing transfer button to prevent duplicates
+  // Clear existing buttons to prevent duplicates
   const existingTransferBtn = container.querySelector('.transfer-btn');
+  const existingAddBtn = container.querySelector('.add-ability-btn');
   if (existingTransferBtn) {
     existingTransferBtn.remove();
   }
+  if (existingAddBtn) {
+    existingAddBtn.remove();
+  }
   
+  // Create button container
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.display = "flex";
+  buttonContainer.style.gap = "8px";
+  buttonContainer.style.marginTop = "10px";
+  
+  // Create transfer button
   const transferBtn=document.createElement("button");
   transferBtn.className="btn transfer-btn";
   transferBtn.style.fontFamily = '"Cairo", sans-serif';
-  transferBtn.textContent="نقل القدرة للاعب الآخر";
+  transferBtn.style.flex = "1";
+  transferBtn.textContent="نقل";
   transferBtn.onclick=()=>openTransferModal(key, fromName, toName);
   transferBtn.id = `transfer-${playerParam}`;
-  container.appendChild(transferBtn);
+  
+  // Create add ability button
+  const addBtn=document.createElement("button");
+  addBtn.className="btn add-ability-btn";
+  addBtn.style.fontFamily = '"Cairo", sans-serif';
+  addBtn.style.flex = "1";
+  addBtn.textContent="إضافة";
+  addBtn.onclick=()=>openAddAbilityModal(playerParam);
+  addBtn.id = `add-${playerParam}`;
+  
+  buttonContainer.appendChild(transferBtn);
+  buttonContainer.appendChild(addBtn);
+  container.appendChild(buttonContainer);
 }
 
 function renderPanels(){
@@ -888,22 +918,8 @@ function renderAbilityRequests(){
       if (!shownNotifications.has(request.id)) {
         shownNotifications.add(request.id);
         
-        showToast(`! ${request.playerName} يطلب استخدام القدرة: «${request.abilityText}»`, [
-          {
-            label: "قبول",
-            onClick: () => {
-              approveAbilityRequest(request.id);
-              shownNotifications.delete(request.id);
-            }
-          },
-          {
-            label: "رفض",
-            onClick: () => {
-              rejectAbilityRequest(request.id);
-              shownNotifications.delete(request.id);
-            }
-          }
-        ]);
+        console.log(`! ${request.playerName} يطلب استخدام القدرة: «${request.abilityText}»`);
+        // showToast disabled - actions removed
       }
     });
     
@@ -1038,7 +1054,7 @@ function approveAbilityRequest(requestId){
       setTimeout(() => renderPanels(), 50);
       setTimeout(() => renderPanels(), 100);
       
-      showToast(`تمت الموافقة على استخدام ${request.abilityText} من ${request.playerName}`, []);
+        console.log(`تمت الموافقة على استخدام ${request.abilityText} من ${request.playerName}`);
       
       shownNotifications.delete(requestId);
       
@@ -1046,7 +1062,7 @@ function approveAbilityRequest(requestId){
     }
   } catch(error) {
     console.error("Error approving ability request:", error);
-    showToast("حدث خطأ في الموافقة على الطلب", []);
+        console.log("حدث خطأ في الموافقة على الطلب");
   }
 }
 
@@ -1097,7 +1113,7 @@ function rejectAbilityRequest(requestId){
       setTimeout(() => renderPanels(), 50);
       setTimeout(() => renderPanels(), 100);
       
-      showToast(`تم رفض استخدام ${request.abilityText} من ${request.playerName}`, []);
+        console.log(`تم رفض استخدام ${request.abilityText} من ${request.playerName}`);
       
       shownNotifications.delete(requestId);
       
@@ -1105,7 +1121,7 @@ function rejectAbilityRequest(requestId){
     }
   } catch(error) {
     console.error("Error rejecting ability request:", error);
-    showToast("حدث خطأ في رفض الطلب", []);
+        console.log("حدث خطأ في رفض الطلب");
   }
 }
 
@@ -1200,13 +1216,13 @@ function restoreAbility(abilityText, playerName) {
     setTimeout(() => renderPanels(), 50);
     setTimeout(() => renderPanels(), 100);
     
-    showToast(`تم إعادة القدرة ${abilityText} لـ ${playerName}`, []);
+        console.log(`تم إعادة القدرة ${abilityText} لـ ${playerName}`);
     
     console.log(`Restored ability: ${abilityText} for ${playerName}`);
     return true;
   } catch(error) {
     console.error("Error restoring ability:", error);
-    showToast("حدث خطأ في إعادة القدرة", []);
+        console.log("حدث خطأ في إعادة القدرة");
     return false;
   }
 }
@@ -1259,7 +1275,7 @@ function openTransferModal(fromKey, fromName, toName){
 
         closeTransferModal();
         renderPanels();
-        showToast(`تم نقل «${moved.text}» إلى ${toName}`);
+        console.log(`تم نقل «${moved.text}» إلى ${toName}`);
       };
       grid.appendChild(opt);
     });
@@ -1298,7 +1314,7 @@ function openRestoreModal(key, fromName, usedAbilities){
         restoreAbility(ab.text, fromName);
         closeTransferModal();
         renderPanels();
-        showToast(`تم استعادة «${ab.text}» لـ ${fromName}`);
+        console.log(`تم استعادة «${ab.text}» لـ ${fromName}`);
       };
       grid.appendChild(opt);
     });
@@ -1410,6 +1426,10 @@ function confirmWinner(){
     localStorage.removeItem(ABILITY_REQUESTS_KEY);
     shownNotifications.clear();
     
+    // Notify player views that game is over
+    localStorage.setItem('gameStatus', 'finished');
+    localStorage.setItem('gameUpdate', Date.now().toString());
+    
     // Show winner
     const winner = scores[player1] > scores[player2] ? player1 : scores[player2] > scores[player1] ? player2 : "تعادل";
     console.log(`انتهت المعركة! الفائز: ${winner}`);
@@ -1422,7 +1442,22 @@ function confirmWinner(){
     localStorage.removeItem(USED_ABILITIES_KEY);
     localStorage.removeItem(ABILITY_REQUESTS_KEY);
     shownNotifications.clear();
-    location.reload();
+    
+    // Notify player views of round update BEFORE reload
+    console.log('Notifying player views of round update...');
+    localStorage.setItem('gameStatus', 'active');
+    localStorage.setItem('gameUpdate', Date.now().toString());
+    localStorage.setItem('roundUpdate', Date.now().toString());
+    
+    // Dispatch custom event for same-tab communication
+    window.dispatchEvent(new CustomEvent('roundUpdated', {
+      detail: { round, scores, player1, player2 }
+    }));
+    
+    // Small delay to allow player views to receive the update
+    setTimeout(() => {
+      location.reload();
+    }, 100);
   }
 }
 
@@ -1688,13 +1723,16 @@ try {
   
   // Event listeners for ability system
   
+  // Start ability request monitoring
+  startAbilityRequestMonitoring();
+  
   window.addEventListener('beforeunload', function() {
     shownNotifications.clear();
   });
   
 } catch (error) {
   console.error("Error initializing game:", error);
-  showToast("حدث خطأ في تحميل اللعبة. يرجى إعادة تحميل الصفحة.", []);
+    console.log("حدث خطأ في تحميل اللعبة. يرجى إعادة تحميل الصفحة.");
 }
 
 /* ---------------------- Confirm Result ---------------------- */
@@ -1760,9 +1798,9 @@ function showPreviousNotes(player) {
     const notes = localStorage.getItem(notesKey) || '';
     
     if (notes.trim()) {
-      showToast(`ملاحظات ${player}: ${notes}`, []);
+      console.log(`ملاحظات ${player}: ${notes}`);
     } else {
-      showToast(`لا توجد ملاحظات محفوظة لـ ${player}`, []);
+      console.log(`لا توجد ملاحظات محفوظة لـ ${player}`);
     }
   } catch(error) {
     console.error(`Error showing previous notes for ${player}:`, error);
@@ -1903,7 +1941,292 @@ function resetArrangement(playerParam) {
   }
 }
 
+// ================== Ability Request System ================== //
+// Handle ability requests from players
+function handleAbilityRequests() {
+  try {
+    const abilityRequests = JSON.parse(localStorage.getItem('abilityRequests') || '[]');
+    const pendingRequests = abilityRequests.filter(req => req.status === 'pending');
+    
+    console.log('Checking ability requests:', { abilityRequests, pendingRequests });
+    
+    if (pendingRequests.length > 0) {
+      console.log('Processing ability requests:', pendingRequests);
+      
+      // Check existing notifications to avoid duplicates
+      const existingNotifications = document.querySelectorAll('[style*="position: fixed"][style*="bottom: 18px"]');
+      const existingRequestIds = Array.from(existingNotifications).map(notif => 
+        notif.getAttribute('data-request-id')
+      ).filter(id => id);
+      
+      // Show notification for each pending request that doesn't have a notification yet
+      pendingRequests.forEach(request => {
+        if (!existingRequestIds.includes(request.id) && !lastProcessedRequests.has(request.id)) {
+          console.log('Showing notification for request:', request);
+          showAbilityRequestNotification(request);
+          lastProcessedRequests.add(request.id);
+        } else {
+          console.log('Notification already exists or was processed for request:', request.id);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error handling ability requests:', error);
+  }
+}
+
+// Show ability request notification (like result.js)
+function showAbilityRequestNotification(request) {
+  try {
+    const playerName = request.playerName || request.player || 'اللاعب';
+    const abilityText = request.abilityText || request.ability || 'القدرة';
+    const message = `❗ ${playerName} يطلب استخدام القدرة: «${abilityText}»`;
+    
+    console.log('Creating notification:', { playerName, abilityText, message });
+    
+    // Create notification element (same style as result.js)
+    const wrap = document.createElement("div");
+    wrap.setAttribute('data-request-id', request.id || '');
+    wrap.style.cssText = `
+      position: fixed; left: 50%; transform: translateX(-50%);
+      bottom: 18px; z-index: 3000; background: #222; color: #fff;
+      border: 2px solid #f3c21a; border-radius: 12px; padding: 10px 14px;
+      box-shadow: 0 8px 18px rgba(0,0,0,.35); font-weight: 700;
+      font-family: "Cairo", sans-serif;
+    `;
+    
+    const msg = document.createElement("div");
+    msg.textContent = message;
+    msg.style.marginBottom = "8px";
+    wrap.appendChild(msg);
+    
+    // Create buttons row
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.gap = "8px";
+    row.style.justifyContent = "flex-end";
+    
+    // Use Now button (green)
+    const useBtn = document.createElement("button");
+    useBtn.textContent = "استخدام الآن";
+    useBtn.style.cssText = `
+      padding: 6px 10px; border-radius: 10px; border: none;
+      background: #16a34a; color: #fff; font-weight: 800; cursor: pointer;
+      font-family: "Cairo", sans-serif;
+    `;
+    useBtn.onclick = () => {
+      approveAbilityRequest(request.playerParam || 'player1', abilityText, request.id || '');
+      if (wrap.parentNode) {
+        wrap.parentNode.removeChild(wrap);
+      }
+    };
+    row.appendChild(useBtn);
+    
+    // Close button (red)
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "إغلاق";
+    closeBtn.style.cssText = `
+      padding: 6px 10px; border-radius: 10px; border: none;
+      background: #dc2626; color: #fff; font-weight: 800; cursor: pointer;
+      font-family: "Cairo", sans-serif;
+    `;
+    closeBtn.onclick = () => {
+      rejectAbilityRequest(request.playerParam || 'player1', abilityText, request.id || '');
+      if (wrap.parentNode) {
+        wrap.parentNode.removeChild(wrap);
+      }
+    };
+    row.appendChild(closeBtn);
+    
+    wrap.appendChild(row);
+    document.body.appendChild(wrap);
+    console.log('Notification added to DOM');
+    
+    // Store reference for manual removal
+    wrap._abilityNotification = true;
+    
+    // Auto-remove after 15 seconds
+    setTimeout(() => {
+      if (wrap.parentNode) {
+        wrap.parentNode.removeChild(wrap);
+        console.log('Notification auto-removed');
+      }
+    }, 15000);
+    
+  } catch (error) {
+    console.error('Error showing ability request notification:', error);
+  }
+}
+
+// Approve ability request
+function approveAbilityRequest(player, ability, requestId = null) {
+  try {
+    // Add to used abilities
+    const usedAbilitiesKey = `${player}UsedAbilities`;
+    const usedAbilities = JSON.parse(localStorage.getItem(usedAbilitiesKey) || '[]');
+    usedAbilities.push(ability);
+    localStorage.setItem(usedAbilitiesKey, JSON.stringify(usedAbilities));
+    
+    // Mark request as approved (by requestId if available, otherwise by player+ability)
+    const abilityRequests = JSON.parse(localStorage.getItem('abilityRequests') || '[]');
+    let requestIndex = -1;
+    
+    if (requestId) {
+      requestIndex = abilityRequests.findIndex(req => req.id === requestId);
+    } else {
+      requestIndex = abilityRequests.findIndex(req => 
+        req.player === player && req.ability === ability && req.status === 'pending'
+      );
+    }
+    
+    if (requestIndex !== -1) {
+      abilityRequests[requestIndex].status = 'approved';
+      localStorage.setItem('abilityRequests', JSON.stringify(abilityRequests));
+      console.log('Request marked as approved:', abilityRequests[requestIndex]);
+    }
+    
+    // Send approval to server
+    if (requestId) {
+      socket.emit("approveAbilityRequest", { gameID, requestId });
+    }
+    
+    // Re-render panels
+    renderPanels();
+    
+    // Remove all ability notifications
+    removeAllAbilityNotifications();
+    
+    // Show success message (disabled)
+    const playerName = player === 'player1' ? player1 : player2;
+    console.log(`تم الموافقة على استخدام "${ability}" من ${playerName}`);
+    
+    console.log(`Ability request approved: ${player} - ${ability}`);
+    
+  } catch (error) {
+    console.error('Error approving ability request:', error);
+  }
+}
+
+// Reject ability request
+function rejectAbilityRequest(player, ability, requestId = null) {
+  try {
+    // Mark request as rejected (by requestId if available, otherwise by player+ability)
+    const abilityRequests = JSON.parse(localStorage.getItem('abilityRequests') || '[]');
+    let requestIndex = -1;
+    
+    if (requestId) {
+      requestIndex = abilityRequests.findIndex(req => req.id === requestId);
+    } else {
+      requestIndex = abilityRequests.findIndex(req => 
+        req.player === player && req.ability === ability && req.status === 'pending'
+      );
+    }
+    
+    if (requestIndex !== -1) {
+      abilityRequests[requestIndex].status = 'rejected';
+      localStorage.setItem('abilityRequests', JSON.stringify(abilityRequests));
+      console.log('Request marked as rejected:', abilityRequests[requestIndex]);
+    }
+    
+    // Send rejection to server
+    if (requestId) {
+      socket.emit("rejectAbilityRequest", { gameID, requestId });
+    }
+    
+    // Remove all ability notifications
+    removeAllAbilityNotifications();
+    
+    // Show rejection message (disabled)
+    const playerName = player === 'player1' ? player1 : player2;
+    console.log(`تم رفض استخدام "${ability}" من ${playerName}`);
+    
+    console.log(`Ability request rejected: ${player} - ${ability}`);
+    
+  } catch (error) {
+    console.error('Error rejecting ability request:', error);
+  }
+}
+
+// Remove all ability request notifications
+function removeAllAbilityNotifications() {
+  try {
+    // Find all notifications by their unique styling and custom property
+    const notifications = document.querySelectorAll('[style*="position: fixed"][style*="bottom: 18px"]');
+    notifications.forEach(notification => {
+      if (notification._abilityNotification && notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+        console.log('Removed ability notification');
+      }
+    });
+  } catch (error) {
+    console.error('Error removing notifications:', error);
+  }
+}
+
+// Show toast notification (disabled - no top notifications)
+function showToast(message, type = 'info') {
+  // Disabled to prevent top notifications
+  console.log('Toast disabled:', message, type);
+  return;
+}
+
+// Initialize BroadcastChannel if available
+try {
+  if (typeof BroadcastChannel !== 'undefined') {
+    window.broadcastChannel = new BroadcastChannel('ability-updates');
+  }
+} catch (e) {
+  console.log('BroadcastChannel not supported');
+}
+
+// Socket.IO initialization for host
+const socket = io();
+const gameID = 'default-game';
+
+console.log('Host socket initialized:', socket);
+socket.emit("joinGame", { gameID, role: "host" });
+console.log('Host joined game:', gameID);
+
+// Handle ability requests from players
+socket.on("requestUseAbility", ({ gameID: g, playerName, abilityText, requestId }) => {
+  console.log('Host received ability request:', { g, gameID, playerName, abilityText, requestId });
+  
+  if (g && g !== gameID) {
+    console.log('Game ID mismatch, ignoring request');
+    return;
+  }
+  
+  console.log('Processing ability request:', { playerName, abilityText, requestId });
+  
+  // Show notification to host
+  showAbilityRequestNotification({
+    player: playerName,
+    ability: abilityText,
+    requestId: requestId
+  });
+});
+
+// Start ability request monitoring
+let lastProcessedRequests = new Set();
+function startAbilityRequestMonitoring() {
+  // Check for ability requests every 2 seconds
+  setInterval(() => {
+    handleAbilityRequests();
+  }, 2000);
+  
+  // Also listen for storage events
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'abilityRequests') {
+      console.log('Storage event received for abilityRequests');
+      handleAbilityRequests();
+    }
+  });
+}
+
 // Make commands available globally
 window.openPlayerCardsForArrangement = openPlayerCardsForArrangement;
 window.checkArrangementStatus = checkArrangementStatus;
 window.resetArrangement = resetArrangement;
+window.approveAbilityRequest = approveAbilityRequest;
+window.rejectAbilityRequest = rejectAbilityRequest;
+window.showToast = showToast;

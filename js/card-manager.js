@@ -68,7 +68,7 @@ class CardManager {
       'cards/VanAugur-card.webp',
       'cards/Zamasuuu.webp',
       'cards/Mayuri-card.webp',
-      'cards/ColossialTitan-card.webp',
+      'cards/ColossialTitan-card.png',
       'cards/Igris-card.webp',
       'cards/Runge-card.webp',
       'cards/Mina-card.webp',
@@ -77,7 +77,7 @@ class CardManager {
       'cards/Shinji-card.webp',
       'cards/Shigaraki.webp',
       'cards/konohamaru.webp',
-      'cards/Kenzo-card.webp',
+      'cards/Kenzo-card.png',
       'cards/fubuki.webp',
       'cards/Jirobo.webp',
       'cards/RaiDokingdom.webp',
@@ -119,7 +119,19 @@ class CardManager {
       'cards/BeastKing-card.png',
       'cards/rin.png',
       'cards/kota izumi.png',
-      'cards/Lille-baroo-card.png'
+      'cards/Lille-baroo-card.png',
+      // Additional new common cards
+      'cards/Noelll.png',
+      'cards/shino.png',
+      'cards/Bardooock.png',
+      'cards/poseidon.png',
+      'cards/gloxinia.png',
+      'cards/Gilthunder.png',
+      'cards/Maki zenen.png',
+      'cards/Picollooo.png',
+      // Additional new common cards
+      'cards/Danteee.webp',
+      'cards/tenten.webp'
     ];
 
     // Epic cards (15% of total)
@@ -145,7 +157,32 @@ class CardManager {
       'cards/DragonBB-67-card.png',
       'cards/Kuma-card.png',
       'cards/YujiroHanma-card.png',
-      'cards/Dabi-card.png'
+      'cards/Dabi-card.png',
+      // Additional new epic cards
+      'cards/A4thRaikagee.png',
+      'cards/Kenzo-card.png',
+      'cards/Masamichi-card.png',
+      'cards/ShouBunKun-card.png',
+      'cards/mahito-card.png',
+      'cards/Mai-card.png',
+      'cards/Itadori-card.png',
+      // Additional new epic cards
+      'cards/DiamondJozu.webp',
+      'cards/Matsumoto-card.webp',
+      'cards/MomoYaorozu-card.webp',
+      'cards/Ishida-card.webp',
+      'cards/Yoruichi-card.webp',
+      'cards/esdeath.webp',
+      'cards/Jaw-card.webp',
+      'cards/BigM.webp',
+      'cards/Choi-jong-in-.webp',
+      'cards/judarr.webp',
+      'cards/Adult-gon-card.webp',
+      'cards/FemaleTitan-card.webp',
+      'cards/Aizetsu-card.webp',
+      'cards/Asui-card.webp',
+      'cards/Gadjah.webp',
+      'cards/naobito-card.webp'
     ];
 
     // Legendary cards (5% of total)
@@ -168,7 +205,12 @@ class CardManager {
       'cards/ShanksCard.webm',
       // New legendary cards
       'cards/shikamaru.webm',
-      'cards/Goku UI.webm'
+      'cards/Goku UI.webm',
+      // Additional new legendary cards
+      'cards/whitebeard.webm',
+      'cards/SakamotoCard.webm',
+      'cards/GojoCard.webm',
+      'cards/Gogeta.webm'
     ];
   }
 
@@ -178,15 +220,32 @@ class CardManager {
     const epicLegendaryCount = totalCards - commonCount; // 15% epic+legendary
 
     const selectedCards = [];
+    const usedCards = new Set(); // Track used cards to prevent duplicates
 
     // Select common cards
     const shuffledCommon = [...this.cardDatabase.common].sort(() => Math.random() - 0.5);
-    selectedCards.push(...shuffledCommon.slice(0, commonCount));
+    let commonSelected = 0;
+    for (let card of shuffledCommon) {
+      if (commonSelected >= commonCount) break;
+      if (!usedCards.has(card)) {
+        selectedCards.push(card);
+        usedCards.add(card);
+        commonSelected++;
+      }
+    }
 
     // Select epic and legendary cards (combined 15%)
     const epicLegendaryCards = [...this.cardDatabase.epic, ...this.cardDatabase.legendary];
     const shuffledEpicLegendary = [...epicLegendaryCards].sort(() => Math.random() - 0.5);
-    selectedCards.push(...shuffledEpicLegendary.slice(0, epicLegendaryCount));
+    let epicLegendarySelected = 0;
+    for (let card of shuffledEpicLegendary) {
+      if (epicLegendarySelected >= epicLegendaryCount) break;
+      if (!usedCards.has(card)) {
+        selectedCards.push(card);
+        usedCards.add(card);
+        epicLegendarySelected++;
+      }
+    }
 
     // Shuffle final selection
     const shuffledCards = selectedCards.sort(() => Math.random() - 0.5);
@@ -195,10 +254,22 @@ class CardManager {
     const strongCards = [...this.cardDatabase.epic, ...this.cardDatabase.legendary];
     const shuffledStrong = [...strongCards].sort(() => Math.random() - 0.5);
     
-    // Replace cards at positions 9 and 13 with strong cards
+    // Replace cards at positions 9 and 13 with strong cards (only if not already used)
     if (shuffledCards.length > 13) {
-      shuffledCards[9] = shuffledStrong[0] || shuffledCards[9]; // Position 10
-      shuffledCards[13] = shuffledStrong[1] || shuffledCards[13]; // Position 14
+      for (let strongCard of shuffledStrong) {
+        if (!usedCards.has(strongCard)) {
+          shuffledCards[9] = strongCard; // Position 10
+          usedCards.add(strongCard);
+          break;
+        }
+      }
+      for (let strongCard of shuffledStrong) {
+        if (!usedCards.has(strongCard)) {
+          shuffledCards[13] = strongCard; // Position 14
+          usedCards.add(strongCard);
+          break;
+        }
+      }
     }
     
     return shuffledCards;
@@ -217,12 +288,18 @@ class CardManager {
       video.muted = true;
       video.playsInline = true;
       video.className = className;
+      video.style.border = "1px solid white";
+      video.style.borderRadius = "12px";
+      video.style.objectFit = "contain";
       if (onClick) video.onclick = onClick;
       return video;
     } else {
       const img = document.createElement("img");
       img.src = url;
       img.className = className;
+      img.style.border = "1px solid white";
+      img.style.borderRadius = "12px";
+      img.style.objectFit = "contain";
       if (onClick) img.onclick = onClick;
       return img;
     }

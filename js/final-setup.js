@@ -301,8 +301,17 @@ async function startBattle() {
       player2Cards: player2Cards.length
     });
     
-    // Redirect to battle page
-    window.location.href = 'card.html';
+    // Set battle started flag to enable player view buttons
+    localStorage.setItem('battleStarted', 'true');
+    
+    // Show success message
+    showToast('تم تفعيل أزرار عرض التحدي للاعبين!', 'success');
+    
+    // Small delay before redirecting to allow toast to show
+    setTimeout(() => {
+      // Redirect to battle page for host
+      window.location.href = 'card.html';
+    }, 1500);
   } catch (e) {
     console.error('Error starting battle:', e);
     alert('حدث خطأ في بدء المعركة: ' + e.message);
@@ -481,6 +490,7 @@ function updatePlayerNames() {
   if (player1AbilitiesName) player1AbilitiesName.textContent = player1Name;
   if (player2AbilitiesName) player2AbilitiesName.textContent = player2Name;
   
+  
   console.log('Updated player names:', { player1Name, player2Name });
 }
 
@@ -523,6 +533,16 @@ function loadAbilities() {
   }
 }
 
+// Reset battle status for new game
+function resetBattleStatus() {
+  try {
+    localStorage.removeItem('battleStarted');
+    console.log('Battle status reset for new game');
+  } catch (error) {
+    console.error('Error resetting battle status:', error);
+  }
+}
+
 // Clear old data when starting fresh
 function clearOldData() {
   try {
@@ -550,6 +570,9 @@ async function init() {
     
     // Clear old data first
     clearOldData();
+    
+    // Reset battle status for new game setup
+    resetBattleStatus();
     
     loadGameData();
     updatePlayerNames();
@@ -635,6 +658,95 @@ function saveProgress() {
   // since we're using Firebase for real-time updates
   console.log('saveProgress called (Firebase mode - no action needed)');
 }
+
+// Open player view pages for both players
+function openPlayerViewPages() {
+  try {
+    // Get current game ID
+    const gameId = sessionStorage.getItem('currentGameId') || 'default';
+    
+    // Get base URL
+    const baseUrl = window.location.origin + window.location.pathname.replace('final-setup.html', '');
+    
+    // Generate player view URLs
+    const player1Url = `${baseUrl}player-view.html?player=1&gameId=${gameId}`;
+    const player2Url = `${baseUrl}player-view.html?player=2&gameId=${gameId}`;
+    
+    console.log('Opening player view pages:', { player1Url, player2Url });
+    
+  // Open both in new tabs
+  const player1Window = window.open(player1Url, '_blank');
+  const player2Window = window.open(player2Url, '_blank');
+    
+    // Check if windows were opened successfully
+    if (!player1Window || player1Window.closed) {
+      console.warn('Player 1 window was blocked or closed');
+      alert('تم منع نافذة اللاعب الأول. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+    }
+    
+    if (!player2Window || player2Window.closed) {
+      console.warn('Player 2 window was blocked or closed');
+      alert('تم منع نافذة اللاعب الثاني. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+    }
+    
+    // Store window references for monitoring
+    window.player1Window = player1Window;
+    window.player2Window = player2Window;
+    
+    // Show success message
+    showToast('تم فتح صفحات اللاعبين بنجاح!', 'success');
+    
+  } catch (error) {
+    console.error('Error opening player view pages:', error);
+    alert('حدث خطأ في فتح صفحات اللاعبين: ' + error.message);
+  }
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+  try {
+    // Remove existing toast
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+      existingToast.remove();
+    }
+    
+    // Create new toast
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    
+    // Add type-specific styling
+    if (type === 'success') {
+      toast.style.borderColor = 'var(--success)';
+    } else if (type === 'error') {
+      toast.style.borderColor = 'var(--danger)';
+    } else if (type === 'warning') {
+      toast.style.borderColor = 'var(--warning)';
+    }
+    
+    document.body.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 100);
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Error showing toast:', error);
+  }
+}
+
 
 // Make functions available globally
 window.copyPlayerLink = copyPlayerLink;
