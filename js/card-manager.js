@@ -14,203 +14,161 @@ class CardManager {
     // All cards are now in a single 'cards' directory
     // Common cards (80% of total)
     this.cardDatabase.common = [
-      'images/Stark-card.png',
-      'images/Todoroki.png',
-      'images/CartTitan-card.png',
-      'images/Monspeet-card.png',
-      'images/Rika-card.png',
-      'images/ace.png',
-      'images/Shizuku-card.png',
-      'images/zetsu.png',
-      'images/Overhaul-card.png',
-      'images/Atsuya-card.png',
-      'images/Yoo-Jinho-card.png',
-      'images/Gin-freecss-card.png',
-      'images/Hantengu-card.png',
-      'images/Lily-card.png',
-      'images/Gordon-card.png',
-      'images/Charllotte-card.png',
-      'images/Min-Byung-Gyu-card.png',
-      'images/KiSui-card.png',
-      'images/Iron-card.png',
-      'images/Hawk-card.png',
-      'images/bartolomeo-card.png',
-      'images/WarHammerTitan-card.png',
-      'images/Luck.png',
-      'images/Elfaria Albis.png',
-      'images/Haschwalth-card.png',
-      'images/Hisagi-card.png',
-      'images/Elizabeth.png',
-      'images/MeiMei-card.png',
-      'images/Okabe-card.png',
-      'images/Renpa-card.png',
-      'images/Vengeance.png',
-      'images/Pariston-card.png',
-      'images/franklin_card.png',
-      'images/MouBu-card.png',
-      'images/Android18-card.png',
-      'images/hinata.png',
-      'images/laxus.png',
-      'images/Videl-card.webp',
-      'images/Momo-hinamori-card.webp',
-      'images/cardo20ppsd.webp',
-      'images/Krilin-card.webp',
-      'images/HakuKi-card.webp',
-      'images/ArmorTitan-card.webp',
-      'images/Nachttt.webp',
-      'images/Tosen-card.webp',
+      'cards/Stark-card.png',
+      'cards/Todoroki.png',
+      'cards/CartTitan-card.png',
+      'cards/Monspeet-card.png',
+      'cards/Rika-card.png',
+      'cards/ace.png',
+      'cards/Shizuku-card.png',
+      'cards/zetsu.png',
+      'cards/Overhaul-card.png',
+      'cards/Atsuya-card.png',
+      'cards/Yoo-Jinho-card.png',
+      'cards/Gin-freecss-card.png',
+      'cards/Hantengu-card.png',
+      'cards/Lily-card.png',
+      'cards/Gordon-card.png',
+      'cards/Charllotte-card.png',
+      'cards/Min-Byung-Gyu-card.png',
+      'cards/KiSui-card.png',
+      'cards/Iron-card.png',
+      'cards/Hawk-card.png',
+      'cards/bartolomeo-card.png',
+      'cards/WarHammerTitan-card.png',
+      'cards/Luck.png',
+      'cards/Elfaria Albis.png',
+      'cards/Haschwalth-card.png',
+      'cards/Hisagi-card.png',
+      'cards/Elizabeth.png',
+      'cards/MeiMei-card.png',
+      'cards/Okabe-card.png',
+      'cards/Renpa-card.png',
+      'cards/Vengeance.png',
+      'cards/Pariston-card.png',
+      'cards/franklin_card.png',
+      'cards/MouBu-card.png',
+      'cards/Android18-card.png',
+      'cards/hinata.png',
+      'cards/laxus.png',
+      'cards/Videl-card.webp',
+      'cards/Momo-hinamori-card.webp',
+      'cards/cardo20ppsd.webp',
+      'cards/Krilin-card.webp',
+      'cards/HakuKi-card.webp',
+      'cards/ArmorTitan-card.webp',
+      'cards/Nachttt.webp',
+      'cards/Tosen-card.webp',
       // New common cards
-      'images/geten.webp',
-      'images/alex20armstrong.webp',
-      'images/Shinpei-card.webp',
-      'images/Friezaaa.webp',
-      'images/MetalBat-card.webp',
-      'images/VanAugur-card.webp',
-      'images/Zamasuuu.webp',
-      'images/Mayuri-card.webp',
-      'images/ColossialTitan-card.png',
-      'images/Igris-card.webp',
-      'images/Runge-card.webp',
-      'images/Mina-card.webp',
-      'images/takuma-card.webp',
-      'images/lyonvastia.webp',
-      'images/Shinji-card.webp',
-      'images/Shigaraki.webp',
-      'images/konohamaru.webp',
-      'images/Kenzo-card.png',
-      'images/fubuki.webp',
-      'images/Jirobo.webp',
-      'images/RaiDokingdom.webp',
-      'images/silverfullbuster.webp',
-      'images/Langriiss.webp',
-      'images/Panda-card.webp',
-      'images/pizarro.webp',
-      'images/Mezo-card.webp',
-      'images/Senritsu-card.webp',
-      'images/Merlin-card.webp',
-      'images/Queen-card.webp',
-      'images/Btakuya-card.png',
-      'images/sai.png',
-      'images/crocus-card.png',
-      'images/kurenai.png',
-      'images/Mahoraga.png',
-      'images/Inosuke-card.png',
-      'images/KeiSha-card.png',
-      'images/brook.png',
-      'images/Ur.png',
-      'images/Kurogiri-card.png',
-      'images/Alluka-card.png',
-      'images/Ban-card.png',
-      'images/konan.png',
-      'images/dazai-card.png',
-      'images/Karaku-card.png',
-      'images/Inumaki-card.png',
-      'images/Raditzz.png',
-      'images/Lucci-card.png',
-      'images/Bisky-card.png',
-      'images/Orihime-card.png',
-      'images/Isaac mcdougal.png',
-      'images/ino.png',
-      'images/Eso-card.png',
-      'images/Genthru-card.png',
-      'images/Roy Mustang.png',
-      'images/Stain-card.png',
-      'images/Zagred-card.png',
-      'images/BeastKing-card.png',
-      'images/rin.png',
-      'images/kota izumi.png',
-      'images/Lille-baroo-card.png',
-      // Additional new common cards
-      'images/Noelll.png',
-      'images/shino.png',
-      'images/Bardooock.png',
-      'images/poseidon.png',
-      'images/gloxinia.png',
-      'images/Gilthunder.png',
-      'images/Maki zenen.png',
-      'images/Picollooo.png',
-      // Additional new common cards
-      'images/Danteee.webp',
-      'images/tenten.webp'
+      'cards/geten.webp',
+      'cards/alex20armstrong.webp',
+      'cards/Shinpei-card.webp',
+      'cards/Friezaaa.webp',
+      'cards/MetalBat-card.webp',
+      'cards/VanAugur-card.webp',
+      'cards/Zamasuuu.webp',
+      'cards/Mayuri-card.webp',
+      'cards/ColossialTitan-card.webp',
+      'cards/Igris-card.webp',
+      'cards/Runge-card.webp',
+      'cards/Mina-card.webp',
+      'cards/takuma-card.webp',
+      'cards/lyonvastia.webp',
+      'cards/Shinji-card.webp',
+      'cards/Shigaraki.webp',
+      'cards/konohamaru.webp',
+      'cards/Kenzo-card.webp',
+      'cards/fubuki.webp',
+      'cards/Jirobo.webp',
+      'cards/RaiDokingdom.webp',
+      'cards/silverfullbuster.webp',
+      'cards/Langriiss.webp',
+      'cards/Panda-card.webp',
+      'cards/pizarro.webp',
+      'cards/Mezo-card.webp',
+      'cards/Senritsu-card.webp',
+      'cards/Merlin-card.webp',
+      'cards/Queen-card.webp',
+      'cards/Btakuya-card.png',
+      'cards/sai.png',
+      'cards/crocus-card.png',
+      'cards/kurenai.png',
+      'cards/Mahoraga.png',
+      'cards/Inosuke-card.png',
+      'cards/KeiSha-card.png',
+      'cards/brook.png',
+      'cards/Ur.png',
+      'cards/Kurogiri-card.png',
+      'cards/Alluka-card.png',
+      'cards/Ban-card.png',
+      'cards/konan.png',
+      'cards/dazai-card.png',
+      'cards/Karaku-card.png',
+      'cards/Inumaki-card.png',
+      'cards/Raditzz.png',
+      'cards/Lucci-card.png',
+      'cards/Bisky-card.png',
+      'cards/Orihime-card.png',
+      'cards/Isaac mcdougal.png',
+      'cards/ino.png',
+      'cards/Eso-card.png',
+      'cards/Genthru-card.png',
+      'cards/Roy Mustang.png',
+      'cards/Stain-card.png',
+      'cards/Zagred-card.png',
+      'cards/BeastKing-card.png',
+      'cards/rin.png',
+      'cards/kota izumi.png',
+      'cards/Lille-baroo-card.png'
     ];
 
     // Epic cards (15% of total)
     this.cardDatabase.epic = [
-      'images/minato.png',
-      'images/ShouHeiKun-card .png',
-      'images/KudoShinichi-card.png',
-      'images/Ichibe-card.png',
-      'images/Endeavor.png',
-      'images/Tier Harribel.png',
-      'images/Crocodile.png',
-      'images/Nana-card.png',
-      'images/Vegapunk-crad.webp',
-      'images/Go-Gunhee-card.webp',
-      'images/Nami.webp',
-      'images/Hachigen-card.png',
-      'images/Senjumaru-card.png',
-      'images/Arthur-card.png',
-      'images/Lemillion-card.png',
-      'images/Fuegoleonn .png',
-      'images/Itchigo-card .png',
-      'images/Kaito-card .png',
-      'images/DragonBB-67-card.png',
-      'images/Kuma-card.png',
-      'images/YujiroHanma-card.png',
-      'images/Dabi-card.png',
-      // Additional new epic cards
-      'images/A4thRaikagee.png',
-      'images/Kenzo-card.png',
-      'images/Masamichi-card.png',
-      'images/ShouBunKun-card.png',
-      'images/mahito-card.png',
-      'images/Mai-card.png',
-      'images/Itadori-card.png',
-      // Additional new epic cards
-      'images/DiamondJozu.webp',
-      'images/Matsumoto-card.webp',
-      'images/MomoYaorozu-card.webp',
-      'images/Ishida-card.webp',
-      'images/Yoruichi-card.webp',
-      'images/esdeath.webp',
-      'images/Jaw-card.webp',
-      'images/BigM.webp',
-      'images/Choi-jong-in-.webp',
-      'images/judarr.webp',
-      'images/Adult-gon-card.webp',
-      'images/FemaleTitan-card.webp',
-      'images/Aizetsu-card.webp',
-      'images/Asui-card.webp',
-      'images/Gadjah.webp',
-      'images/naobito-card.webp'
+      'cards/minato.png',
+      'cards/ShouHeiKun-card .png',
+      'cards/KudoShinichi-card.png',
+      'cards/Ichibe-card.png',
+      'cards/Endeavor.png',
+      'cards/Tier Harribel.png',
+      'cards/Crocodile.png',
+      'cards/Nana-card.png',
+      'cards/Vegapunk-crad.webp',
+      'cards/Go-Gunhee-card.webp',
+      'cards/Nami.webp',
+      'cards/Hachigen-card.png',
+      'cards/Senjumaru-card.png',
+      'cards/Arthur-card.png',
+      'cards/Lemillion-card.png',
+      'cards/Fuegoleonn .png',
+      'cards/Itchigo-card .png',
+      'cards/Kaito-card .png',
+      'cards/DragonBB-67-card.png',
+      'cards/Kuma-card.png',
+      'cards/YujiroHanma-card.png',
+      'cards/Dabi-card.png'
     ];
 
     // Legendary cards (5% of total)
     this.cardDatabase.legendary = [
-      'images/law.webm',
-      'images/Vegetto.webm',
-      'images/madara.webm',
-      'images/NietroCard.webm',
-      'images/aizen.webm',
-      'images/Hawks.webm',
-      'images/AllForOneCard.webm',
-      'images/ErenCard.webm',
-      'images/LuffyGear5Card.webm',
-      'images/joker.webm',
-      'images/AyanokojiCard.webm',
-      'images/UmibozoCard.webm',
-      'images/MeruemCard.webm',
-      'images/SilverCard.webm',
-      'images/Akai.webm',
-      'images/ShanksCard.webm',
+      'cards/law.webm',
+      'cards/Vegetto.webm',
+      'cards/madara.webm',
+      'cards/NietroCard.webm',
+      'cards/aizen.webm',
+      'cards/Hawks.webm',
+      'cards/AllForOneCard.webm',
+      'cards/ErenCard.webm',
+      'cards/LuffyGear5Card.webm',
+      'cards/joker.webm',
+      'cards/AyanokojiCard.webm',
+      'cards/UmibozoCard.webm',
+      'cards/MeruemCard.webm',
+      'cards/SilverCard.webm',
+      'cards/Akai.webm',
+      'cards/ShanksCard.webm',
       // New legendary cards
-      'images/shikamaru.webm',
-      'images/Goku UI.webm',
-      // Additional new legendary cards
-      'images/whitebeard.webm',
-      'images/SakamotoCard.webm',
-      'images/GojoCard.webm',
-      'images/Gogeta.webm'
+      'cards/shikamaru.webm',
+      'cards/Goku UI.webm'
     ];
   }
 
@@ -220,32 +178,15 @@ class CardManager {
     const epicLegendaryCount = totalCards - commonCount; // 15% epic+legendary
 
     const selectedCards = [];
-    const usedCards = new Set(); // Track used cards to prevent duplicates
 
     // Select common cards
     const shuffledCommon = [...this.cardDatabase.common].sort(() => Math.random() - 0.5);
-    let commonSelected = 0;
-    for (let card of shuffledCommon) {
-      if (commonSelected >= commonCount) break;
-      if (!usedCards.has(card)) {
-        selectedCards.push(card);
-        usedCards.add(card);
-        commonSelected++;
-      }
-    }
+    selectedCards.push(...shuffledCommon.slice(0, commonCount));
 
     // Select epic and legendary cards (combined 15%)
     const epicLegendaryCards = [...this.cardDatabase.epic, ...this.cardDatabase.legendary];
     const shuffledEpicLegendary = [...epicLegendaryCards].sort(() => Math.random() - 0.5);
-    let epicLegendarySelected = 0;
-    for (let card of shuffledEpicLegendary) {
-      if (epicLegendarySelected >= epicLegendaryCount) break;
-      if (!usedCards.has(card)) {
-        selectedCards.push(card);
-        usedCards.add(card);
-        epicLegendarySelected++;
-      }
-    }
+    selectedCards.push(...shuffledEpicLegendary.slice(0, epicLegendaryCount));
 
     // Shuffle final selection
     const shuffledCards = selectedCards.sort(() => Math.random() - 0.5);
@@ -254,22 +195,10 @@ class CardManager {
     const strongCards = [...this.cardDatabase.epic, ...this.cardDatabase.legendary];
     const shuffledStrong = [...strongCards].sort(() => Math.random() - 0.5);
     
-    // Replace cards at positions 9 and 13 with strong cards (only if not already used)
+    // Replace cards at positions 9 and 13 with strong cards
     if (shuffledCards.length > 13) {
-      for (let strongCard of shuffledStrong) {
-        if (!usedCards.has(strongCard)) {
-          shuffledCards[9] = strongCard; // Position 10
-          usedCards.add(strongCard);
-          break;
-        }
-      }
-      for (let strongCard of shuffledStrong) {
-        if (!usedCards.has(strongCard)) {
-          shuffledCards[13] = strongCard; // Position 14
-          usedCards.add(strongCard);
-          break;
-        }
-      }
+      shuffledCards[9] = shuffledStrong[0] || shuffledCards[9]; // Position 10
+      shuffledCards[13] = shuffledStrong[1] || shuffledCards[13]; // Position 14
     }
     
     return shuffledCards;
@@ -277,7 +206,7 @@ class CardManager {
 
   // Create media element (image or video)
   createMediaElement(url, className, onClick) {
-    // Use the URL as-is since all cards are in the images/ directory
+    // Use the URL as-is since all cards are in the cards/ directory
     const isWebm = /\.webm(\?|#|$)/i.test(url);
     
     if (isWebm) {
@@ -288,18 +217,12 @@ class CardManager {
       video.muted = true;
       video.playsInline = true;
       video.className = className;
-      video.style.border = "1px solid white";
-      video.style.borderRadius = "12px";
-      video.style.objectFit = "contain";
       if (onClick) video.onclick = onClick;
       return video;
     } else {
       const img = document.createElement("img");
       img.src = url;
       img.className = className;
-      img.style.border = "1px solid white";
-      img.style.borderRadius = "12px";
-      img.style.objectFit = "contain";
       if (onClick) img.onclick = onClick;
       return img;
     }
@@ -311,22 +234,22 @@ class CardManager {
       return null;
     }
 
-    // Convert old paths to new images/ directory structure
+    // Convert old paths to new cards/ directory structure
     let correctedPath = path;
     
     // Remove any CARD/ prefix
     correctedPath = correctedPath.replace(/^CARD\//, '');
     
-    // Convert old directory structure to new images/ structure
+    // Convert old directory structure to new cards/ structure
     if (correctedPath.startsWith('Common/')) {
-      correctedPath = correctedPath.replace('Common/', 'images/');
+      correctedPath = correctedPath.replace('Common/', 'cards/');
     } else if (correctedPath.startsWith('Epic/')) {
-      correctedPath = correctedPath.replace('Epic/', 'images/');
+      correctedPath = correctedPath.replace('Epic/', 'cards/');
     } else if (correctedPath.startsWith('Legendray/')) {
-      correctedPath = correctedPath.replace('Legendray/', 'images/');
-    } else if (!correctedPath.startsWith('images/') && !correctedPath.startsWith('http')) {
-      // If it doesn't start with images/ and isn't a full URL, add images/ prefix
-      correctedPath = 'images/' + correctedPath;
+      correctedPath = correctedPath.replace('Legendray/', 'cards/');
+    } else if (!correctedPath.startsWith('cards/') && !correctedPath.startsWith('http')) {
+      // If it doesn't start with cards/ and isn't a full URL, add cards/ prefix
+      correctedPath = 'cards/' + correctedPath;
     }
     
     // Fix common naming inconsistencies
