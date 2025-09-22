@@ -44,58 +44,58 @@ function saveSwapDeckUsage() {
   }
 }
 
-// Get all available cards from the cards directory
+// Get all available cards from the images directory
 function getAllAvailableCards() {
   const allCards = [
-    "cards/ShanksCard.webm", "cards/Akai.webm", "cards/madara.webm", "cards/Nana-card.png", "cards/Vengeance.png",
-    "cards/Crocodile.png", "cards/MeiMei-card.png", "cards/Elizabeth.png", "cards/ace.png", "cards/Adult-gon-card.webp",
-    "cards/aizen.webm", "cards/Aizetsu-card.webp", "cards/Akutagawa-card.png", "cards/alex20armstrong.webp", "cards/AllForOneCard.webm",
-    "cards/Alluka-card.png", "cards/Android18-card.png", "cards/ArmorTitan-card.webp", "cards/Arthur-card.png", "cards/Asui-card.png",
-    "cards/Atsuya-card.png", "cards/AyanokojiCard.webm", "cards/Ban-card.png", "cards/Bardooock.png", "cards/bartolomeo-card.png",
-    "cards/BeastKing-card.png", "cards/BigM.webp", "cards/Bisky-card.png", "cards/brook.png", "cards/Btakuya-card.png",
-    "cards/caesar-card.png", "cards/cardo20ppsd.webp", "cards/CartTitan-card.png", "cards/cavendish-card.png", "cards/Charllotte-card.png",
-    "cards/Choi-jong-in-.webp", "cards/Chopper-card.png", "cards/ColossialTitan-card.png", "cards/Dabi-card.png", "cards/Danteee.png",
-    "cards/dazai-card.png", "cards/DiamondJozu.webp", "cards/DragonBB-67-card.png", "cards/edward elric.png", "cards/Elfaria Albis.png",
-    "cards/Endeavor.png", "cards/ErenCard.webm", "cards/esdeath.webp", "cards/Eso-card.png", "cards/FemaleTitan-card.webp",
-    "cards/franklin_card.png", "cards/Franky-card.png", "cards/Frierennnnn.png", "cards/Friezaaa.webp", "cards/fubuki.webp",
-    "cards/Fuegoleonn .png", "cards/Gadjah.webp", "cards/GaiMou-card.png", "cards/Galand-card.png", "cards/Ganju-card.png",
-    "cards/Genthru-card.png", "cards/geten.webp", "cards/Geto-card.png", "cards/ghiaccio.png", "cards/Gilthunder.png",
-    "cards/Gin-freecss-card.png", "cards/gloxinia.png", "cards/Go-Gunhee-card.webm", "cards/Gogeta.webm", "cards/GojoCard.webm",
-    "cards/Goku UI.webm", "cards/Gordon-card.png", "cards/Hachigen-card.png", "cards/HakuKi-card.webp", "cards/Hantengu-card.png",
-    "cards/Haruta jjk.png", "cards/Haschwalth-card.png", "cards/Hawk-card.png", "cards/Hawks.webm", "cards/hinata.png",
-    "cards/Hisagi-card.png", "cards/Ichibe-card.png", "cards/Igris-card.webp", "cards/ino.png", "cards/Inosuke-card.png",
-    "cards/Inumaki-card.png", "cards/Ippo-card.png", "cards/Iron-card.png", "cards/Isaac mcdougal.png", "cards/Ishida-card.webp",
-    "cards/Itadori-card.png", "cards/Itchigo-card .png", "cards/Jack-card.png", "cards/Jaw-card.webp", "cards/Jirobo.webp",
-    "cards/Johan-card.png", "cards/joker.webm", "cards/Jozi jjk.png", "cards/judarr.webp", "cards/jugo.png",
-    "cards/julius wistoria.png", "cards/Kaguraaaa.png", "cards/Kaito-card .png", "cards/Kalluto-card.png", "cards/Karaku-card.png",
-    "cards/KeiSha-card.png", "cards/kenjaku-card.png", "cards/Kenzo-card.png", "cards/kimimaro.png", "cards/Kingkaiii.png",
-    "cards/Kirach.png", "cards/KiSui-card.png", "cards/Knov-card.png", "cards/konan.png", "cards/konohamaru.webp",
-    "cards/kota izumi.png", "cards/Krilin-card.webp", "cards/KudoShinichi-card.png", "cards/Kukoshibo-card.png", "cards/Kuma-card.png",
-    "cards/Kurapika-card.png", "cards/kurenai.png", "cards/Kurogiri-card.png", "cards/Kyoga-card.png", "cards/Langriiss.webp",
-    "cards/law.webm", "cards/laxus.png", "cards/Lemillion-card.png", "cards/Lille-baroo-card.png", "cards/Lily-card.png",
-    "cards/Lucci-card.png", "cards/Luck.png", "cards/LuffyGear5Card.webm", "cards/lumiere silvamillion.png", "cards/lyon vastia.png",
-    "cards/obito.webm", "cards/mahito-card.png", "cards/Mahoraga.png", "cards/Mai-card.png", "cards/Maki zenen.png",
-    "cards/Makio-card.png", "cards/mansherry.png", "cards/Masamichi-card.png", "cards/Matsumoto-card.webp", "cards/Mayuri-card.webp",
-    "cards/MeiMei-card.png", "cards/Meleoron-card.png", "cards/Merlin-card.webp", "cards/MeruemCard.webm", "cards/MetalBat-card.png",
-    "cards/Mezo-card.webp", "cards/Min-Byung-Gyu-card.png", "cards/Mina-card.png", "cards/minato.png", "cards/Miruku bnha.png",
-    "cards/Momo-hinamori-card.webp", "cards/MomoYaorozu-card.webp", "cards/Monspeet-card.png", "cards/MouBu-card.png", "cards/MouGou-card.png",
-    "cards/Nachttt.webp", "cards/Nami.webp", "cards/Nana-card.png", "cards/nanami-card.png", "cards/naobito-card.webp",
-    "cards/Nejire-card.png", "cards/NietroCard.webm", "cards/Noelll.png", "cards/Oden-card.png", "cards/Okabe-card.png",
-    "cards/Orihime-card.png", "cards/Overhaul-card.png", "cards/Panda-card.webp", "cards/Paragusss.png", "cards/Pariston-card.png",
-    "cards/Picollooo.png", "cards/pizarro.webp", "cards/poseidon.png", "cards/Queen-card.webp", "cards/Raditzz.png",
-    "cards/RaiDo%20kingdom.webp", "cards/RaiDokingdom.webp", "cards/Renpa-card.png", "cards/Rhyaa.png", "cards/Rika-card.png",
-    "cards/rin.png", "cards/Rojuro-card.png", "cards/Roy Mustang.png", "cards/Runge-card.png", "cards/Runge-card.webp",
-    "cards/sai.png", "cards/SakamotoCard.webm", "cards/Senjumaru-card.png", "cards/Senritsu-card.webp", "cards/ShanksCard.webm",
-    "cards/shikamaru.webm", "cards/Shin-card.png", "cards/Shinji-card.webp", "cards/shino.png", "cards/Shinobu-card.png",
-    "cards/Shinpei-card.webp", "cards/Shizuku-card.png", "cards/ShouBunKun-card.png", "cards/ShouHeiKun-card .png", "cards/silver%20fullbuster.webp",
-    "cards/SilverCard.webm", "cards/silverfullbuster.webp", "cards/Stain-card.png", "cards/Stark-card.png", "cards/sting eucliffe.png",
-    "cards/suzuno.png", "cards/takuma-card.webp", "cards/Tank-card.png", "cards/Teach-card.png", "cards/Tenma-card.png",
-    "cards/tenten.webp", "cards/Tier Harribel.png", "cards/tobirama.png", "cards/Todoroki.png", "cards/Tosen-card.webp",
-    "cards/UmibozoCard.webm", "cards/Ur.png", "cards/Uvogin-card.png", "cards/VanAugur-card.webp", "cards/Vegapunk-crad.webp",
-    "cards/Vegetto.webm", "cards/Vengeance.png", "cards/Videl-card.webp", "cards/Vista-card.png", "cards/WarHammerTitan-card.png",
-    "cards/whitebeard.webm", "cards/Yoo-Jinho-card.png", "cards/Yoruichi-card.webp", "cards/YujiroHanma-card.png", "cards/Yusaku.png",
-    "cards/Zagred-card.png", "cards/Zamasuuu.webm", "cards/zaratras.png", "cards/Zeno kingdom.png", "cards/Zeo Thorzeus.png",
-    "cards/zetsu.png", "cards/Zohakuten.png"
+    "images/ShanksCard.webm", "images/Akai.webm", "images/madara.webm", "images/Nana-card.png", "images/Vengeance.png",
+    "images/Crocodile.png", "images/MeiMei-card.png", "images/Elizabeth.png", "images/ace.png", "images/Adult-gon-card.webp",
+    "images/aizen.webm", "images/Aizetsu-card.webp", "images/Akutagawa-card.png", "images/alex20armstrong.webp", "images/AllForOneCard.webm",
+    "images/Alluka-card.png", "images/Android18-card.png", "images/ArmorTitan-card.webp", "images/Arthur-card.png", "images/Asui-card.png",
+    "images/Atsuya-card.png", "images/AyanokojiCard.webm", "images/Ban-card.png", "images/Bardooock.png", "images/bartolomeo-card.png",
+    "images/BeastKing-card.png", "images/BigM.webp", "images/Bisky-card.png", "images/brook.png", "images/Btakuya-card.png",
+    "images/caesar-card.png", "images/cardo20ppsd.webp", "images/CartTitan-card.png", "images/cavendish-card.png", "images/Charllotte-card.png",
+    "images/Choi-jong-in-.webp", "images/Chopper-card.png", "images/ColossialTitan-card.png", "images/Dabi-card.png", "images/Danteee.png",
+    "images/dazai-card.png", "images/DiamondJozu.webp", "images/DragonBB-67-card.png", "images/edward elric.png", "images/Elfaria Albis.png",
+    "images/Endeavor.png", "images/ErenCard.webm", "images/esdeath.webp", "images/Eso-card.png", "images/FemaleTitan-card.webp",
+    "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp",
+    "images/Fuegoleonn .png", "images/Gadjah.webp", "images/GaiMou-card.png", "images/Galand-card.png", "images/Ganju-card.png",
+    "images/Genthru-card.png", "images/geten.webp", "images/Geto-card.png", "images/ghiaccio.png", "images/Gilthunder.png",
+    "images/Gin-freecss-card.png", "images/gloxinia.png", "images/Go-Gunhee-card.webm", "images/Gogeta.webm", "images/GojoCard.webm",
+    "images/Goku UI.webm", "images/Gordon-card.png", "images/Hachigen-card.png", "images/HakuKi-card.webp", "images/Hantengu-card.png",
+    "images/Haruta jjk.png", "images/Haschwalth-card.png", "images/Hawk-card.png", "images/Hawks.webm", "images/hinata.png",
+    "images/Hisagi-card.png", "images/Ichibe-card.png", "images/Igris-card.webp", "images/ino.png", "images/Inosuke-card.png",
+    "images/Inumaki-card.png", "images/Ippo-card.png", "images/Iron-card.png", "images/Isaac mcdougal.png", "images/Ishida-card.webp",
+    "images/Itadori-card.png", "images/Itchigo-card .png", "images/Jack-card.png", "images/Jaw-card.webp", "images/Jirobo.webp",
+    "images/Johan-card.png", "images/joker.webm", "images/Jozi jjk.png", "images/judarr.webp", "images/jugo.png",
+    "images/julius wistoria.png", "images/Kaguraaaa.png", "images/Kaito-card .png", "images/Kalluto-card.png", "images/Karaku-card.png",
+    "images/KeiSha-card.png", "images/kenjaku-card.png", "images/Kenzo-card.png", "images/kimimaro.png", "images/Kingkaiii.png",
+    "images/Kirach.png", "images/KiSui-card.png", "images/Knov-card.png", "images/konan.png", "images/konohamaru.webp",
+    "images/kota izumi.png", "images/Krilin-card.webp", "images/KudoShinichi-card.png", "images/Kukoshibo-card.png", "images/Kuma-card.png",
+    "images/Kurapika-card.png", "images/kurenai.png", "images/Kurogiri-card.png", "images/Kyoga-card.png", "images/Langriiss.webp",
+    "images/law.webm", "images/laxus.png", "images/Lemillion-card.png", "images/Lille-baroo-card.png", "images/Lily-card.png",
+    "images/Lucci-card.png", "images/Luck.png", "images/LuffyGear5Card.webm", "images/lumiere silvamillion.png", "images/lyon vastia.png",
+    "images/obito.webm", "images/mahito-card.png", "images/Mahoraga.png", "images/Mai-card.png", "images/Maki zenen.png",
+    "images/Makio-card.png", "images/mansherry.png", "images/Masamichi-card.png", "images/Matsumoto-card.webp", "images/Mayuri-card.webp",
+    "images/MeiMei-card.png", "images/Meleoron-card.png", "images/Merlin-card.webp", "images/MeruemCard.webm", "images/MetalBat-card.png",
+    "images/Mezo-card.webp", "images/Min-Byung-Gyu-card.png", "images/Mina-card.png", "images/minato.png", "images/Miruku bnha.png",
+    "images/Momo-hinamori-card.webp", "images/MomoYaorozu-card.webp", "images/Monspeet-card.png", "images/MouBu-card.png", "images/MouGou-card.png",
+    "images/Nachttt.webp", "images/Nami.webp", "images/Nana-card.png", "images/nanami-card.png", "images/naobito-card.webp",
+    "images/Nejire-card.png", "images/NietroCard.webm", "images/Noelll.png", "images/Oden-card.png", "images/Okabe-card.png",
+    "images/Orihime-card.png", "images/Overhaul-card.png", "images/Panda-card.webp", "images/Paragusss.png", "images/Pariston-card.png",
+    "images/Picollooo.png", "images/pizarro.webp", "images/poseidon.png", "images/Queen-card.webp", "images/Raditzz.png",
+    "images/RaiDo%20kingdom.webp", "images/RaiDokingdom.webp", "images/Renpa-card.png", "images/Rhyaa.png", "images/Rika-card.png",
+    "images/rin.png", "images/Rojuro-card.png", "images/Roy Mustang.png", "images/Runge-card.png", "images/Runge-card.webp",
+    "images/sai.png", "images/SakamotoCard.webm", "images/Senjumaru-card.png", "images/Senritsu-card.webp", "images/ShanksCard.webm",
+    "images/shikamaru.webm", "images/Shin-card.png", "images/Shinji-card.webp", "images/shino.png", "images/Shinobu-card.png",
+    "images/Shinpei-card.webp", "images/Shizuku-card.png", "images/ShouBunKun-card.png", "images/ShouHeiKun-card .png", "images/silver%20fullbuster.webp",
+    "images/SilverCard.webm", "images/silverfullbuster.webp", "images/Stain-card.png", "images/Stark-card.png", "images/sting eucliffe.png",
+    "images/suzuno.png", "images/takuma-card.webp", "images/Tank-card.png", "images/Teach-card.png", "images/Tenma-card.png",
+    "images/tenten.webp", "images/Tier Harribel.png", "images/tobirama.png", "images/Todoroki.png", "images/Tosen-card.webp",
+    "images/UmibozoCard.webm", "images/Ur.png", "images/Uvogin-card.png", "images/VanAugur-card.webp", "images/Vegapunk-crad.webp",
+    "images/Vegetto.webm", "images/Vengeance.png", "images/Videl-card.webp", "images/Vista-card.png", "images/WarHammerTitan-card.png",
+    "images/whitebeard.webm", "images/Yoo-Jinho-card.png", "images/Yoruichi-card.webp", "images/YujiroHanma-card.png", "images/Yusaku.png",
+    "images/Zagred-card.png", "images/Zamasuuu.webm", "images/zaratras.png", "images/Zeno kingdom.png", "images/Zeo Thorzeus.png",
+    "images/zetsu.png", "images/Zohakuten.png"
   ];
   
   return allCards;
@@ -268,11 +268,12 @@ function confirmSwap() {
   console.log('Media added to selected card');
   console.log('Selected card children:', selectedCard.children.length);
   
-  // Add fallback text
+  // Add fallback text for debugging
   const fallbackText = document.createElement('div');
   fallbackText.textContent = `البطاقة المختارة: ${newCardSrc}`;
   fallbackText.style.color = 'red';
   fallbackText.style.fontWeight = 'bold';
+  fallbackText.style.fontSize = '12px';
   selectedCard.appendChild(fallbackText);
   
   // Update confirm button text
@@ -791,6 +792,11 @@ function createMedia(url, className){
     } else if (!fixedUrl.startsWith('images/')) {
       fixedUrl = 'images/' + fixedUrl;
     }
+  }
+  
+  // Ensure the path is correct for images folder
+  if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('images/')) {
+    fixedUrl = 'images/' + fixedUrl;
   }
   
   const isWebm = /\.webm(\?|#|$)/i.test(fixedUrl || "");
