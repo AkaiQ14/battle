@@ -29,6 +29,12 @@ let fixedSwapCards = {
   player2: null
 };
 
+// Store confirmed swap cards for each player (separate for each player)
+let confirmedSwapCards = {
+  player1: null,
+  player2: null
+};
+
 // Load swap deck usage from localStorage
 function loadSwapDeckUsage() {
   try {
@@ -68,6 +74,27 @@ function saveFixedSwapCards() {
     localStorage.setItem('fixedSwapCards', JSON.stringify(fixedSwapCards));
   } catch (error) {
     console.error('Error saving fixed swap cards:', error);
+  }
+}
+
+// Load confirmed swap cards from localStorage
+function loadConfirmedSwapCards() {
+  try {
+    const saved = localStorage.getItem('confirmedSwapCards');
+    if (saved) {
+      confirmedSwapCards = JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error('Error loading confirmed swap cards:', error);
+  }
+}
+
+// Save confirmed swap cards to localStorage
+function saveConfirmedSwapCards() {
+  try {
+    localStorage.setItem('confirmedSwapCards', JSON.stringify(confirmedSwapCards));
+  } catch (error) {
+    console.error('Error saving confirmed swap cards:', error);
   }
 }
 
@@ -136,8 +163,10 @@ function generateSwapCards(playerParam) {
   }
   
   const allCards = getAllAvailableCards();
-  const playerName = playerParam === 'player1' ? player1 : player2;
-  const playerCards = picks[playerName] || [];
+  
+  // Get player picks from localStorage
+  const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
+  const playerCards = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
   
   // Filter out cards that the player already has
   const availableCards = allCards.filter(card => !playerCards.includes(card));
@@ -155,7 +184,10 @@ function generateSwapCards(playerParam) {
 
 // Open swap deck modal
 function openSwapDeckModal(playerParam) {
-  const playerName = playerParam === 'player1' ? player1 : player2;
+  // Get player names from localStorage
+  const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
+  const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
+  const playerName = playerParam === 'player1' ? player1Name : player2Name;
   
   // Check if player has already used swap deck
   if (swapDeckUsed[playerParam]) {
@@ -177,8 +209,15 @@ function openSwapDeckModal(playerParam) {
   // Update title
   title.textContent = `دكة البدلاء - ${playerName}`;
   
-  // Show current card
-  const currentCardSrc = picks[playerName]?.[round];
+  // Show current card (the card that will be replaced)
+  // Get current round
+  const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
+  
+  // Get player picks from localStorage
+  const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
+  const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
+  
+  const currentCardSrc = playerPicks[currentRound];
   if (currentCardSrc) {
     currentCardDisplay.innerHTML = "";
     currentCardDisplay.appendChild(createMedia(currentCardSrc, ""));
@@ -193,49 +232,51 @@ function openSwapDeckModal(playerParam) {
   // Store swap cards in modal data
   modal.dataset.swapCards = JSON.stringify(swapCards);
   
-  // Check if there's a confirmed card from previous session
-  const confirmedCardIndex = modal.dataset.confirmedCardIndex;
-  
-  // If there's a confirmed card, disable confirm button
-  if (confirmedCardIndex) {
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "تم التأكيد";
-  }
   
   swapCards.forEach((cardSrc, index) => {
     const cardOption = document.createElement("div");
-    const isConfirmed = confirmedCardIndex && parseInt(confirmedCardIndex) === index;
+    cardOption.className = "swap-card-option number-only";
     
-    if (isConfirmed) {
-      cardOption.className = "swap-card-option confirmed";
-      // Show the confirmed card image
-      const media = createMedia(cardSrc, "swap-card-media");
-      cardOption.appendChild(media);
-    } else {
-      cardOption.className = "swap-card-option number-only";
-      // Add card number only
-      const cardNumber = document.createElement("div");
-      cardNumber.className = "swap-card-number";
-      cardNumber.textContent = `${index + 1}`;
-      cardOption.appendChild(cardNumber);
-    }
+    // Add card number only
+    const cardNumber = document.createElement("div");
+    cardNumber.className = "swap-card-number";
+    cardNumber.textContent = `${index + 1}`;
+    cardOption.appendChild(cardNumber);
     
     cardOption.dataset.cardSrc = cardSrc;
     cardOption.dataset.cardIndex = index;
     
     cardOption.onclick = () => {
-      // Check if a card is already selected and confirmed
-      const alreadySelected = swapCardsGrid.querySelector('.swap-card-option.confirmed');
-      if (alreadySelected) {
-        showToast("! تم اختيار البطاقة بالفعل", 'warning');
-        return;
-      }
-      
       // Remove previous selection
-      swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => opt.classList.remove('selected'));
+      swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => {
+        opt.classList.remove('selected');
+        // Reset to number-only state
+        opt.classList.add('number-only');
+        const existingMedia = opt.querySelector('.swap-card-media');
+        if (existingMedia) {
+          existingMedia.remove();
+        }
+        const number = opt.querySelector('.swap-card-number');
+        if (number) {
+          number.style.display = 'block';
+        }
+      });
       
       // Select current card
       cardOption.classList.add('selected');
+      
+      // Show the card image
+      cardOption.classList.remove('number-only');
+      
+      // Hide number and show image
+      const cardNumber = cardOption.querySelector('.swap-card-number');
+      if (cardNumber) {
+        cardNumber.style.display = 'none';
+      }
+      
+      // Create and show media element
+      const media = createMedia(cardSrc, "swap-card-media");
+      cardOption.appendChild(media);
       
       // Enable confirm button
       confirmBtn.disabled = false;
@@ -244,13 +285,12 @@ function openSwapDeckModal(playerParam) {
     swapCardsGrid.appendChild(cardOption);
   });
   
-  // Reset confirm button only if no confirmed card
-  if (!confirmedCardIndex) {
-    confirmBtn.disabled = true;
-  }
+  // Reset confirm button
+  confirmBtn.disabled = true;
   
   // Store current player for confirm action
   modal.dataset.playerParam = playerParam;
+  modal.dataset.playerName = playerName;
   
   modal.classList.add("active");
 }
@@ -267,7 +307,7 @@ function closeSwapDeckModal() {
 function confirmSwap() {
   const modal = document.getElementById("swapDeckModal");
   const playerParam = modal.dataset.playerParam;
-  const playerName = playerParam === 'player1' ? player1 : player2;
+  const playerName = modal.dataset.playerName;
   
   const selectedCard = modal.querySelector('.swap-card-option.selected');
   if (!selectedCard) {
@@ -283,68 +323,64 @@ function confirmSwap() {
     return;
   }
   
-  // Mark card as confirmed and show the image
-  selectedCard.classList.add('confirmed');
-  selectedCard.classList.remove('number-only');
-  
-  // Hide number and show image
-  const cardNumber = selectedCard.querySelector('.swap-card-number');
-  if (cardNumber) {
-    cardNumber.style.display = 'none';
-  }
-  
-  // Create and show media element
-  const media = createMedia(newCardSrc, "swap-card-media");
-  selectedCard.appendChild(media);
-  
-  // Save confirmed card index
-  modal.dataset.confirmedCardIndex = selectedCard.dataset.cardIndex;
-  
-  // Disable all other cards
-  swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
-    card.style.opacity = '0.5';
-    card.style.pointerEvents = 'none';
-  });
-  
-  // Disable confirm button
-  const confirmBtn = document.getElementById("confirmSwapBtn");
-  if (confirmBtn) {
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "تم التأكيد";
-  }
-  
-  // Perform the swap immediately
+  // Perform the swap
   performSwap(playerParam, playerName, newCardSrc);
+}
+
+// Cancel swap
+function cancelSwap() {
+  const modal = document.getElementById("swapDeckModal");
+  const playerParam = modal.dataset.playerParam;
+  
+  // Mark swap deck as used even if cancelled
+  swapDeckUsed[playerParam] = true;
+  saveSwapDeckUsage();
+  
+  // Disable swap deck button
+  const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
+  if (swapBtn) {
+    swapBtn.classList.add('disabled');
+    swapBtn.disabled = true;
+    swapBtn.textContent = 'مستخدمة';
+  }
+  
+  // Close modal
+  closeSwapDeckModal();
+  
+  // Show message
+  showToast("تم إلغاء التبديل", 'info');
 }
 
 // Perform the actual swap
 function performSwap(playerParam, playerName, newCardSrc) {
-  if (picks[playerName] && picks[playerName][round]) {
-    const oldCardSrc = picks[playerName][round];
-    picks[playerName][round] = newCardSrc;
+  // Get current round
+  const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
+  
+  // Get player picks from localStorage
+  const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
+  const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
+  
+  if (playerPicks[currentRound]) {
+    const oldCardSrc = playerPicks[currentRound];
+    playerPicks[currentRound] = newCardSrc;
     
     // Save updated picks to localStorage
     try {
+      // Update StrategicPicks
+      localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
+      
       // Update StrategicOrdered if it exists
       const strategicOrderedKey = `${playerParam}StrategicOrdered`;
       const strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
-      if (Array.isArray(strategicOrdered) && strategicOrdered[round]) {
-        strategicOrdered[round] = newCardSrc;
+      if (Array.isArray(strategicOrdered) && strategicOrdered[currentRound]) {
+        strategicOrdered[currentRound] = newCardSrc;
         localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
-      }
-      
-      // Update StrategicPicks if it exists
-      const strategicPicksKey = `${playerParam}StrategicPicks`;
-      const strategicPicks = JSON.parse(localStorage.getItem(strategicPicksKey) || '[]');
-      if (Array.isArray(strategicPicks) && strategicPicks[round]) {
-        strategicPicks[round] = newCardSrc;
-        localStorage.setItem(strategicPicksKey, JSON.stringify(strategicPicks));
       }
       
       // Update gameCardSelection if it exists
       const gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
-      if (gameCardSelection[`${playerParam}Cards`] && gameCardSelection[`${playerParam}Cards`][round]) {
-        gameCardSelection[`${playerParam}Cards`][round] = newCardSrc;
+      if (gameCardSelection[`${playerParam}Cards`] && gameCardSelection[`${playerParam}Cards`][currentRound]) {
+        gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
         localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
       }
       
@@ -2028,8 +2064,12 @@ try {
   // Load fixed swap cards
   loadFixedSwapCards();
   
+  // Load confirmed swap cards
+  loadConfirmedSwapCards();
+  
   console.log('Swap deck usage loaded:', swapDeckUsed);
   console.log('Fixed swap cards loaded:', fixedSwapCards);
+  console.log('Confirmed swap cards loaded:', confirmedSwapCards);
   
   // Clear used abilities for new game if current round is 0
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
@@ -2038,8 +2078,10 @@ try {
     // Reset swap deck usage and fixed cards for new game
     swapDeckUsed = { player1: false, player2: false };
     fixedSwapCards = { player1: null, player2: null };
+    confirmedSwapCards = { player1: null, player2: null };
     saveSwapDeckUsage();
     saveFixedSwapCards();
+    saveConfirmedSwapCards();
   }
   
   renderRound();
