@@ -370,9 +370,10 @@ window.openSwapDeckModal = function(playerParam) {
       
       // Enable confirm button
       confirmBtn.disabled = false;
+      confirmBtn.style.pointerEvents = 'auto';
+      confirmBtn.style.opacity = '1';
       
-      // Show preview message
-      showToast("تم اختيار الرقم! اضغط على تأكيد التبديل لرؤية البطاقة", 'info');
+      // Card selected successfully
     };
     
     swapCardsGrid.appendChild(cardOption);
@@ -398,11 +399,18 @@ window.closeSwapDeckModal = function() {
 };
 
 window.confirmSwap = function() {
+  console.log('🎯 confirmSwap called');
   const modal = document.getElementById("swapDeckModal");
-  if (!modal) return;
+  if (!modal) {
+    console.error('Modal not found');
+    return;
+  }
   
   const playerParam = modal.dataset.playerParam;
-  if (!playerParam) return;
+  if (!playerParam) {
+    console.error('Player param not found');
+    return;
+  }
   
   // Get player names from localStorage
   const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
@@ -410,15 +418,19 @@ window.confirmSwap = function() {
   const playerName = playerParam === 'player1' ? player1Name : player2Name;
   
   const selectedCard = modal.querySelector('.swap-card-option.selected');
+  console.log('Selected card:', selectedCard);
   
   if (!selectedCard) {
+    console.error('No card selected');
     return;
   }
   
   // Get card source from selected card data
   const newCardSrc = selectedCard.dataset.cardSrc;
+  console.log('New card source:', newCardSrc);
   
   if (!newCardSrc) {
+    console.error('No card source found');
     return;
   }
   
@@ -462,7 +474,9 @@ window.confirmSwap = function() {
   }
   
   // Perform the swap immediately
+  console.log('Performing swap...');
   performSwap(playerParam, playerName, newCardSrc);
+  console.log('Swap completed!');
 };
 
 // Functions are now available globally
@@ -470,16 +484,22 @@ window.confirmSwap = function() {
 
 // Perform the actual swap
 function performSwap(playerParam, playerName, newCardSrc) {
+  console.log('🔄 performSwap called with:', { playerParam, playerName, newCardSrc });
+  
   // Get current round
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
+  console.log('Current round:', currentRound);
   
   // Get player picks from localStorage
   const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
   const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
+  console.log('Player picks:', playerPicks);
   
   if (playerPicks[currentRound]) {
     const oldCardSrc = playerPicks[currentRound];
+    console.log('Old card:', oldCardSrc);
     playerPicks[currentRound] = newCardSrc;
+    console.log('New card set:', newCardSrc);
     
     // Save updated picks to localStorage
     try {
@@ -514,9 +534,11 @@ function performSwap(playerParam, playerName, newCardSrc) {
       }
       
       // Refresh the display
+      console.log('Refreshing display...');
       renderVs();
       
       // Close modal
+      console.log('Closing modal...');
       closeSwapDeckModal();
       
       // Swap completed successfully
