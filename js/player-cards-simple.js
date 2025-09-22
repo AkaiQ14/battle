@@ -633,44 +633,8 @@ window.addEventListener('storage', function(e) {
     loadPlayerAbilities();
     loadOpponentAbilities();
   }
-  
-  // Listen for card order updates from other tabs/windows
-  if (e.key === ORDER_LOCAL_KEY) {
-    console.log('Card order updated in another tab');
-    const newOrder = JSON.parse(e.newValue || '[]');
-    if (Array.isArray(newOrder) && newOrder.length === picks.length) {
-      submittedOrder = newOrder.slice();
-      hideOpponentPanel();
-      renderCards(submittedOrder, submittedOrder);
-      if (continueBtn) {
-        continueBtn.disabled = true;
-        continueBtn.textContent = '✅ تم إرسال الترتيب';
-      }
-    }
-  }
-});
-
-// Listen for custom events from other tabs/windows (following order.js pattern)
-window.addEventListener('cardOrderSubmitted', function(e) {
-  const { gameId: eventGameId, playerName: eventPlayerName, ordered } = e.detail;
-  
-  // Only update if it's for the same game and different player
-  if (eventGameId === gameId && eventPlayerName !== playerName) {
-    console.log('Card order submitted by another player:', eventPlayerName);
-    // Refresh the page to show updated state
-    setTimeout(() => {
-      location.reload();
-    }, 1000);
-  }
-});
-
-// Listen for ability usage updates from other tabs/windows
-window.addEventListener('abilityUsed', function(e) {
-  const { playerName: eventPlayerName, abilityText } = e.detail;
-  
-  if (eventPlayerName !== playerName) {
-    console.log('Ability used by another player:', eventPlayerName, abilityText);
-    loadOpponentAbilities();
+  if (e.key === 'abilityRequests') {
+    checkAbilityRequests();
   }
 });
 
@@ -901,11 +865,6 @@ async function requestUseAbility(abilityText) {
       }
     }
   }
-  
-  // Dispatch custom event for real-time sync (following order.js pattern)
-  window.dispatchEvent(new CustomEvent('abilityUsed', { 
-    detail: { playerName, abilityText } 
-  }));
   
   // Create ability request (fallback)
   const requestId = `${playerParam}_${Date.now()}`;
@@ -1219,11 +1178,6 @@ async function submitPicks() {
         console.warn('Firebase save failed, but localStorage saved:', e);
       }
     }
-    
-    // Also dispatch custom event for real-time sync (following order.js pattern)
-    window.dispatchEvent(new CustomEvent('cardOrderSubmitted', { 
-      detail: { gameId, playerName, ordered } 
-    }));
     
     // Update submittedOrder immediately (like order.js)
     submittedOrder = ordered.slice();
