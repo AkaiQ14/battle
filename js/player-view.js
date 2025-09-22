@@ -641,26 +641,26 @@ function updateCards() {
           if (typeof cardData === 'string') {
             // If cardData is just a string (filename)
             // Handle different possible formats
-            if (cardData.startsWith('cards/')) {
-              imageSrc = cardData; // Already has cards/ prefix
+            if (cardData.startsWith('images/')) {
+              imageSrc = cardData; // Already has images/ prefix
             } else {
-              imageSrc = `cards/${cardData}`;
+              imageSrc = `images/${cardData}`;
             }
-            altText = cardData.replace('cards/', '');
+            altText = cardData.replace('images/', '');
             console.log('Left card: String format ->', imageSrc);
           } else if (typeof cardData === 'object') {
             // Handle object formats
             if (cardData.image) {
-              imageSrc = cardData.image.startsWith('cards/') ? cardData.image : `cards/${cardData.image}`;
+              imageSrc = cardData.image.startsWith('images/') ? cardData.image : `images/${cardData.image}`;
               altText = cardData.name || cardData.image;
             } else if (cardData.src) {
-              imageSrc = cardData.src.startsWith('cards/') ? cardData.src : `cards/${cardData.src}`;
+              imageSrc = cardData.src.startsWith('images/') ? cardData.src : `images/${cardData.src}`;
               altText = cardData.name || cardData.src;
             } else if (cardData.filename) {
-              imageSrc = cardData.filename.startsWith('cards/') ? cardData.filename : `cards/${cardData.filename}`;
+              imageSrc = cardData.filename.startsWith('images/') ? cardData.filename : `images/${cardData.filename}`;
               altText = cardData.name || cardData.filename;
             } else if (cardData.path) {
-              imageSrc = cardData.path.startsWith('cards/') ? cardData.path : `cards/${cardData.path}`;
+              imageSrc = cardData.path.startsWith('images/') ? cardData.path : `images/${cardData.path}`;
               altText = cardData.name || cardData.path;
             }
             console.log('Left card: Object format ->', { imageSrc, altText, cardData });
@@ -714,26 +714,26 @@ function updateCards() {
           if (typeof cardData === 'string') {
             // If cardData is just a string (filename)
             // Handle different possible formats
-            if (cardData.startsWith('cards/')) {
-              imageSrc = cardData; // Already has cards/ prefix
+            if (cardData.startsWith('images/')) {
+              imageSrc = cardData; // Already has images/ prefix
             } else {
-              imageSrc = `cards/${cardData}`;
+              imageSrc = `images/${cardData}`;
             }
-            altText = cardData.replace('cards/', '');
+            altText = cardData.replace('images/', '');
             console.log('Right card: String format ->', imageSrc);
           } else if (typeof cardData === 'object') {
             // Handle object formats
             if (cardData.image) {
-              imageSrc = cardData.image.startsWith('cards/') ? cardData.image : `cards/${cardData.image}`;
+              imageSrc = cardData.image.startsWith('images/') ? cardData.image : `images/${cardData.image}`;
               altText = cardData.name || cardData.image;
             } else if (cardData.src) {
-              imageSrc = cardData.src.startsWith('cards/') ? cardData.src : `cards/${cardData.src}`;
+              imageSrc = cardData.src.startsWith('images/') ? cardData.src : `images/${cardData.src}`;
               altText = cardData.name || cardData.src;
             } else if (cardData.filename) {
-              imageSrc = cardData.filename.startsWith('cards/') ? cardData.filename : `cards/${cardData.filename}`;
+              imageSrc = cardData.filename.startsWith('images/') ? cardData.filename : `images/${cardData.filename}`;
               altText = cardData.name || cardData.filename;
             } else if (cardData.path) {
-              imageSrc = cardData.path.startsWith('cards/') ? cardData.path : `cards/${cardData.path}`;
+              imageSrc = cardData.path.startsWith('images/') ? cardData.path : `images/${cardData.path}`;
               altText = cardData.name || cardData.path;
             }
             console.log('Right card: Object format ->', { imageSrc, altText, cardData });
@@ -1083,25 +1083,25 @@ function createMiniCard(cardData, roundIndex) {
     
     if (typeof cardData === 'string') {
       // If cardData is just a string (filename)
-      if (cardData.startsWith('cards/')) {
+      if (cardData.startsWith('images/')) {
         imageSrc = cardData;
       } else {
-        imageSrc = `cards/${cardData}`;
+        imageSrc = `images/${cardData}`;
       }
-      altText = cardData.replace('cards/', '');
+      altText = cardData.replace('images/', '');
     } else if (typeof cardData === 'object') {
       // Handle object formats
       if (cardData.image) {
-        imageSrc = cardData.image.startsWith('cards/') ? cardData.image : `cards/${cardData.image}`;
+        imageSrc = cardData.image.startsWith('images/') ? cardData.image : `images/${cardData.image}`;
         altText = cardData.name || cardData.image;
       } else if (cardData.src) {
-        imageSrc = cardData.src.startsWith('cards/') ? cardData.src : `cards/${cardData.src}`;
+        imageSrc = cardData.src.startsWith('images/') ? cardData.src : `images/${cardData.src}`;
         altText = cardData.name || cardData.src;
       } else if (cardData.filename) {
-        imageSrc = cardData.filename.startsWith('cards/') ? cardData.filename : `cards/${cardData.filename}`;
+        imageSrc = cardData.filename.startsWith('images/') ? cardData.filename : `images/${cardData.filename}`;
         altText = cardData.name || cardData.filename;
       } else if (cardData.path) {
-        imageSrc = cardData.path.startsWith('cards/') ? cardData.path : `cards/${cardData.path}`;
+        imageSrc = cardData.path.startsWith('images/') ? cardData.path : `images/${cardData.path}`;
         altText = cardData.name || cardData.path;
       }
     }
