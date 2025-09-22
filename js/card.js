@@ -213,11 +213,87 @@ function openSwapDeckModal(playerParam) {
   // Get current round
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
   
-  // Get player picks from localStorage
-  const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
-  const playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
+  // Try multiple sources for player picks
+  let currentCardSrc = null;
   
-  const currentCardSrc = playerPicks[currentRound];
+  // Try StrategicPicks first
+  const strategicPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
+  const strategicPicks = JSON.parse(localStorage.getItem(strategicPicksKey) || '[]');
+  if (strategicPicks[currentRound]) {
+    currentCardSrc = strategicPicks[currentRound];
+  }
+  
+  // Try StrategicOrdered if StrategicPicks is empty
+  if (!currentCardSrc) {
+    const strategicOrderedKey = playerParam === 'player1' ? 'player1StrategicOrdered' : 'player2StrategicOrdered';
+    const strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
+    if (strategicOrdered[currentRound]) {
+      currentCardSrc = strategicOrdered[currentRound];
+    }
+  }
+  
+  // Try gameCardSelection if still no card
+  if (!currentCardSrc) {
+    const gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
+    const playerCardsKey = playerParam === 'player1' ? 'player1Cards' : 'player2Cards';
+    if (gameCardSelection[playerCardsKey] && gameCardSelection[playerCardsKey][currentRound]) {
+      currentCardSrc = gameCardSelection[playerCardsKey][currentRound];
+    }
+  }
+  
+  // Try all localStorage keys that might contain card data
+  if (!currentCardSrc) {
+    const allKeys = Object.keys(localStorage);
+    const cardKeys = allKeys.filter(key => 
+      key.includes('player') && 
+      (key.includes('Picks') || key.includes('Cards') || key.includes('Ordered'))
+    );
+    console.log('Available card keys in localStorage:', cardKeys);
+    
+    // Try each key
+    for (const key of cardKeys) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || '[]');
+        if (Array.isArray(data) && data[currentRound]) {
+          console.log(`Found card in ${key}:`, data[currentRound]);
+          currentCardSrc = data[currentRound];
+          break;
+        }
+      } catch (e) {
+        console.log(`Error parsing ${key}:`, e);
+      }
+    }
+  }
+  
+  // Try picks object if still no card
+  if (!currentCardSrc && typeof picks !== 'undefined') {
+    const playerName = playerParam === 'player1' ? player1 : player2;
+    if (picks[playerName] && picks[playerName][currentRound]) {
+      currentCardSrc = picks[playerName][currentRound];
+    }
+  }
+  
+  // Debug: Log all available data
+  console.log('Debug info:', {
+    playerParam,
+    currentRound,
+    strategicPicks,
+    strategicOrdered,
+    gameCardSelection,
+    picks: typeof picks !== 'undefined' ? picks : 'undefined',
+    player1: typeof player1 !== 'undefined' ? player1 : 'undefined',
+    player2: typeof player2 !== 'undefined' ? player2 : 'undefined'
+  });
+  
+  console.log('Current card search results:', {
+    playerParam,
+    currentRound,
+    strategicPicks: strategicPicks[currentRound],
+    strategicOrdered: strategicOrdered[currentRound],
+    gameCardSelection: gameCardSelection[playerCardsKey]?.[currentRound],
+    finalCardSrc: currentCardSrc
+  });
+  
   if (currentCardSrc) {
     currentCardDisplay.innerHTML = "";
     currentCardDisplay.appendChild(createMedia(currentCardSrc, ""));
