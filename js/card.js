@@ -444,6 +444,67 @@ window.confirmSwap = function() {
     
     console.log('Selected card source:', newCardSrc);
     
+    // Check if card is already confirmed (showing image)
+    if (selectedCard.classList.contains('confirmed')) {
+      // Card is already showing, proceed with swap
+      console.log('Card already confirmed, proceeding with swap...');
+    } else {
+      // Show the card image first
+      selectedCard.classList.add('confirmed');
+      selectedCard.classList.remove('number-only');
+      
+      // Hide number and show image
+      const cardNumber = selectedCard.querySelector('.swap-card-number');
+      if (cardNumber) {
+        cardNumber.style.display = 'none';
+      }
+      
+      // Clear existing media and create new one
+      const existingMedia = selectedCard.querySelector('.swap-card-media');
+      if (existingMedia) {
+        existingMedia.remove();
+      }
+      
+      // Create and show media element with proper styling
+      const media = createMedia(newCardSrc, "swap-card-media");
+      if (media) {
+        media.style.width = '100%';
+        media.style.height = '120px';
+        media.style.borderRadius = '12px';
+        media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+        media.style.objectFit = 'contain';
+        media.style.display = 'block';
+        media.style.border = '2px solid #ffffff';
+        selectedCard.appendChild(media);
+      }
+      
+      // Save confirmed card for this player
+      confirmedSwapCards[playerParam] = {
+        cardSrc: newCardSrc,
+        cardIndex: selectedCard.dataset.cardIndex
+      };
+      saveConfirmedSwapCards();
+      
+      // Disable all other cards
+      const swapCardsGrid = document.getElementById("swapCardsGrid");
+      if (swapCardsGrid) {
+        swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
+          card.style.opacity = '0.5';
+          card.style.pointerEvents = 'none';
+        });
+      }
+      
+      // Update confirm button text
+      const confirmBtn = document.getElementById("confirmSwapBtn");
+      if (confirmBtn) {
+        confirmBtn.textContent = "تأكيد التبديل";
+        confirmBtn.disabled = false;
+      }
+      
+      // Stop here to show the card first
+      return;
+    }
+    
     // Check if player has selected cards first
     const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
     let playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
@@ -553,8 +614,6 @@ window.confirmSwap = function() {
     console.log('Closing modal...');
     closeSwapDeckModal();
     
-    // Show success message
-    alert(`تم تبديل البطاقة بنجاح للاعب ${playerName}! البطاقة الجديدة: ${newCardSrc.split('/').pop()}`);
     console.log('Swap completed successfully!');
     
   } catch (error) {
