@@ -591,44 +591,52 @@ window.confirmSwap = function() {
     swapDeckUsed[playerParam] = true;
     saveSwapDeckUsage();
     console.log('Swap deck marked as used for:', playerParam);
+    console.log('Swap deck usage saved:', swapDeckUsed);
     
-    // Disable swap deck button
+    // Disable swap deck button immediately
     const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
     if (swapBtn) {
       swapBtn.classList.add('disabled');
       swapBtn.disabled = true;
       swapBtn.textContent = 'مستخدمة';
+      swapBtn.style.opacity = '0.5';
+      swapBtn.style.pointerEvents = 'none';
+      swapBtn.style.cursor = 'not-allowed';
       console.log('Swap button disabled for:', playerParam);
     }
     
-    // Refresh the display immediately
-    console.log('Refreshing display...');
-    if (typeof renderVs === 'function') {
-      renderVs();
-      console.log('Display refreshed successfully');
-    } else {
-      console.log('renderVs function not found, skipping display refresh');
+    // Force immediate UI update - NO DELAYS
+    console.log('Refreshing display immediately...');
+    
+    // Update the current card display immediately
+    const currentCardElement = document.querySelector('.current-card img, .current-card video');
+    if (currentCardElement && newCardSrc) {
+      currentCardElement.src = newCardSrc;
+      console.log('Current card element updated directly');
     }
     
-    // Force immediate UI update
-    setTimeout(() => {
-      if (typeof renderVs === 'function') {
-        renderVs();
-        console.log('Display refreshed again for immediate update');
-      }
-      // Update swap deck buttons after UI refresh
-      updateSwapDeckButtons();
-    }, 100);
+    // Try to refresh the display immediately
+    if (typeof renderVs === 'function') {
+      renderVs();
+      console.log('Display refreshed with renderVs');
+    }
     
-    // Close modal
+    if (typeof renderRound === 'function') {
+      renderRound();
+      console.log('Display refreshed with renderRound');
+    }
+    
+    // Update swap deck buttons immediately
+    updateSwapDeckButtons();
+    
+    // Close modal immediately
     console.log('Closing modal...');
     closeSwapDeckModal();
     
-    // Final UI update
+    // Force update buttons one more time after modal closes
     setTimeout(() => {
       updateSwapDeckButtons();
-      console.log('Final swap deck buttons update completed');
-    }, 200);
+    }, 100);
     
     console.log('Swap completed successfully!');
     
@@ -646,6 +654,9 @@ window.confirmSwap = function() {
 // Update swap deck buttons state
 function updateSwapDeckButtons() {
   console.log('Updating swap deck buttons...');
+  
+  // Force reload swap deck usage from localStorage
+  loadSwapDeckUsage();
   console.log('Swap deck used state:', swapDeckUsed);
   
   const swapBtn1 = document.getElementById('swapDeckBtn1');
@@ -656,11 +667,17 @@ function updateSwapDeckButtons() {
       swapBtn1.classList.add('disabled');
       swapBtn1.disabled = true;
       swapBtn1.textContent = 'مستخدمة';
+      swapBtn1.style.opacity = '0.5';
+      swapBtn1.style.pointerEvents = 'none';
+      swapBtn1.style.cursor = 'not-allowed';
       console.log('Player 1 swap button disabled');
     } else {
       swapBtn1.classList.remove('disabled');
       swapBtn1.disabled = false;
       swapBtn1.textContent = 'دكة البدلاء';
+      swapBtn1.style.opacity = '1';
+      swapBtn1.style.pointerEvents = 'auto';
+      swapBtn1.style.cursor = 'pointer';
       console.log('Player 1 swap button enabled');
     }
   }
@@ -670,11 +687,17 @@ function updateSwapDeckButtons() {
       swapBtn2.classList.add('disabled');
       swapBtn2.disabled = true;
       swapBtn2.textContent = 'مستخدمة';
+      swapBtn2.style.opacity = '0.5';
+      swapBtn2.style.pointerEvents = 'none';
+      swapBtn2.style.cursor = 'not-allowed';
       console.log('Player 2 swap button disabled');
     } else {
       swapBtn2.classList.remove('disabled');
       swapBtn2.disabled = false;
       swapBtn2.textContent = 'دكة البدلاء';
+      swapBtn2.style.opacity = '1';
+      swapBtn2.style.pointerEvents = 'auto';
+      swapBtn2.style.cursor = 'pointer';
       console.log('Player 2 swap button enabled');
     }
   }
@@ -2346,6 +2369,7 @@ try {
   
   // Load swap deck usage
   loadSwapDeckUsage();
+  console.log('Initial swap deck usage loaded:', swapDeckUsed);
   
   // Load fixed swap cards
   loadFixedSwapCards();
@@ -2359,6 +2383,7 @@ try {
   
   // Update swap deck buttons state on page load
   updateSwapDeckButtons();
+  console.log('Initial button update completed');
   
   // Clear used abilities for new game if current round is 0
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
@@ -2381,6 +2406,11 @@ try {
   // Update swap deck buttons after render
   updateSwapDeckButtons();
   
+  // Final button update
+  setTimeout(() => {
+    updateSwapDeckButtons();
+  }, 500);
+  
   // Also update buttons when page becomes visible
   document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
@@ -2390,11 +2420,13 @@ try {
   
   // Update buttons when page loads
   window.addEventListener('load', function() {
+    console.log('Page loaded, updating buttons...');
     updateSwapDeckButtons();
   });
   
   // Update buttons when DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM ready, updating buttons...');
     updateSwapDeckButtons();
   });
   
@@ -2419,12 +2451,9 @@ try {
     
     // Listen for swap deck usage changes
     if (e.key === 'swapDeckUsed') {
-      try {
-        loadSwapDeckUsage();
-        updateSwapDeckButtons();
-      } catch(error) {
-        console.error('Error updating swap deck buttons:', error);
-      }
+      console.log('Swap deck usage changed, updating buttons...');
+      loadSwapDeckUsage();
+      updateSwapDeckButtons();
     }
     
     // Listen for gameSetupProgress changes to reload abilities and picks
