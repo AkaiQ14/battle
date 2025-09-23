@@ -670,6 +670,7 @@ function updateSwapDeckButtons() {
       swapBtn1.style.opacity = '0.5';
       swapBtn1.style.pointerEvents = 'none';
       swapBtn1.style.cursor = 'not-allowed';
+      swapBtn1.onclick = null; // Remove onclick handler
       console.log('Player 1 swap button disabled');
     } else {
       swapBtn1.classList.remove('disabled');
@@ -678,6 +679,7 @@ function updateSwapDeckButtons() {
       swapBtn1.style.opacity = '1';
       swapBtn1.style.pointerEvents = 'auto';
       swapBtn1.style.cursor = 'pointer';
+      swapBtn1.onclick = () => openSwapDeckModal('player1'); // Restore onclick handler
       console.log('Player 1 swap button enabled');
     }
   }
@@ -690,6 +692,7 @@ function updateSwapDeckButtons() {
       swapBtn2.style.opacity = '0.5';
       swapBtn2.style.pointerEvents = 'none';
       swapBtn2.style.cursor = 'not-allowed';
+      swapBtn2.onclick = null; // Remove onclick handler
       console.log('Player 2 swap button disabled');
     } else {
       swapBtn2.classList.remove('disabled');
@@ -698,6 +701,7 @@ function updateSwapDeckButtons() {
       swapBtn2.style.opacity = '1';
       swapBtn2.style.pointerEvents = 'auto';
       swapBtn2.style.cursor = 'pointer';
+      swapBtn2.onclick = () => openSwapDeckModal('player2'); // Restore onclick handler
       console.log('Player 2 swap button enabled');
     }
   }
@@ -2397,8 +2401,11 @@ try {
     saveFixedSwapCards();
     saveConfirmedSwapCards();
     
+    console.log('New game detected - resetting swap deck buttons');
     // Update buttons after reset
     updateSwapDeckButtons();
+  } else {
+    console.log('Continuing existing game - keeping swap deck state');
   }
   
   renderRound();
@@ -2410,6 +2417,15 @@ try {
   setTimeout(() => {
     updateSwapDeckButtons();
   }, 500);
+  
+  // Additional button updates
+  setTimeout(() => {
+    updateSwapDeckButtons();
+  }, 1000);
+  
+  setTimeout(() => {
+    updateSwapDeckButtons();
+  }, 2000);
   
   // Also update buttons when page becomes visible
   document.addEventListener('visibilitychange', function() {
@@ -2428,6 +2444,18 @@ try {
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM ready, updating buttons...');
     updateSwapDeckButtons();
+  });
+  
+  // Force update buttons every 3 seconds to ensure they stay correct
+  setInterval(() => {
+    updateSwapDeckButtons();
+  }, 3000);
+  
+  // Update buttons when user clicks anywhere on the page
+  document.addEventListener('click', function() {
+    setTimeout(() => {
+      updateSwapDeckButtons();
+    }, 100);
   });
   
   // Listen for changes in used abilities from other pages
@@ -2456,6 +2484,88 @@ try {
       updateSwapDeckButtons();
     }
     
+    // Listen for any game-related changes
+    if (e.key && (e.key.includes('player') || e.key.includes('game') || e.key.includes('currentRound'))) {
+      console.log('Game data changed, updating buttons...');
+      updateSwapDeckButtons();
+    }
+    
+    // Listen for currentRound changes (new game)
+    if (e.key === 'currentRound') {
+      const newRound = parseInt(e.newValue || '0');
+      if (newRound === 0) {
+        console.log('New game started - resetting swap deck buttons');
+        swapDeckUsed = { player1: false, player2: false };
+        fixedSwapCards = { player1: null, player2: null };
+        confirmedSwapCards = { player1: null, player2: null };
+        saveSwapDeckUsage();
+        saveFixedSwapCards();
+        saveConfirmedSwapCards();
+        updateSwapDeckButtons();
+      }
+    }
+    
+    // Listen for gameSetupProgress changes (new game setup)
+    if (e.key === 'gameSetupProgress') {
+      const progress = JSON.parse(e.newValue || '{}');
+      if (progress.step === 'setup' || progress.step === 'start' || progress.step === 'reset') {
+        console.log('New game setup detected - resetting swap deck buttons');
+        swapDeckUsed = { player1: false, player2: false };
+        fixedSwapCards = { player1: null, player2: null };
+        confirmedSwapCards = { player1: null, player2: null };
+        saveSwapDeckUsage();
+        saveFixedSwapCards();
+        saveConfirmedSwapCards();
+        updateSwapDeckButtons();
+      }
+    }
+    
+    // Listen for any game reset signals
+    if (e.key === 'gameReset' || e.key === 'newGame' || e.key === 'resetGame') {
+      console.log('Game reset detected - resetting swap deck buttons');
+      swapDeckUsed = { player1: false, player2: false };
+      fixedSwapCards = { player1: null, player2: null };
+      confirmedSwapCards = { player1: null, player2: null };
+      saveSwapDeckUsage();
+      saveFixedSwapCards();
+      saveConfirmedSwapCards();
+      updateSwapDeckButtons();
+    }
+    
+    // Listen for any game-related changes that might indicate a new game
+    if (e.key && (e.key.includes('player') || e.key.includes('game') || e.key.includes('currentRound'))) {
+      console.log('Game data changed, updating buttons...');
+      updateSwapDeckButtons();
+    }
+    
+    // Listen for any localStorage changes
+    if (e.key) {
+      console.log('localStorage changed:', e.key);
+      setTimeout(() => {
+        updateSwapDeckButtons();
+      }, 100);
+    }
+    
+    // Listen for any localStorage changes
+    if (e.key) {
+      console.log('localStorage changed:', e.key);
+      setTimeout(() => {
+        updateSwapDeckButtons();
+      }, 100);
+    }
+    
+    // Listen for game reset signals
+    if (e.key === 'gameReset' || e.key === 'newGame') {
+      console.log('Game reset detected - resetting swap deck buttons');
+      swapDeckUsed = { player1: false, player2: false };
+      fixedSwapCards = { player1: null, player2: null };
+      confirmedSwapCards = { player1: null, player2: null };
+      saveSwapDeckUsage();
+      saveFixedSwapCards();
+      saveConfirmedSwapCards();
+      updateSwapDeckButtons();
+    }
+    
     // Listen for gameSetupProgress changes to reload abilities and picks
     if (e.key === 'gameSetupProgress') {
       try {
@@ -2465,6 +2575,18 @@ try {
         // Reload gameSetupProgress and update picks
         gameSetupProgress = JSON.parse(localStorage.getItem("gameSetupProgress") || "{}");
         refreshCardData();
+        
+        // Check if this is a new game setup
+        if (gameSetupProgress.step === 'setup' || gameSetupProgress.step === 'start' || gameSetupProgress.step === 'reset') {
+          console.log('New game setup detected - resetting swap deck buttons');
+          swapDeckUsed = { player1: false, player2: false };
+          fixedSwapCards = { player1: null, player2: null };
+          confirmedSwapCards = { player1: null, player2: null };
+          saveSwapDeckUsage();
+          saveFixedSwapCards();
+          saveConfirmedSwapCards();
+          updateSwapDeckButtons();
+        }
       } catch(error) {
         console.error("Error reloading abilities and picks after game setup change:", error);
       }
