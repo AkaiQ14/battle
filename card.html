@@ -654,10 +654,55 @@
     }
 
     /* Swap Deck Styles */
-    .swap-deck-section {
-      margin-top: 12px;
+    .swap-deck-buttons-container {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+    
+    .swap-deck-section {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .swap-deck-section:first-child {
+      text-align: left;
+    }
+    
+    .swap-deck-section:last-child {
+      text-align: right;
+    }
+    
+    @media (max-width: 960px) {
+      .swap-deck-buttons-container {
+        flex-direction: column;
+        gap: 15px;
+        margin: 15px 0;
+        padding: 0 15px;
+      }
+      
+      .swap-deck-section {
+        text-align: center;
+      }
+      
+      .swap-deck-section:first-child,
+      .swap-deck-section:last-child {
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .swap-deck-buttons-container {
+        margin: 10px 0;
+        padding: 0 10px;
+      }
+      
+      .swap-deck-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
     }
 
     .swap-deck-btn {
@@ -1209,11 +1254,6 @@
           <div class="value" id="health1" style="color:#fff">11</div>
           <div class="round-btn" onclick="changeHealth('player1', -1)" style="color:#ff6969">▼</div>
         </div>
-        <div class="swap-deck-section">
-          <button class="btn swap-deck-btn" onclick="openSwapDeckModal('player2')" id="swapDeckBtn2">
-            دكة البدلاء
-          </button>
-        </div>
       </div>
 
       <div class="vs">
@@ -1233,13 +1273,22 @@
           <div class="value" id="health2" style="color:#fff">11</div>
           <div class="round-btn" onclick="changeHealth('player2', -1)" style="color:#ff6969">▼</div>
         </div>
-        <div class="swap-deck-section">
-          <button class="btn swap-deck-btn" onclick="openSwapDeckModal('player1')" id="swapDeckBtn1">
-            دكة البدلاء
-          </button>
-        </div>
       </div>
     </section>
+
+    <!-- Swap Deck Buttons -->
+    <div class="swap-deck-buttons-container">
+      <div class="swap-deck-section">
+        <button class="btn swap-deck-btn" onclick="openSwapDeckModal('player2')" id="swapDeckBtn2">
+          دكة البدلاء
+        </button>
+      </div>
+      <div class="swap-deck-section">
+        <button class="btn swap-deck-btn" onclick="openSwapDeckModal('player1')" id="swapDeckBtn1">
+          دكة البدلاء
+        </button>
+      </div>
+    </div>
 
     <div class="side-abilities">
       <div class="abilities left-abilities">
