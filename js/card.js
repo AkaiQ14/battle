@@ -444,65 +444,49 @@ window.confirmSwap = function() {
     
     console.log('Selected card source:', newCardSrc);
     
-    // Check if card is already confirmed (showing image)
-    if (selectedCard.classList.contains('confirmed')) {
-      // Card is already showing, proceed with swap
-      console.log('Card already confirmed, proceeding with swap...');
-    } else {
-      // Show the card image first
-      selectedCard.classList.add('confirmed');
-      selectedCard.classList.remove('number-only');
-      
-      // Hide number and show image
-      const cardNumber = selectedCard.querySelector('.swap-card-number');
-      if (cardNumber) {
-        cardNumber.style.display = 'none';
-      }
-      
-      // Clear existing media and create new one
-      const existingMedia = selectedCard.querySelector('.swap-card-media');
-      if (existingMedia) {
-        existingMedia.remove();
-      }
-      
-      // Create and show media element with proper styling
-      const media = createMedia(newCardSrc, "swap-card-media");
-      if (media) {
-        media.style.width = '100%';
-        media.style.height = '120px';
-        media.style.borderRadius = '12px';
-        media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-        media.style.objectFit = 'contain';
-        media.style.display = 'block';
-        media.style.border = '2px solid #ffffff';
-        selectedCard.appendChild(media);
-      }
-      
-      // Save confirmed card for this player
-      confirmedSwapCards[playerParam] = {
-        cardSrc: newCardSrc,
-        cardIndex: selectedCard.dataset.cardIndex
-      };
-      saveConfirmedSwapCards();
-      
-      // Disable all other cards
-      const swapCardsGrid = document.getElementById("swapCardsGrid");
-      if (swapCardsGrid) {
-        swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
-          card.style.opacity = '0.5';
-          card.style.pointerEvents = 'none';
-        });
-      }
-      
-      // Update confirm button text
-      const confirmBtn = document.getElementById("confirmSwapBtn");
-      if (confirmBtn) {
-        confirmBtn.textContent = "تأكيد التبديل";
-        confirmBtn.disabled = false;
-      }
-      
-      // Stop here to show the card first
-      return;
+    // Show the card image first
+    selectedCard.classList.add('confirmed');
+    selectedCard.classList.remove('number-only');
+    
+    // Hide number and show image
+    const cardNumber = selectedCard.querySelector('.swap-card-number');
+    if (cardNumber) {
+      cardNumber.style.display = 'none';
+    }
+    
+    // Clear existing media and create new one
+    const existingMedia = selectedCard.querySelector('.swap-card-media');
+    if (existingMedia) {
+      existingMedia.remove();
+    }
+    
+    // Create and show media element with proper styling
+    const media = createMedia(newCardSrc, "swap-card-media");
+    if (media) {
+      media.style.width = '100%';
+      media.style.height = '120px';
+      media.style.borderRadius = '12px';
+      media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+      media.style.objectFit = 'contain';
+      media.style.display = 'block';
+      media.style.border = '2px solid #ffffff';
+      selectedCard.appendChild(media);
+    }
+    
+    // Save confirmed card for this player
+    confirmedSwapCards[playerParam] = {
+      cardSrc: newCardSrc,
+      cardIndex: selectedCard.dataset.cardIndex
+    };
+    saveConfirmedSwapCards();
+    
+    // Disable all other cards
+    const swapCardsGrid = document.getElementById("swapCardsGrid");
+    if (swapCardsGrid) {
+      swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+      });
     }
     
     // Check if player has selected cards first
@@ -601,7 +585,7 @@ window.confirmSwap = function() {
       console.log('Swap button disabled for:', playerParam);
     }
     
-    // Refresh the display
+    // Refresh the display immediately
     console.log('Refreshing display...');
     if (typeof renderVs === 'function') {
       renderVs();
@@ -610,9 +594,25 @@ window.confirmSwap = function() {
       console.log('renderVs function not found, skipping display refresh');
     }
     
+    // Force immediate UI update
+    setTimeout(() => {
+      if (typeof renderVs === 'function') {
+        renderVs();
+        console.log('Display refreshed again for immediate update');
+      }
+      // Update swap deck buttons after UI refresh
+      updateSwapDeckButtons();
+    }, 100);
+    
     // Close modal
     console.log('Closing modal...');
     closeSwapDeckModal();
+    
+    // Final UI update
+    setTimeout(() => {
+      updateSwapDeckButtons();
+      console.log('Final swap deck buttons update completed');
+    }, 200);
     
     console.log('Swap completed successfully!');
     
@@ -629,6 +629,9 @@ window.confirmSwap = function() {
 
 // Update swap deck buttons state
 function updateSwapDeckButtons() {
+  console.log('Updating swap deck buttons...');
+  console.log('Swap deck used state:', swapDeckUsed);
+  
   const swapBtn1 = document.getElementById('swapDeckBtn1');
   const swapBtn2 = document.getElementById('swapDeckBtn2');
   
@@ -637,10 +640,12 @@ function updateSwapDeckButtons() {
       swapBtn1.classList.add('disabled');
       swapBtn1.disabled = true;
       swapBtn1.textContent = 'مستخدمة';
+      console.log('Player 1 swap button disabled');
     } else {
       swapBtn1.classList.remove('disabled');
       swapBtn1.disabled = false;
       swapBtn1.textContent = 'دكة البدلاء';
+      console.log('Player 1 swap button enabled');
     }
   }
   
@@ -649,10 +654,12 @@ function updateSwapDeckButtons() {
       swapBtn2.classList.add('disabled');
       swapBtn2.disabled = true;
       swapBtn2.textContent = 'مستخدمة';
+      console.log('Player 2 swap button disabled');
     } else {
       swapBtn2.classList.remove('disabled');
       swapBtn2.disabled = false;
       swapBtn2.textContent = 'دكة البدلاء';
+      console.log('Player 2 swap button enabled');
     }
   }
 }
@@ -2333,6 +2340,9 @@ try {
   console.log('Swap deck usage loaded:', swapDeckUsed);
   console.log('Fixed swap cards loaded:', fixedSwapCards);
   console.log('Confirmed swap cards loaded:', confirmedSwapCards);
+  
+  // Update swap deck buttons state on page load
+  updateSwapDeckButtons();
   
   // Clear used abilities for new game if current round is 0
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
