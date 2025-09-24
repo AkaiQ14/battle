@@ -111,7 +111,7 @@ function getAllAvailableCards() {
     "images/Choi-jong-in-.webp", "images/Chopper-card.png", "images/ColossialTitan-card.png", "images/Dabi-card.png", "images/Danteee.png",
     "images/dazai-card.png", "images/DiamondJozu.webp", "images/DragonBB-67-card.png", "images/edward elric.png", "images/Elfaria Albis.png",
     "images/Endeavor.png", "images/ErenCard.webm", "images/esdeath.webp", "images/Eso-card.png", "images/FemaleTitan-card.webp",
-    "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp",
+    "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp", "images/fubukii.png",
     "images/Fuegoleonn .png", "images/Gadjah.webp", "images/GaiMou-card.png", "images/Galand-card.png", "images/Ganju-card.png",
     "images/Genthru-card.png", "images/geten.webp", "images/Geto-card.png", "images/ghiaccio.png", "images/Gilthunder.png",
     "images/Gin-freecss-card.png", "images/gloxinia.png", "images/Go-Gunhee-card.webm", "images/Gogeta.webm", "images/GojoCard.webm",
@@ -183,39 +183,94 @@ function generateSwapCards(playerParam) {
 }
 
 
-// Make functions globally available immediately
+// Test function to check button directly
+window.testSwapButton = function() {
+  console.log('🧪 Testing swap button directly...');
+  const button = document.getElementById('swapDeckBtn1');
+  console.log('Button element:', button);
+  if (button) {
+    console.log('Button onclick:', button.onclick);
+    console.log('Button disabled:', button.disabled);
+    console.log('Button classList:', button.classList);
+    
+    // Try to click the button
+    try {
+      button.click();
+      console.log('✅ Button clicked successfully');
+    } catch (error) {
+      console.error('❌ Error clicking button:', error);
+    }
+  } else {
+    console.error('❌ Button not found');
+  }
+};
+window.testSwapDeck = function() {
+  console.log('🧪 Testing swap deck...');
+  console.log('swapDeckUsed:', swapDeckUsed);
+  console.log('window.openSwapDeckModal:', typeof window.openSwapDeckModal);
+  console.log('Modal element:', document.getElementById("swapDeckModal"));
+  
+  if (typeof window.openSwapDeckModal === 'function') {
+    console.log('✅ openSwapDeckModal function is available');
+    try {
+      window.openSwapDeckModal('player1');
+      console.log('✅ Function called successfully');
+    } catch (error) {
+      console.error('❌ Error calling function:', error);
+    }
+  } else {
+    console.error('❌ openSwapDeckModal function is NOT available');
+  }
+};
 window.openSwapDeckModal = function(playerParam) {
   console.log('🎯 openSwapDeckModal called with:', playerParam);
   
-  // Get player names from localStorage
-  const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
-  const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
-  const playerName = playerParam === 'player1' ? player1Name : player2Name;
+  let playerName;
   
-  console.log('Player names:', { player1Name, player2Name, playerName });
-  
-  // Check if player has already used swap deck
-  if (swapDeckUsed[playerParam]) {
-    showToast(`! ${playerName} استخدم دكة البدلاء مسبقاً في هذه المعركة`, 'warning');
+  try {
+    // Get player names from localStorage
+    const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
+    const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
+    playerName = playerParam === 'player1' ? player1Name : player2Name;
+    
+    console.log('Player names:', { player1Name, player2Name, playerName });
+    
+    // Check if player has already used swap deck
+    if (swapDeckUsed && swapDeckUsed[playerParam]) {
+      showToast(`! ${playerName} استخدم دكة البدلاء مسبقاً في هذه المعركة`);
+      return;
+    }
+  } catch (error) {
+    console.error('Error in openSwapDeckModal:', error);
+    alert('خطأ في فتح دكة البدلاء: ' + error.message);
     return;
   }
   
-  const modal = document.getElementById("swapDeckModal");
-  const title = document.getElementById("swapDeckTitle");
-  const currentCardDisplay = document.getElementById("currentCardDisplay");
-  const swapCardsGrid = document.getElementById("swapCardsGrid");
-  const confirmBtn = document.getElementById("confirmSwapBtn");
+  let modal, title, currentCardDisplay, swapCardsGrid, confirmBtn;
   
-  console.log('Modal elements check:', {
-    modal: !!modal,
-    title: !!title,
-    currentCardDisplay: !!currentCardDisplay,
-    swapCardsGrid: !!swapCardsGrid,
-    confirmBtn: !!confirmBtn
-  });
-  
-  if (!modal || !title || !currentCardDisplay || !swapCardsGrid || !confirmBtn) {
-    console.error('❌ Required modal elements not found');
+  try {
+    modal = document.getElementById("swapDeckModal");
+    title = document.getElementById("swapDeckTitle");
+    currentCardDisplay = document.getElementById("currentCardDisplay");
+    swapCardsGrid = document.getElementById("swapCardsGrid");
+    confirmBtn = document.getElementById("confirmSwapBtn");
+    
+    console.log('Modal elements check:', {
+      modal: !!modal,
+      title: !!title,
+      currentCardDisplay: !!currentCardDisplay,
+      swapCardsGrid: !!swapCardsGrid,
+      confirmBtn: !!confirmBtn
+    });
+    
+    if (!modal || !title || !currentCardDisplay || !swapCardsGrid || !confirmBtn) {
+      console.error('❌ Required modal elements not found');
+      alert('خطأ: عناصر النافذة المنبثقة غير موجودة');
+      return;
+    }
+  } catch (error) {
+    console.error('Error checking modal elements:', error);
+    alert('خطأ في التحقق من عناصر النافذة: ' + error.message);
     return;
   }
   
@@ -3042,9 +3097,9 @@ function approveAbilityRequest(player, ability, requestId = null) {
       console.log('Request marked as approved:', abilityRequests[requestIndex]);
     }
     
-    // Send approval to server
+    // Send approval to server - Socket.IO removed
     if (requestId) {
-      socket.emit("approveAbilityRequest", { gameID, requestId });
+      // socket.emit("approveAbilityRequest", { gameID, requestId });
     }
     
     // Re-render panels
@@ -3085,9 +3140,9 @@ function rejectAbilityRequest(player, ability, requestId = null) {
       console.log('Request marked as rejected:', abilityRequests[requestIndex]);
     }
     
-    // Send rejection to server
+    // Send rejection to server - Socket.IO removed
     if (requestId) {
-      socket.emit("rejectAbilityRequest", { gameID, requestId });
+      // socket.emit("rejectAbilityRequest", { gameID, requestId });
     }
     
     // Remove all ability notifications
@@ -3173,22 +3228,9 @@ try {
   console.log('BroadcastChannel not supported');
 }
 
-// Socket.IO initialization for host
-const socket = io();
-const gameID = 'default-game';
+// Socket.IO removed - using localStorage + Custom Events instead
 
-console.log('Host socket initialized:', socket);
-socket.emit("joinGame", { gameID, role: "host" });
-console.log('Host joined game:', gameID);
-
-// Handle ability requests from players
-socket.on("requestUseAbility", ({ gameID: g, playerName, abilityText, requestId }) => {
-  console.log('Host received ability request:', { g, gameID, playerName, abilityText, requestId });
-  
-  if (g && g !== gameID) {
-    console.log('Game ID mismatch, ignoring request');
-    return;
-  }
+// Socket.IO removed - using localStorage + Custom Events instead
   
   console.log('Processing ability request:', { playerName, abilityText, requestId });
   
@@ -3198,8 +3240,6 @@ socket.on("requestUseAbility", ({ gameID: g, playerName, abilityText, requestId 
     ability: abilityText,
     requestId: requestId
   });
-});
-
 // Start ability request monitoring
 let lastProcessedRequests = new Set();
 function startAbilityRequestMonitoring() {

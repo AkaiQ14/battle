@@ -1191,9 +1191,7 @@
   <!-- Socket.IO removed - using localStorage + Custom Events instead -->
 </head>
 <body>
-  <video class="video-background" autoplay muted loop playsinline preload="auto">
-    <source src="images/min.mp4" type="video/mp4">
-  </video>
+  <div class="video-background" style="background-image: url('images/min.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
 
 
   <div class="frame">
@@ -1325,7 +1323,10 @@
 <script>
   // Show demo section in development
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    document.getElementById('arrangementDemo').style.display = 'block';
+    const demoElement = document.getElementById('arrangementDemo');
+    if (demoElement) {
+      demoElement.style.display = 'block';
+    }
   }
 </script>
 </body>
