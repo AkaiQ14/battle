@@ -182,7 +182,8 @@ class CardManager {
       'images/Aizetsu-card.webp',
       'images/Asui-card.webp',
       'images/Gadjah.webp',
-      'images/naobito-card.webp'
+      'images/naobito-card.webp',
+      'images/fubukii.png'
     ];
 
     // Legendary cards (5% of total)

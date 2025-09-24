@@ -29,11 +29,7 @@
     
     body {
       font-family: "Cairo", sans-serif;
-      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('./images/NN.jpg');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      background-position: center center;
+      background: #4B0E1F;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -45,6 +41,16 @@
       border: 3px solid #ffffffe3;
       box-sizing: border-box;
       font-weight: bold;
+    }
+    
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      object-fit: cover;
     }
     
     
@@ -412,6 +418,9 @@
   </style>
 </head>
 <body>
+  <video class="video-background" autoplay muted loop playsinline preload="auto">
+    <source src="images/min.mp4" type="video/mp4">
+  </video>
   <h1 class="main-title"></h1>
   
   <div class="container">

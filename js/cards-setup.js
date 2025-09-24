@@ -267,7 +267,6 @@ function generateRandomCards() {
     'images/rin.png',
     'images/kota izumi.png',
     'images/Lille-baroo-card.png',
-    'images/Danteee.webp',
     'images/tenten.webp'
   ];
   
@@ -319,7 +318,8 @@ function generateRandomCards() {
     'images/DragonBB-67-card.png',
     'images/Kuma-card.png',
     'images/YujiroHanma-card.png',
-    'images/Dabi-card.png'
+    'images/Dabi-card.png',
+    'images/fubukii.png'
   ];
   
   // Legendary cards (part of 15% with Epic) - منظم حسب المجلد المرفق
