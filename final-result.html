@@ -251,5 +251,48 @@
     </div>
 
     <script src="js/final-result.js"></script>
+    
+    <script>
+        // Additional reset function for swap deck system
+        function resetSwapDeckSystem() {
+            try {
+                console.log('🔄 Resetting swap deck system from final-result.html...');
+                
+                // Reset global variables
+                if (window.swapDeckUsageData) {
+                    window.swapDeckUsageData = { player1: false, player2: false };
+                }
+                if (window.swapDeckCardsGenerated) {
+                    window.swapDeckCardsGenerated = false;
+                }
+                if (window.swapDeckCardsData) {
+                    window.swapDeckCardsData = {
+                        player1: { cards: [], used: false },
+                        player2: { cards: [], used: false }
+                    };
+                }
+                if (window.gameCardsGenerated) {
+                    window.gameCardsGenerated = false;
+                }
+                if (window.gameCardsData) {
+                    window.gameCardsData = null;
+                }
+                
+                console.log('✅ Swap deck system reset completed');
+                
+            } catch (error) {
+                console.error('❌ Error resetting swap deck system:', error);
+            }
+        }
+        
+        // Override startNewGame to include swap deck reset
+        const originalStartNewGame = window.startNewGame;
+        window.startNewGame = function() {
+            resetSwapDeckSystem();
+            originalStartNewGame();
+        };
+        
+        console.log('🎴 Final result page swap deck reset system initialized');
+    </script>
 </body>
 </html>

@@ -1,6 +1,14 @@
 // Import Firebase GameService
 import { GameService } from './gameService.js';
 
+// Global variables to persist across page refreshes
+if (!window.gameCardsGenerated) {
+  window.gameCardsGenerated = false;
+  window.gameCardsData = {
+    player1Cards: [],
+    player2Cards: []
+  };
+}
 
 // Game state
 let gameState = {
@@ -84,8 +92,26 @@ function loadExistingData() {
   }
 }
 
-// Generate random cards for each player
+// Generate random cards for each player (with persistence)
 function generateRandomCards() {
+  // Check if cards are already generated using global variables
+  if (window.gameCardsGenerated && window.gameCardsData.player1Cards.length > 0) {
+    console.log('🎴 Using existing generated cards from global variables');
+    
+    gameState.player1Cards = window.gameCardsData.player1Cards;
+    gameState.player2Cards = window.gameCardsData.player2Cards;
+    
+    // Set available cards for current player
+    if (gameState.currentPlayer === 'player1') {
+      gameState.availableCards = gameState.player1Cards;
+    } else {
+      gameState.availableCards = gameState.player2Cards;
+    }
+    
+    return; // Use existing cards, don't generate new ones
+  }
+  
+  console.log('🎴 Generating new random cards');
   // Common cards (85% of total) - منظم حسب المجلد المرفق
   const commonCards = [
     // الكروت الشائعة الأصلية
@@ -319,7 +345,8 @@ function generateRandomCards() {
     'images/Kuma-card.png',
     'images/YujiroHanma-card.png',
     'images/Dabi-card.png',
-    'images/fubukii.png'
+    'images/fubukii.png',
+    'images/gounji.png'
   ];
   
   // Legendary cards (part of 15% with Epic) - منظم حسب المجلد المرفق
@@ -424,6 +451,12 @@ function generateRandomCards() {
     localStorage.setItem('player2StrategicPicks', JSON.stringify(gameState.player2Cards)); 
   } catch {}
   
+  // Save generated cards to global variables to prevent regeneration on page refresh
+  window.gameCardsData.player1Cards = gameState.player1Cards;
+  window.gameCardsData.player2Cards = gameState.player2Cards;
+  window.gameCardsGenerated = true;
+  console.log('💾 Saved generated cards to global variables');
+  
   // Also save game setup data
   localStorage.setItem('gameSetupProgress', JSON.stringify({
     player1Name: gameState.player1Name,
@@ -526,8 +559,8 @@ async function continueToNextPlayer() {
       continueBtn.disabled = false;
       continueBtn.textContent = 'متابعة';
     } else {
-      // Both players have selected their cards - redirect to final setup page
-      window.location.href = 'final-setup.html';
+      // Both players have selected their cards - redirect to swap deck selection
+      window.location.href = 'swap-deck-selection.html';
     }
     
   } catch (error) {

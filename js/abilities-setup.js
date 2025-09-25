@@ -19,7 +19,84 @@ document.addEventListener('DOMContentLoaded', function() {
   loadExistingData();
   initializeAbilities();
   setupEventListeners();
+  setupMessageListeners();
 });
+
+// Setup message listeners for cross-page communication
+function setupMessageListeners() {
+  // Listen for messages from card.js
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'ABILITIES_ADDED') {
+      console.log('📥 تم استقبال إشعار إضافة قدرات من card.js:', event.data);
+      handleAbilitiesAdded(event.data);
+    }
+  });
+  
+  // Listen for storage events
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'savedAbilities') {
+      console.log('📥 تم تحديث savedAbilities في localStorage');
+      refreshAbilitiesFromStorage();
+    }
+  });
+  
+  // Initialize BroadcastChannel if available
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      window.broadcastChannel = new BroadcastChannel('ability-updates');
+      window.broadcastChannel.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'ABILITIES_ADDED') {
+          console.log('📥 تم استقبال إشعار إضافة قدرات عبر BroadcastChannel:', event.data);
+          handleAbilitiesAdded(event.data);
+        }
+      });
+    }
+  } catch (e) {
+    console.log('BroadcastChannel not supported');
+  }
+}
+
+// Handle abilities added from card.js
+function handleAbilitiesAdded(data) {
+  try {
+    console.log('🔄 معالجة القدرات المضافة:', data);
+    
+    // Refresh abilities from localStorage
+    refreshAbilitiesFromStorage();
+    
+    // Show success message
+    const messageEl = document.getElementById('savedAbilitiesMessage');
+    if (messageEl) {
+      messageEl.style.display = 'block';
+      messageEl.textContent = `✅ تم إضافة ${data.globalAbilities.length} قدرة جديدة من صفحة اللعبة - تبقى محفوظة دائماً`;
+      messageEl.style.color = '#4caf50';
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, 5000);
+    }
+    
+    console.log('✅ تم تحديث قائمة القدرات بنجاح');
+    
+  } catch (error) {
+    console.error('Error handling abilities added:', error);
+  }
+}
+
+// Refresh abilities from localStorage
+function refreshAbilitiesFromStorage() {
+  try {
+    const savedAbilities = localStorage.getItem('savedAbilities');
+    if (savedAbilities) {
+      gameState.defaultAbilities = JSON.parse(savedAbilities);
+      displayAllAbilities();
+      console.log('🔄 تم تحديث قائمة القدرات من localStorage:', gameState.defaultAbilities.length);
+    }
+  } catch (error) {
+    console.error('Error refreshing abilities from storage:', error);
+  }
+}
 
 function loadExistingData() {
   const savedData = localStorage.getItem('gameSetupProgress');

@@ -105,17 +105,17 @@
     }
     
     .player1-btn {
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
-      color: #000000;
+      background: linear-gradient(145deg, #ff8c00, #ff7f00, #ff6b00);
+      color: #ffffff;
       border: 2px solid #ffffff;
-      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
     }
     
     .player1-btn:hover {
-      background: linear-gradient(145deg, #ffffff, #ededed);
-      color: #000000;
+      background: linear-gradient(145deg, #ff9f1a, #ff8c00, #ff7f00);
+      color: #ffffff;
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 25px rgba(255, 140, 0, 0.5);
     }
     
     .player2-btn {
@@ -269,13 +269,14 @@
     
     .ability-panel {
       flex: 1;
-      background: rgba(0,0,0,0.8);
-      border: 2px solid #ffffff;
+      background: rgba(75, 14, 31, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 12px;
       padding: 15px;
       min-height: 200px;
       position: relative;
       z-index: 10;
+      backdrop-filter: blur(10px);
     }
     
     .ability-panel-title {
@@ -317,14 +318,16 @@
     }
     
     .ability-item {
-      background: var(--yellow);
-      color: black;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
       padding: 8px 12px;
       margin-bottom: 8px;
       border-radius: 6px;
       font-size: 14px;
       font-weight: bold;
       text-align: right;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
     }
     
     .status-message {
@@ -438,9 +441,9 @@
       </div>
       
       <div class="button-container">
-        <button class="copy-btn battle-btn" id="battleBtn" onclick="startBattle()" disabled>
-          بدء المعركة
-        </button>
+      <button class="copy-btn battle-btn" id="battleBtn" onclick="startBattle()" disabled>
+        بدء المعركة
+      </button>
       </div>
     </div>
   </div>
@@ -487,5 +490,68 @@
   </script>
   
   <script type="module" src="js/final-setup.js"></script>
+  
+  <script>
+    // Reset swap deck system when starting a new game
+    function resetSwapDeckForNewGame() {
+      try {
+        console.log('🎴 Resetting swap deck system for new game...');
+        
+        // Reset swap deck system if available
+        if (window.swapDeckSystem && typeof window.swapDeckSystem.resetSwapDeckSystem === 'function') {
+          window.swapDeckSystem.resetSwapDeckSystem();
+        }
+        
+        // Clear generated cards to force regeneration for new game
+        localStorage.removeItem('generatedCards');
+        
+        // Reset global card generation variables
+        if (window.gameCardsGenerated) {
+          window.gameCardsGenerated = false;
+          window.gameCardsData = {
+            player1Cards: [],
+            player2Cards: []
+          };
+          console.log('🔄 Reset global card generation variables');
+        }
+        
+        console.log('✅ Swap deck system reset for new game');
+        
+      } catch (error) {
+        console.error('❌ Error resetting swap deck system:', error);
+      }
+    }
+    
+    // Call reset when page loads (new game setup)
+    document.addEventListener('DOMContentLoaded', function() {
+      resetSwapDeckForNewGame();
+    });
+    
+    // Start battle function - simple redirect without generation
+    function startBattle() {
+      try {
+        console.log('🎮 Starting battle...');
+        
+        // ✅ إعادة تعيين swap deck system للعبة الجديدة
+        console.log('✅ Resetting swap deck system for new battle');
+        localStorage.removeItem('swapDeckUsageData');
+        localStorage.removeItem('swapDeckData');
+        
+        // Mark game as started
+        localStorage.setItem('gameSetupProgress', 'completed');
+        
+        // Redirect to battle
+        window.location.href = 'card.html';
+        
+      } catch (error) {
+        console.error('❌ Error starting battle:', error);
+        alert('حدث خطأ في بدء المعركة: ' + error.message);
+      }
+    }
+    
+    // Make functions available globally
+    window.resetSwapDeckForNewGame = resetSwapDeckForNewGame;
+    window.startBattle = startBattle;
+  </script>
 </body>
 </html> 

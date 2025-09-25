@@ -16,87 +16,6 @@ try {
   gameSetupProgress = {};
 }
 
-/* ---------------------- Swap Deck System - Early Definition ---------------------- */
-// Track swap deck usage for each player
-let swapDeckUsed = {
-  player1: false,
-  player2: false
-};
-
-// Store fixed swap cards for each player (generated once per game)
-let fixedSwapCards = {
-  player1: null,
-  player2: null
-};
-
-// Store confirmed swap cards for each player (separate for each player)
-let confirmedSwapCards = {
-  player1: null,
-  player2: null
-};
-
-// Load swap deck usage from localStorage
-function loadSwapDeckUsage() {
-  try {
-    const saved = localStorage.getItem('swapDeckUsed');
-    if (saved) {
-      swapDeckUsed = JSON.parse(saved);
-    }
-  } catch (error) {
-    console.warn('Error loading swap deck usage:', error);
-  }
-}
-
-// Save swap deck usage to localStorage
-function saveSwapDeckUsage() {
-  try {
-    localStorage.setItem('swapDeckUsed', JSON.stringify(swapDeckUsed));
-  } catch (error) {
-    console.error('Error saving swap deck usage:', error);
-  }
-}
-
-// Load fixed swap cards from localStorage
-function loadFixedSwapCards() {
-  try {
-    const saved = localStorage.getItem('fixedSwapCards');
-    if (saved) {
-      fixedSwapCards = JSON.parse(saved);
-    }
-  } catch (error) {
-    console.error('Error loading fixed swap cards:', error);
-  }
-}
-
-// Save fixed swap cards to localStorage
-function saveFixedSwapCards() {
-  try {
-    localStorage.setItem('fixedSwapCards', JSON.stringify(fixedSwapCards));
-  } catch (error) {
-    console.error('Error saving fixed swap cards:', error);
-  }
-}
-
-// Load confirmed swap cards from localStorage
-function loadConfirmedSwapCards() {
-  try {
-    const saved = localStorage.getItem('confirmedSwapCards');
-    if (saved) {
-      confirmedSwapCards = JSON.parse(saved);
-    }
-  } catch (error) {
-    console.error('Error loading confirmed swap cards:', error);
-  }
-}
-
-// Save confirmed swap cards to localStorage
-function saveConfirmedSwapCards() {
-  try {
-    localStorage.setItem('confirmedSwapCards', JSON.stringify(confirmedSwapCards));
-  } catch (error) {
-    console.error('Error saving confirmed swap cards:', error);
-  }
-}
 
 // Get all available cards from the images directory
 function getAllAvailableCards() {
@@ -155,675 +74,8 @@ function getAllAvailableCards() {
   return allCards;
 }
 
-// Generate 3 random cards for swap deck (excluding player's current cards)
-function generateSwapCards(playerParam) {
-  // Check if we already have fixed cards for this player
-  if (fixedSwapCards[playerParam]) {
-    return fixedSwapCards[playerParam];
-  }
-  
-  const allCards = getAllAvailableCards();
-  
-  // Get player picks from localStorage
-  const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
-  const playerCards = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
-  
-  // Filter out cards that the player already has
-  const availableCards = allCards.filter(card => !playerCards.includes(card));
-  
-  // Shuffle and pick 3 random cards
-  const shuffled = availableCards.sort(() => 0.5 - Math.random());
-  const selectedCards = shuffled.slice(0, 3);
-  
-  // Store the fixed cards for this player
-  fixedSwapCards[playerParam] = selectedCards;
-  saveFixedSwapCards();
-  
-  return selectedCards;
-}
 
 
-// Test function to check button directly
-window.testSwapButton = function() {
-  console.log('🧪 Testing swap button directly...');
-  const button = document.getElementById('swapDeckBtn1');
-  console.log('Button element:', button);
-  if (button) {
-    console.log('Button onclick:', button.onclick);
-    console.log('Button disabled:', button.disabled);
-    console.log('Button classList:', button.classList);
-    
-    // Try to click the button
-    try {
-      button.click();
-      console.log('✅ Button clicked successfully');
-    } catch (error) {
-      console.error('❌ Error clicking button:', error);
-    }
-  } else {
-    console.error('❌ Button not found');
-  }
-};
-window.testSwapDeck = function() {
-  console.log('🧪 Testing swap deck...');
-  console.log('swapDeckUsed:', swapDeckUsed);
-  console.log('window.openSwapDeckModal:', typeof window.openSwapDeckModal);
-  console.log('Modal element:', document.getElementById("swapDeckModal"));
-  
-  if (typeof window.openSwapDeckModal === 'function') {
-    console.log('✅ openSwapDeckModal function is available');
-    try {
-      window.openSwapDeckModal('player1');
-      console.log('✅ Function called successfully');
-    } catch (error) {
-      console.error('❌ Error calling function:', error);
-    }
-  } else {
-    console.error('❌ openSwapDeckModal function is NOT available');
-  }
-};
-window.openSwapDeckModal = function(playerParam) {
-  console.log('🎯 openSwapDeckModal called with:', playerParam);
-  
-  let playerName;
-  
-  try {
-    // Get player names from localStorage
-    const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
-    const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
-    playerName = playerParam === 'player1' ? player1Name : player2Name;
-    
-    console.log('Player names:', { player1Name, player2Name, playerName });
-    
-    // Check if player has already used swap deck
-    if (swapDeckUsed && swapDeckUsed[playerParam]) {
-      showToast(`! ${playerName} استخدم دكة البدلاء مسبقاً في هذه المعركة`);
-      return;
-    }
-  } catch (error) {
-    console.error('Error in openSwapDeckModal:', error);
-    alert('خطأ في فتح دكة البدلاء: ' + error.message);
-    return;
-  }
-  
-  let modal, title, currentCardDisplay, swapCardsGrid, confirmBtn;
-  
-  try {
-    modal = document.getElementById("swapDeckModal");
-    title = document.getElementById("swapDeckTitle");
-    currentCardDisplay = document.getElementById("currentCardDisplay");
-    swapCardsGrid = document.getElementById("swapCardsGrid");
-    confirmBtn = document.getElementById("confirmSwapBtn");
-    
-    console.log('Modal elements check:', {
-      modal: !!modal,
-      title: !!title,
-      currentCardDisplay: !!currentCardDisplay,
-      swapCardsGrid: !!swapCardsGrid,
-      confirmBtn: !!confirmBtn
-    });
-    
-    if (!modal || !title || !currentCardDisplay || !swapCardsGrid || !confirmBtn) {
-      console.error('❌ Required modal elements not found');
-      alert('خطأ: عناصر النافذة المنبثقة غير موجودة');
-      return;
-    }
-  } catch (error) {
-    console.error('Error checking modal elements:', error);
-    alert('خطأ في التحقق من عناصر النافذة: ' + error.message);
-    return;
-  }
-  
-  // Update title
-  title.textContent = `دكة البدلاء - ${playerName}`;
-  
-  // Show current card (the card that will be replaced)
-  // Get current round
-  const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
-  
-  // Try multiple sources for player picks
-  let currentCardSrc = null;
-  
-  // Try StrategicPicks first
-  const strategicPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
-  const strategicPicks = JSON.parse(localStorage.getItem(strategicPicksKey) || '[]');
-  if (strategicPicks[currentRound]) {
-    currentCardSrc = strategicPicks[currentRound];
-  }
-  
-  // Try StrategicOrdered if StrategicPicks is empty
-  let strategicOrderedData = [];
-  if (!currentCardSrc) {
-    const strategicOrderedKey = playerParam === 'player1' ? 'player1StrategicOrdered' : 'player2StrategicOrdered';
-    strategicOrderedData = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
-    if (strategicOrderedData[currentRound]) {
-      currentCardSrc = strategicOrderedData[currentRound];
-    }
-  }
-  
-  // Try gameCardSelection if still no card
-  let playerCardsKey = '';
-  let gameCardSelection = {};
-  if (!currentCardSrc) {
-    gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
-    playerCardsKey = playerParam === 'player1' ? 'player1Cards' : 'player2Cards';
-    if (gameCardSelection[playerCardsKey] && gameCardSelection[playerCardsKey][currentRound]) {
-      currentCardSrc = gameCardSelection[playerCardsKey][currentRound];
-    }
-  }
-  
-  // Try all localStorage keys that might contain card data
-  if (!currentCardSrc) {
-    const allKeys = Object.keys(localStorage);
-    const cardKeys = allKeys.filter(key => 
-      key.includes('player') && 
-      (key.includes('Picks') || key.includes('Cards') || key.includes('Ordered'))
-    );
-    console.log('Available card keys in localStorage:', cardKeys);
-    
-    // Try each key
-    for (const key of cardKeys) {
-      try {
-        const data = JSON.parse(localStorage.getItem(key) || '[]');
-        if (Array.isArray(data) && data[currentRound]) {
-          console.log(`Found card in ${key}:`, data[currentRound]);
-          currentCardSrc = data[currentRound];
-          break;
-        }
-      } catch (e) {
-        console.log(`Error parsing ${key}:`, e);
-      }
-    }
-  }
-  
-  // Try picks object if still no card
-  if (!currentCardSrc && typeof picks !== 'undefined') {
-    const playerName = playerParam === 'player1' ? player1 : player2;
-    if (picks[playerName] && picks[playerName][currentRound]) {
-      currentCardSrc = picks[playerName][currentRound];
-    }
-  }
-  
-  // Debug: Log all available data
-  console.log('Debug info:', {
-    playerParam,
-    currentRound,
-    strategicPicks,
-    strategicOrderedData,
-    gameCardSelection,
-    picks: typeof picks !== 'undefined' ? picks : 'undefined',
-    player1: typeof player1 !== 'undefined' ? player1 : 'undefined',
-    player2: typeof player2 !== 'undefined' ? player2 : 'undefined'
-  });
-  
-  console.log('Current card search results:', {
-    playerParam,
-    currentRound,
-    strategicPicks: strategicPicks[currentRound],
-    strategicOrdered: strategicOrderedData[currentRound],
-    gameCardSelection: gameCardSelection[playerCardsKey]?.[currentRound],
-    finalCardSrc: currentCardSrc
-  });
-  
-  if (currentCardSrc) {
-    currentCardDisplay.innerHTML = "";
-    currentCardDisplay.appendChild(createMedia(currentCardSrc, ""));
-  } else {
-    currentCardDisplay.innerHTML = '<div style="color: #ffed7a; font-size: 12px; display: flex; align-items: center; justify-content: center; height: 100%;">لا توجد بطاقة</div>';
-  }
-  
-  // Generate and display 3 random swap cards
-  const swapCards = generateSwapCards(playerParam);
-  swapCardsGrid.innerHTML = "";
-  
-  // Store swap cards in modal data
-  modal.dataset.swapCards = JSON.stringify(swapCards);
-  
-  // Check if there's a confirmed card for this player
-  const confirmedCard = confirmedSwapCards[playerParam];
-  
-  // If there's a confirmed card, disable confirm button
-  if (confirmedCard) {
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "تم التأكيد";
-  }
-  
-  swapCards.forEach((cardSrc, index) => {
-    const cardOption = document.createElement("div");
-    const isConfirmed = confirmedCard && confirmedCard.cardSrc === cardSrc;
-    
-    if (isConfirmed) {
-      cardOption.className = "swap-card-option confirmed";
-  // Show the confirmed card image
-  const media = createMedia(cardSrc, "swap-card-media");
-  if (media) {
-    media.style.width = '100%';
-    media.style.height = '120px';
-    media.style.borderRadius = '12px';
-    media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-    media.style.objectFit = 'contain';
-    media.style.display = 'block';
-    media.style.border = '2px solid #ffffff';
-    cardOption.appendChild(media);
-  }
-    } else {
-      cardOption.className = "swap-card-option number-only";
-      // Add card number only
-      const cardNumber = document.createElement("div");
-      cardNumber.className = "swap-card-number";
-      cardNumber.textContent = `${index + 1}`;
-      cardOption.appendChild(cardNumber);
-    }
-    
-    cardOption.dataset.cardSrc = cardSrc;
-    cardOption.dataset.cardIndex = index;
-    
-    cardOption.onclick = () => {
-      // Check if a card is already selected and confirmed
-      const alreadySelected = swapCardsGrid.querySelector('.swap-card-option.confirmed');
-      if (alreadySelected) {
-        showToast("! تم اختيار البطاقة بالفعل", 'warning');
-        return;
-      }
-      
-      // Remove previous selection
-      swapCardsGrid.querySelectorAll('.swap-card-option').forEach(opt => opt.classList.remove('selected'));
-      
-      // Select current card
-      cardOption.classList.add('selected');
-      
-      // Enable confirm button
-      confirmBtn.disabled = false;
-      confirmBtn.style.pointerEvents = 'auto';
-      confirmBtn.style.opacity = '1';
-      
-      // Card selected successfully
-    };
-    
-    swapCardsGrid.appendChild(cardOption);
-  });
-  
-  // Reset confirm button only if no confirmed card
-  if (!confirmedCard) {
-    confirmBtn.disabled = true;
-  }
-  
-  // Store current player for confirm action
-  modal.dataset.playerParam = playerParam;
-  
-  modal.classList.add("active");
-  console.log('🎉 Modal opened successfully!');
-};
-
-window.closeSwapDeckModal = function() {
-  const modal = document.getElementById("swapDeckModal");
-  if (modal) {
-    modal.classList.remove("active");
-  }
-};
-
-window.confirmSwap = function() {
-  console.log('🎯 confirmSwap called');
-  
-  try {
-    // Get modal and check if it exists
-    const modal = document.getElementById("swapDeckModal");
-    if (!modal) {
-      throw new Error('النافذة المنبثقة غير موجودة');
-    }
-    
-    // Get player parameter
-    const playerParam = modal.dataset.playerParam;
-    if (!playerParam) {
-      throw new Error('معامل اللاعب غير موجود');
-    }
-    
-    // Get player names from localStorage
-    const player1Name = localStorage.getItem('player1') || 'اللاعب الأول';
-    const player2Name = localStorage.getItem('player2') || 'اللاعب الثاني';
-    const playerName = playerParam === 'player1' ? player1Name : player2Name;
-    
-    console.log('Player info:', { playerParam, playerName });
-    
-    // Get selected card
-    const selectedCard = modal.querySelector('.swap-card-option.selected');
-    if (!selectedCard) {
-      throw new Error('يرجى اختيار بطاقة أولاً');
-    }
-    
-    // Get card source from selected card data
-    const newCardSrc = selectedCard.dataset.cardSrc;
-    if (!newCardSrc) {
-      throw new Error('مصدر البطاقة غير موجود');
-    }
-    
-    console.log('Selected card source:', newCardSrc);
-    
-    // Check if card is already confirmed (showing image)
-    if (selectedCard.classList.contains('confirmed')) {
-      // Card is already showing, proceed with swap
-      console.log('Card already confirmed, proceeding with swap...');
-    } else {
-      // Show the card image first
-      selectedCard.classList.add('confirmed');
-      selectedCard.classList.remove('number-only');
-      
-      // Hide number and show image
-      const cardNumber = selectedCard.querySelector('.swap-card-number');
-      if (cardNumber) {
-        cardNumber.style.display = 'none';
-      }
-      
-      // Clear existing media and create new one
-      const existingMedia = selectedCard.querySelector('.swap-card-media');
-      if (existingMedia) {
-        existingMedia.remove();
-      }
-      
-      // Create and show media element with proper styling
-      const media = createMedia(newCardSrc, "swap-card-media");
-      if (media) {
-        media.style.width = '100%';
-        media.style.height = '120px';
-        media.style.borderRadius = '12px';
-        media.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-        media.style.objectFit = 'contain';
-        media.style.display = 'block';
-        media.style.border = '2px solid #ffffff';
-        selectedCard.appendChild(media);
-      }
-      
-      // Save confirmed card for this player
-      confirmedSwapCards[playerParam] = {
-        cardSrc: newCardSrc,
-        cardIndex: selectedCard.dataset.cardIndex
-      };
-      saveConfirmedSwapCards();
-      
-      // Disable all other cards
-      const swapCardsGrid = document.getElementById("swapCardsGrid");
-      if (swapCardsGrid) {
-        swapCardsGrid.querySelectorAll('.swap-card-option:not(.confirmed)').forEach(card => {
-          card.style.opacity = '0.5';
-          card.style.pointerEvents = 'none';
-        });
-      }
-      
-      // Update confirm button text
-      const confirmBtn = document.getElementById("confirmSwapBtn");
-      if (confirmBtn) {
-        confirmBtn.textContent = "تأكيد التبديل";
-        confirmBtn.disabled = false;
-      }
-      
-      // Stop here to show the card first
-      return;
-    }
-    
-    // Check if player has selected cards first
-    const playerPicksKey = playerParam === 'player1' ? 'player1StrategicPicks' : 'player2StrategicPicks';
-    let playerPicks = JSON.parse(localStorage.getItem(playerPicksKey) || '[]');
-    
-    console.log('Player picks:', { playerPicksKey, playerPicks, length: playerPicks ? playerPicks.length : 'undefined' });
-    
-    if (!playerPicks || playerPicks.length === 0) {
-      // Create test data if no picks exist
-      console.log('No player picks found, creating test data...');
-      const testCards = [
-        'images/ShanksCard.webm',
-        'images/Akai.webm', 
-        'images/madara.webm',
-        'images/Nana-card.png',
-        'images/ace.png'
-      ];
-      playerPicks = [...testCards];
-      localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
-      console.log('Test data created:', playerPicks);
-    }
-    
-    // Check current round
-    let currentRound = parseInt(localStorage.getItem('currentRound') || '0');
-    console.log('Current round:', currentRound);
-    
-    // Ensure current round is valid
-    if (currentRound >= playerPicks.length) {
-      currentRound = 0; // Reset to first round
-      localStorage.setItem('currentRound', '0');
-      console.log('Reset current round to 0');
-    }
-    
-    // Check if card exists for current round
-    if (!playerPicks[currentRound]) {
-      // Create a default card if none exists
-      playerPicks = [...playerPicks];
-      playerPicks[currentRound] = 'images/ShanksCard.webm';
-      localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
-      console.log('Created default card for round:', currentRound);
-    }
-    
-    // Perform the swap
-    console.log('Performing swap...');
-    
-    // Get old card
-    const oldCardSrc = playerPicks[currentRound];
-    console.log('Old card:', oldCardSrc);
-    console.log('New card:', newCardSrc);
-    console.log('Current round:', currentRound);
-    console.log('Player picks before swap:', playerPicks);
-    
-    // Update the card
-    playerPicks = [...playerPicks];
-    playerPicks[currentRound] = newCardSrc;
-    console.log('New card set:', newCardSrc);
-    console.log('Player picks after swap:', playerPicks);
-    
-    // Save updated picks to localStorage
-    localStorage.setItem(playerPicksKey, JSON.stringify(playerPicks));
-    console.log('StrategicPicks updated:', playerPicks);
-    
-    // Update StrategicOrdered if it exists
-    const strategicOrderedKey = `${playerParam}StrategicOrdered`;
-    let strategicOrdered = JSON.parse(localStorage.getItem(strategicOrderedKey) || '[]');
-    if (Array.isArray(strategicOrdered)) {
-      strategicOrdered = [...strategicOrdered];
-      strategicOrdered[currentRound] = newCardSrc;
-      localStorage.setItem(strategicOrderedKey, JSON.stringify(strategicOrdered));
-      console.log('StrategicOrdered updated:', strategicOrdered);
-    }
-    
-    // Update gameCardSelection if it exists
-    let gameCardSelection = JSON.parse(localStorage.getItem('gameCardSelection') || '{}');
-    if (!gameCardSelection[`${playerParam}Cards`]) {
-      gameCardSelection[`${playerParam}Cards`] = [];
-    }
-    gameCardSelection = {...gameCardSelection};
-    gameCardSelection[`${playerParam}Cards`] = [...gameCardSelection[`${playerParam}Cards`]];
-    gameCardSelection[`${playerParam}Cards`][currentRound] = newCardSrc;
-    localStorage.setItem('gameCardSelection', JSON.stringify(gameCardSelection));
-    console.log('gameCardSelection updated:', gameCardSelection);
-    
-    // Mark swap deck as used
-    swapDeckUsed[playerParam] = true;
-    saveSwapDeckUsage();
-    console.log('Swap deck marked as used for:', playerParam);
-    console.log('Swap deck usage saved:', swapDeckUsed);
-    
-    // Disable swap deck button immediately
-    const swapBtn = document.getElementById(`swapDeckBtn${playerParam === 'player1' ? '1' : '2'}`);
-    if (swapBtn) {
-      swapBtn.classList.add('disabled');
-      swapBtn.disabled = true;
-      swapBtn.textContent = 'مستخدمة';
-      swapBtn.style.opacity = '0.5';
-      swapBtn.style.pointerEvents = 'none';
-      swapBtn.style.cursor = 'not-allowed';
-      console.log('Swap button disabled for:', playerParam);
-    }
-    
-    // Force immediate UI update - NO DELAYS
-    console.log('Refreshing display immediately...');
-    
-    // Update the current card display immediately
-    const currentCardElement = document.querySelector('.current-card img, .current-card video');
-    if (currentCardElement && newCardSrc) {
-      currentCardElement.src = newCardSrc;
-      console.log('Current card element updated directly');
-    }
-    
-    // Try to refresh the display immediately
-    if (typeof renderVs === 'function') {
-      renderVs();
-      console.log('Display refreshed with renderVs');
-    }
-    
-    if (typeof renderRound === 'function') {
-      renderRound();
-      console.log('Display refreshed with renderRound');
-    }
-    
-    // Update swap deck buttons immediately
-    updateSwapDeckButtons();
-    
-    // Close modal immediately
-    console.log('Closing modal...');
-    closeSwapDeckModal();
-    
-    // Force update buttons one more time after modal closes
-    setTimeout(() => {
-      updateSwapDeckButtons();
-    }, 100);
-    
-    console.log('Swap completed successfully!');
-    
-  } catch (error) {
-    console.error('Error in confirmSwap:', error);
-    alert('خطأ: ' + error.message);
-  }
-};
-
-// Functions are now available globally
-
-
-// performSwap function is now integrated into confirmSwap
-
-// Update swap deck buttons state
-function updateSwapDeckButtons() {
-  console.log('Updating swap deck buttons...');
-  
-  // Force reload swap deck usage from localStorage
-  loadSwapDeckUsage();
-  console.log('Swap deck used state:', swapDeckUsed);
-  
-  const swapBtn1 = document.getElementById('swapDeckBtn1');
-  const swapBtn2 = document.getElementById('swapDeckBtn2');
-  
-  if (swapBtn1) {
-    if (swapDeckUsed.player1) {
-      swapBtn1.classList.add('disabled');
-      swapBtn1.disabled = true;
-      swapBtn1.textContent = 'مستخدمة';
-      swapBtn1.style.opacity = '0.5';
-      swapBtn1.style.pointerEvents = 'none';
-      swapBtn1.style.cursor = 'not-allowed';
-      swapBtn1.onclick = null; // Remove onclick handler
-      console.log('Player 1 swap button disabled');
-    } else {
-      swapBtn1.classList.remove('disabled');
-      swapBtn1.disabled = false;
-      swapBtn1.textContent = 'دكة البدلاء';
-      swapBtn1.style.opacity = '1';
-      swapBtn1.style.pointerEvents = 'auto';
-      swapBtn1.style.cursor = 'pointer';
-      swapBtn1.onclick = () => openSwapDeckModal('player1'); // Restore onclick handler
-      console.log('Player 1 swap button enabled');
-    }
-  }
-  
-  if (swapBtn2) {
-    if (swapDeckUsed.player2) {
-      swapBtn2.classList.add('disabled');
-      swapBtn2.disabled = true;
-      swapBtn2.textContent = 'مستخدمة';
-      swapBtn2.style.opacity = '0.5';
-      swapBtn2.style.pointerEvents = 'none';
-      swapBtn2.style.cursor = 'not-allowed';
-      swapBtn2.onclick = null; // Remove onclick handler
-      console.log('Player 2 swap button disabled');
-    } else {
-      swapBtn2.classList.remove('disabled');
-      swapBtn2.disabled = false;
-      swapBtn2.textContent = 'دكة البدلاء';
-      swapBtn2.style.opacity = '1';
-      swapBtn2.style.pointerEvents = 'auto';
-      swapBtn2.style.cursor = 'pointer';
-      swapBtn2.onclick = () => openSwapDeckModal('player2'); // Restore onclick handler
-      console.log('Player 2 swap button enabled');
-    }
-  }
-}
-
-// Make swap deck functions globally available immediately
-window.openSwapDeckModal = openSwapDeckModal;
-window.closeSwapDeckModal = closeSwapDeckModal;
-window.confirmSwap = confirmSwap;
-
-// Test if functions are available
-console.log('Global functions test:', {
-  openSwapDeckModal: typeof window.openSwapDeckModal,
-  closeSwapDeckModal: typeof window.closeSwapDeckModal,
-  confirmSwap: typeof window.confirmSwap
-});
-
-// Test confirmSwap function
-window.testConfirmSwap = function() {
-  console.log('🧪 Testing confirmSwap function...');
-  if (typeof window.confirmSwap === 'function') {
-    console.log('✅ confirmSwap function is available');
-    return true;
-  } else {
-    console.error('❌ confirmSwap function is NOT available');
-    return false;
-  }
-};
-
-// Test localStorage data
-window.testLocalStorage = function() {
-  console.log('🧪 Testing localStorage data...');
-  const player1Picks = JSON.parse(localStorage.getItem('player1StrategicPicks') || '[]');
-  const player2Picks = JSON.parse(localStorage.getItem('player2StrategicPicks') || '[]');
-  const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
-  
-  console.log('Player 1 picks:', player1Picks);
-  console.log('Player 2 picks:', player2Picks);
-  console.log('Current round:', currentRound);
-  
-  return {
-    player1Picks: player1Picks,
-    player2Picks: player2Picks,
-    currentRound: currentRound
-  };
-};
-
-// Create test data for both players
-window.createTestData = function() {
-  console.log('🧪 Creating test data...');
-  const testCards = [
-    'images/ShanksCard.webm',
-    'images/Akai.webm', 
-    'images/madara.webm',
-    'images/Nana-card.png',
-    'images/ace.png'
-  ];
-  
-  localStorage.setItem('player1StrategicPicks', JSON.stringify(testCards));
-  localStorage.setItem('player2StrategicPicks', JSON.stringify(testCards));
-  localStorage.setItem('currentRound', '0');
-  
-  console.log('Test data created for both players');
-  return testCards;
-};
-
-// Swap deck functions loaded and available
 
 // Load round count from gameSetupProgress
 let roundCount = 5;
@@ -870,6 +122,43 @@ try {
 // Load round count first
 let round = parseInt(localStorage.getItem("currentRound") || "0");
 
+// Apply swap deck modifications to picks
+function applySwapDeckModifications(picks) {
+  try {
+    console.log('🔄 Applying swap deck modifications to picks');
+    
+    // Apply modifications for player1
+    if (picks[player1]) {
+      for (let i = 0; i < picks[player1].length; i++) {
+        const swapKey = `player1SwapRound${i}`;
+        const swappedCard = localStorage.getItem(swapKey);
+        if (swappedCard) {
+          const originalCard = picks[player1][i];
+          picks[player1][i] = swappedCard;
+          console.log(`🔄 Applied swap for player1 round ${i}: ${originalCard} → ${swappedCard}`);
+        }
+      }
+    }
+    
+    // Apply modifications for player2
+    if (picks[player2]) {
+      for (let i = 0; i < picks[player2].length; i++) {
+        const swapKey = `player2SwapRound${i}`;
+        const swappedCard = localStorage.getItem(swapKey);
+        if (swappedCard) {
+          const originalCard = picks[player2][i];
+          picks[player2][i] = swappedCard;
+          console.log(`🔄 Applied swap for player2 round ${i}: ${originalCard} → ${swappedCard}`);
+        }
+      }
+    }
+    
+    console.log('✅ Swap deck modifications applied successfully');
+  } catch (error) {
+    console.error('❌ Error applying swap deck modifications:', error);
+  }
+}
+
 // Dynamic picks loading function
 function loadPlayerPicks() {
   console.log('📋 loadPlayerPicks called');
@@ -890,6 +179,9 @@ function loadPlayerPicks() {
           picks[player1] = [...player1Ordered];
           picks[player2] = [...player2Ordered];
           console.log('Loaded picks from StrategicOrdered:', { player1: picks[player1], player2: picks[player2] });
+          
+          // Apply swap deck modifications to the loaded picks
+          applySwapDeckModifications(picks);
           return picks;
         }
       } catch (e) {
@@ -911,6 +203,9 @@ function loadPlayerPicks() {
           picks[player1] = [...player1Cards];
           picks[player2] = [...player2Cards];
           console.log('Loaded picks from StrategicPicks:', { player1: picks[player1], player2: picks[player2] });
+          
+          // Apply swap deck modifications to the loaded picks
+          applySwapDeckModifications(picks);
           return picks;
         }
       } catch (e) {
@@ -927,6 +222,9 @@ function loadPlayerPicks() {
           picks[player1] = [...cardData.player1Cards];
           picks[player2] = [...cardData.player2Cards];
           console.log('Loaded picks from gameCardSelection:', { player1: picks[player1], player2: picks[player2] });
+          
+          // Apply swap deck modifications to the loaded picks
+          applySwapDeckModifications(picks);
           return picks;
         }
       } catch (e) {
@@ -948,6 +246,9 @@ function loadPlayerPicks() {
     console.log('Using fallback cards for player2:', picks[player2]);
   }
   
+  // Apply swap deck modifications to fallback cards as well
+  applySwapDeckModifications(picks);
+  
   console.log('📋 loadPlayerPicks result:', picks);
   return picks;
 }
@@ -957,12 +258,6 @@ let picks = loadPlayerPicks();
 console.log('📋 Initial picks loaded:', picks);
 console.log('📋 Player names:', { player1, player2 });
 console.log('📋 Current round:', round);
-console.log('📋 Swap deck usage:', swapDeckUsed);
-console.log('📋 Window functions available:', {
-  openSwapDeckModal: typeof window.openSwapDeckModal,
-  closeSwapDeckModal: typeof window.closeSwapDeckModal,
-  confirmSwap: typeof window.confirmSwap
-});
 
 // Scores init/persist with error handling
 let scores = {};
@@ -1343,7 +638,29 @@ function updateNotesForRound() {
 
 /* ---------------------- Previous cards ---------------------- */
 function renderPrev(){
-  const getPrev = (name)=> (Array.isArray(picks?.[name])?picks[name]:[]).filter((_,i)=>i<round);
+  // Get previous cards with swap deck modifications
+  const getPrev = (name) => {
+    const baseCards = Array.isArray(picks?.[name]) ? picks[name] : [];
+    const prevCards = baseCards.filter((_, i) => i < round);
+    
+    // Check for swap deck modifications in previous rounds
+    console.log(`🔍 Checking swap modifications for ${name}, base cards:`, prevCards);
+    for (let i = 0; i < prevCards.length; i++) {
+      // Determine player key based on name
+      const playerKey = name === player1 ? 'player1' : 'player2';
+      const swapKey = `${playerKey}SwapRound${i}`;
+      const swappedCard = localStorage.getItem(swapKey);
+      console.log(`🔍 Checking ${swapKey}: ${swappedCard}`);
+      if (swappedCard) {
+        const originalCard = prevCards[i];
+        prevCards[i] = swappedCard;
+        console.log(`✅ Using swapped card for ${name} (${playerKey}) round ${i}: ${originalCard} → ${swappedCard}`);
+      }
+    }
+    
+    return prevCards;
+  };
+  
   const leftRow  = document.getElementById("historyRowLeft");
   const rightRow = document.getElementById("historyRowRight");
   const leftLbl  = document.getElementById("historyLabelLeft");
@@ -1367,8 +684,10 @@ function renderPrev(){
   
   // Show previous cards for player2 (left side)
   const player2Prev = getPrev(player2);
+  console.log(`🎴 Player2 (${player2}) previous cards:`, player2Prev);
   if (player2Prev.length > 0 && leftRow) {
-    player2Prev.forEach(src=>{
+    player2Prev.forEach((src, index) => {
+      console.log(`🎴 Adding player2 card ${index}: ${src}`);
       const mini=document.createElement("div");
       mini.className="mini-card";
       mini.appendChild(createMedia(src,""));
@@ -1378,8 +697,10 @@ function renderPrev(){
   
   // Show previous cards for player1 (right side)
   const player1Prev = getPrev(player1);
+  console.log(`🎴 Player1 (${player1}) previous cards:`, player1Prev);
   if (player1Prev.length > 0 && rightRow) {
-    player1Prev.forEach(src=>{
+    player1Prev.forEach((src, index) => {
+      console.log(`🎴 Adding player1 card ${index}: ${src}`);
       const mini=document.createElement("div");
       mini.className="mini-card";
       mini.appendChild(createMedia(src,""));
@@ -2239,8 +1560,13 @@ function renderRound(){
     console.warn('Confirm button not found');
   }
   
-  // Update swap deck buttons state
-  updateSwapDeckButtons();
+  // ✅ Update swap deck button states after page reload
+  if (window.swapDeckSystem && typeof window.swapDeckSystem.forceRefreshButtonStates === 'function') {
+    console.log('🎴 Force refreshing swap deck button states after page reload...');
+    window.swapDeckSystem.forceRefreshButtonStates();
+  }
+  
+  // Confirm button wired successfully
 }
 
 function confirmWinner(){
@@ -2267,12 +1593,27 @@ function confirmWinner(){
     
     // Reset for new battle
     localStorage.setItem('currentRound', '0');
+    
+    // Clear swap deck round keys for new game
+    for (let i = 0; i < roundCount; i++) {
+      localStorage.removeItem(`player1SwapRound${i}`);
+      localStorage.removeItem(`player2SwapRound${i}`);
+    }
+    console.log('✅ Cleared swap deck round keys for new game');
+    
+    // Clear swap deck usage data for new game
+    localStorage.removeItem('swapDeckUsageData');
+    console.log('✅ Cleared swap deck usage data for new game');
+    
     location.href="final-result.html";
   } else {
     // ✅ لا نمسح الملاحظات عند الانتقال للجولة التالية
     localStorage.removeItem(USED_ABILITIES_KEY);
     localStorage.removeItem(ABILITY_REQUESTS_KEY);
     shownNotifications.clear();
+    
+    // ✅ لا نمسح swapDeckUsageData عند الانتقال للجولة التالية - يبقى معطل حتى نهاية التحدي
+    console.log('✅ Preserving swap deck usage data for next round');
     
     // Notify player views of round update BEFORE reload
     console.log('Notifying player views of round update...');
@@ -2419,6 +1760,12 @@ function refreshCardData() {
   picks = loadPlayerPicks();
   console.log('Updated picks:', picks);
   renderRound();
+  
+  // ✅ Update swap deck button states after data refresh
+  if (window.swapDeckSystem && typeof window.swapDeckSystem.forceRefreshButtonStates === 'function') {
+    console.log('🎴 Force refreshing swap deck button states after data refresh...');
+    window.swapDeckSystem.forceRefreshButtonStates();
+  }
 }
 
 // Initialize and render with error handling
@@ -2426,92 +1773,24 @@ try {
   console.log('Initializing game...');
   initializeGameData();
   
-  // Load swap deck usage
-  loadSwapDeckUsage();
-  console.log('Initial swap deck usage loaded:', swapDeckUsed);
-  
-  // Load fixed swap cards
-  loadFixedSwapCards();
-  
-  // Load confirmed swap cards
-  loadConfirmedSwapCards();
-  
-  console.log('Swap deck usage loaded:', swapDeckUsed);
-  console.log('Fixed swap cards loaded:', fixedSwapCards);
-  console.log('Confirmed swap cards loaded:', confirmedSwapCards);
-  
-  // Update swap deck buttons state on page load
-  updateSwapDeckButtons();
-  console.log('Initial button update completed');
-  
   // Clear used abilities for new game if current round is 0
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
   if (currentRound === 0) {
     clearUsedAbilities();
-    // Reset swap deck usage and fixed cards for new game
-    swapDeckUsed = { player1: false, player2: false };
-    fixedSwapCards = { player1: null, player2: null };
-    confirmedSwapCards = { player1: null, player2: null };
-    saveSwapDeckUsage();
-    saveFixedSwapCards();
-    saveConfirmedSwapCards();
-    
-    console.log('New game detected - resetting swap deck buttons');
-    // Update buttons after reset
-    updateSwapDeckButtons();
+    console.log('New game detected - clearing used abilities');
   } else {
-    console.log('Continuing existing game - keeping swap deck state');
+    console.log('Continuing existing game');
   }
   
   renderRound();
   
-  // Update swap deck buttons after render
-  updateSwapDeckButtons();
-  
-  // Final button update
+  // ✅ Update swap deck button states after initial render
   setTimeout(() => {
-    updateSwapDeckButtons();
-  }, 500);
-  
-  // Additional button updates
-  setTimeout(() => {
-    updateSwapDeckButtons();
-  }, 1000);
-  
-  setTimeout(() => {
-    updateSwapDeckButtons();
-  }, 2000);
-  
-  // Also update buttons when page becomes visible
-  document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) {
-      updateSwapDeckButtons();
+    if (window.swapDeckSystem && typeof window.swapDeckSystem.forceRefreshButtonStates === 'function') {
+      console.log('🎴 Force refreshing swap deck button states after initial render...');
+      window.swapDeckSystem.forceRefreshButtonStates();
     }
-  });
-  
-  // Update buttons when page loads
-  window.addEventListener('load', function() {
-    console.log('Page loaded, updating buttons...');
-    updateSwapDeckButtons();
-  });
-  
-  // Update buttons when DOM is ready
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM ready, updating buttons...');
-    updateSwapDeckButtons();
-  });
-  
-  // Force update buttons every 3 seconds to ensure they stay correct
-  setInterval(() => {
-    updateSwapDeckButtons();
-  }, 3000);
-  
-  // Update buttons when user clicks anywhere on the page
-  document.addEventListener('click', function() {
-    setTimeout(() => {
-      updateSwapDeckButtons();
-    }, 100);
-  });
+  }, 500);
   
   // Listen for changes in used abilities from other pages
   window.addEventListener('storage', function(e) {
@@ -2532,95 +1811,6 @@ try {
       }
     }
     
-    // Listen for swap deck usage changes
-    if (e.key === 'swapDeckUsed') {
-      console.log('Swap deck usage changed, updating buttons...');
-      loadSwapDeckUsage();
-      updateSwapDeckButtons();
-    }
-    
-    // Listen for any game-related changes
-    if (e.key && (e.key.includes('player') || e.key.includes('game') || e.key.includes('currentRound'))) {
-      console.log('Game data changed, updating buttons...');
-      updateSwapDeckButtons();
-    }
-    
-    // Listen for currentRound changes (new game)
-    if (e.key === 'currentRound') {
-      const newRound = parseInt(e.newValue || '0');
-      if (newRound === 0) {
-        console.log('New game started - resetting swap deck buttons');
-        swapDeckUsed = { player1: false, player2: false };
-        fixedSwapCards = { player1: null, player2: null };
-        confirmedSwapCards = { player1: null, player2: null };
-        saveSwapDeckUsage();
-        saveFixedSwapCards();
-        saveConfirmedSwapCards();
-        updateSwapDeckButtons();
-      }
-    }
-    
-    // Listen for gameSetupProgress changes (new game setup)
-    if (e.key === 'gameSetupProgress') {
-      const progress = JSON.parse(e.newValue || '{}');
-      if (progress.step === 'setup' || progress.step === 'start' || progress.step === 'reset') {
-        console.log('New game setup detected - resetting swap deck buttons');
-        swapDeckUsed = { player1: false, player2: false };
-        fixedSwapCards = { player1: null, player2: null };
-        confirmedSwapCards = { player1: null, player2: null };
-        saveSwapDeckUsage();
-        saveFixedSwapCards();
-        saveConfirmedSwapCards();
-        updateSwapDeckButtons();
-      }
-    }
-    
-    // Listen for any game reset signals
-    if (e.key === 'gameReset' || e.key === 'newGame' || e.key === 'resetGame') {
-      console.log('Game reset detected - resetting swap deck buttons');
-      swapDeckUsed = { player1: false, player2: false };
-      fixedSwapCards = { player1: null, player2: null };
-      confirmedSwapCards = { player1: null, player2: null };
-      saveSwapDeckUsage();
-      saveFixedSwapCards();
-      saveConfirmedSwapCards();
-      updateSwapDeckButtons();
-    }
-    
-    // Listen for any game-related changes that might indicate a new game
-    if (e.key && (e.key.includes('player') || e.key.includes('game') || e.key.includes('currentRound'))) {
-      console.log('Game data changed, updating buttons...');
-      updateSwapDeckButtons();
-    }
-    
-    // Listen for any localStorage changes
-    if (e.key) {
-      console.log('localStorage changed:', e.key);
-      setTimeout(() => {
-        updateSwapDeckButtons();
-      }, 100);
-    }
-    
-    // Listen for any localStorage changes
-    if (e.key) {
-      console.log('localStorage changed:', e.key);
-      setTimeout(() => {
-        updateSwapDeckButtons();
-      }, 100);
-    }
-    
-    // Listen for game reset signals
-    if (e.key === 'gameReset' || e.key === 'newGame') {
-      console.log('Game reset detected - resetting swap deck buttons');
-      swapDeckUsed = { player1: false, player2: false };
-      fixedSwapCards = { player1: null, player2: null };
-      confirmedSwapCards = { player1: null, player2: null };
-      saveSwapDeckUsage();
-      saveFixedSwapCards();
-      saveConfirmedSwapCards();
-      updateSwapDeckButtons();
-    }
-    
     // Listen for gameSetupProgress changes to reload abilities and picks
     if (e.key === 'gameSetupProgress') {
       try {
@@ -2630,18 +1820,6 @@ try {
         // Reload gameSetupProgress and update picks
         gameSetupProgress = JSON.parse(localStorage.getItem("gameSetupProgress") || "{}");
         refreshCardData();
-        
-        // Check if this is a new game setup
-        if (gameSetupProgress.step === 'setup' || gameSetupProgress.step === 'start' || gameSetupProgress.step === 'reset') {
-          console.log('New game setup detected - resetting swap deck buttons');
-          swapDeckUsed = { player1: false, player2: false };
-          fixedSwapCards = { player1: null, player2: null };
-          confirmedSwapCards = { player1: null, player2: null };
-          saveSwapDeckUsage();
-          saveFixedSwapCards();
-          saveConfirmedSwapCards();
-          updateSwapDeckButtons();
-        }
       } catch(error) {
         console.error("Error reloading abilities and picks after game setup change:", error);
       }
