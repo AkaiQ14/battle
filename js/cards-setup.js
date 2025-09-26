@@ -346,7 +346,8 @@ function generateRandomCards() {
     'images/YujiroHanma-card.png',
     'images/Dabi-card.png',
     'images/fubukii.png',
-    'images/gounji.png'
+    'images/gounji.png',
+    'images/Carasuma.png'
   ];
   
   // Legendary cards (part of 15% with Epic) - منظم حسب المجلد المرفق

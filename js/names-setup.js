@@ -204,34 +204,17 @@ function showLeaderboard() {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-      rgba(139, 21, 56, 0.98), 
-      rgba(45, 45, 45, 0.98), 
-      rgba(25, 25, 25, 0.98)
-    );
+    background: #8B1538;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
     font-family: "Cairo", sans-serif;
     padding: 0;
-    backdrop-filter: blur(15px);
-    box-shadow: inset 0 0 100px rgba(255, 215, 0, 0.1);
   `;
   
   overlay.innerHTML = `
     <style>
-      @keyframes borderGlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-      
-      @keyframes patternMove {
-        0% { transform: translateX(-20px); }
-        100% { transform: translateX(20px); }
-      }
-      
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -241,12 +224,6 @@ function showLeaderboard() {
           opacity: 1;
           transform: translateY(0);
         }
-      }
-      
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
       }
       
       .leaderboard-row {
@@ -260,205 +237,29 @@ function showLeaderboard() {
       .leaderboard-row:nth-child(5) { animation-delay: 0.5s; }
     </style>
     <div style="
-      background: linear-gradient(135deg, 
-        #2d2d2d 0%, 
-        #1a1a1a 50%, 
-        #0d0d0d 100%
-      );
+      background: #8B1538;
       color: white;
       width: 96vw;
       height: 96vh;
-      border-radius: 25px;
+      border-radius: 0;
       overflow: hidden;
       font-family: 'Cairo', sans-serif;
-      box-shadow: 
-        0 25px 80px rgba(0, 0, 0, 0.7),
-        0 0 0 1px rgba(255, 215, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      border: 3px solid transparent;
-      background-clip: padding-box;
       position: relative;
       display: flex;
       flex-direction: column;
     ">
-      <!-- Golden Border Effect -->
-      <div style="
-        position: absolute;
-        top: -3px;
-        left: -3px;
-        right: -3px;
-        bottom: -3px;
-        background: linear-gradient(45deg, 
-          #FFD700, #FFA500, #FF8C00, #FFD700, 
-          #FFA500, #FF8C00, #FFD700
-        );
-        border-radius: 25px;
-        z-index: -1;
-        animation: borderGlow 3s linear infinite;
-      "></div>
-      <!-- Header -->
-      <div style="
-        background: linear-gradient(135deg, 
-          #FFD700 0%, 
-          #FFA500 50%, 
-          #FF8C00 100%
-        );
-        color: #000;
-      padding: 30px;
-      text-align: center;
-        border-bottom: 4px solid #FF6B00;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
-      ">
-        <!-- Animated Background Pattern -->
-        <div style="
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 10px,
-            rgba(255, 255, 255, 0.1) 10px,
-            rgba(255, 255, 255, 0.1) 20px
-          );
-          animation: patternMove 10s linear infinite;
-        "></div>
-        
-        <h2 style="
-          margin: 0; 
-          font-size: 32px; 
-          font-weight: 900; 
-          text-shadow: 
-            2px 2px 4px rgba(0,0,0,0.3),
-            0 0 20px rgba(255, 255, 255, 0.5);
-          position: relative;
-          z-index: 1;
-          letter-spacing: 2px;
-        ">
-          🏆 لوحة المتصدرين 🏆
-        </h2>
-        
-        <div style="
-          margin-top: 10px;
-          font-size: 14px;
-          font-weight: 600;
-          opacity: 0.8;
-          position: relative;
-          z-index: 1;
-        ">
-          LEADERBOARD
-        </div>
-      </div>
-      
-      <!-- Controls Section -->
-          <div style="
-        background: #1a1a1a;
-        padding: 20px;
-        border-bottom: 2px solid #444;
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        flex-wrap: wrap;
-      ">
-        <!-- Add New Player -->
-        <div style="flex: 1; min-width: 300px;">
-          <h3 style="color: #FFD700; margin: 0 0 10px 0; font-size: 16px;">إضافة لاعب جديد (اختياري)</h3>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" id="newPlayerName" placeholder="اسم اللاعب" style="
-              flex: 1;
-              padding: 12px 15px;
-              border: 2px solid #444;
-              border-radius: 8px;
-              background: #2d2d2d;
-              color: white;
-              font-family: 'Cairo', sans-serif;
-              font-size: 14px;
-              outline: none;
-              transition: border-color 0.3s;
-            " onfocus="this.style.borderColor='#FFD700'" onblur="this.style.borderColor='#444'">
-            <button onclick="addNewPlayer()" style="
-              background: linear-gradient(135deg, #4CAF50, #45a049);
-              color: white;
-              border: none;
-              border-radius: 8px;
-              padding: 12px 20px;
-              font-size: 14px;
-              font-weight: bold;
-              cursor: pointer;
-              font-family: 'Cairo', sans-serif;
-              transition: transform 0.2s;
-            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-              إضافة
-            </button>
-          </div>
-        </div>
-        
-        <!-- Search Player -->
-        <div style="flex: 1; min-width: 300px;">
-          <h3 style="color: #FFD700; margin: 0 0 10px 0; font-size: 16px;">ابحث عن لاعب</h3>
-          <div style="position: relative;">
-            <input type="text" id="searchPlayer" placeholder="اكتب اسم اللاعب..." style="
-              width: 100%;
-              padding: 12px 40px 12px 15px;
-              border: 2px solid #444;
-              border-radius: 8px;
-              background: #2d2d2d;
-              color: white;
-              font-family: 'Cairo', sans-serif;
-              font-size: 14px;
-              outline: none;
-              transition: border-color 0.3s;
-            " onfocus="this.style.borderColor='#FFD700'" onblur="this.style.borderColor='#444'" oninput="searchPlayers()">
-            <span onclick="clearSearch()" style="
-              position: absolute;
-              right: 15px;
-              top: 50%;
-              transform: translateY(-50%);
-              color: #f44336;
-              cursor: pointer;
-              font-size: 18px;
-              font-weight: bold;
-            ">✕</span>
-          </div>
-        </div>
-        
-        <!-- Save Changes Button -->
-        <div>
-          <button onclick="saveAllChanges()" style="
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform 0.2s;
-          " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            💾 حفظ كل التعديلات
-          </button>
-            </div>
-          </div>
       
       <!-- Table Container -->
-      <div style="flex: 1; overflow-y: auto; padding: 0;">
+      <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
         <table style="
           width: 100%;
           border-collapse: collapse;
-          background: #2d2d2d;
+          background: transparent;
           color: white;
           font-size: 14px;
         ">
           <thead style="position: sticky; top: 0; z-index: 10;">
-            <tr style="background: linear-gradient(135deg, #1a1a1a, #2d2d2d);">
+            <tr style="background: transparent;">
               <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">#</th>
               <th style="padding: 15px 10px; text-align: right; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">اسم اللاعب</th>
               <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">عدد المباريات</th>
@@ -466,12 +267,11 @@ function showLeaderboard() {
               <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">خسر</th>
               <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">نسبة الفوز</th>
               <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">نقاط</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">التحكم</th>
             </tr>
           </thead>
           <tbody id="leaderboardTableBody">
             ${leaderboard.length === 0 ? 
-              '<tr><td colspan="8" style="padding: 40px; text-align: center; color: #ccc; font-size: 18px;">لا توجد نتائج بعد. ابدأ اللعب!</td></tr>' :
+              '<tr><td colspan="7" style="padding: 40px; text-align: center; color: #ccc; font-size: 18px;">لا توجد نتائج بعد. ابدأ اللعب!</td></tr>' :
               leaderboard.map((player, index) => `
                 <tr class="leaderboard-row" style="
                   border-bottom: 1px solid #444; 
@@ -494,79 +294,6 @@ function showLeaderboard() {
                   <td style="padding: 15px 10px; text-align: center; color: #f44336; font-weight: bold;">${player.losses || 0}</td>
                   <td style="padding: 15px 10px; text-align: center; font-weight: bold;">${player.winRate || 0}%</td>
                   <td style="padding: 15px 10px; text-align: center; color: #FFD700; font-weight: bold; font-size: 16px;">${player.points || 0}</td>
-                  <td style="padding: 15px 10px; text-align: center;">
-                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
-                      <button onclick="addPointToPlayer('${player.name}')" style="
-                        background: linear-gradient(135deg, #4CAF50, #45a049);
-                        color: white;
-                        border: none;
-                        border-radius: 12px;
-                        padding: 10px 18px;
-                        font-size: 13px;
-                        font-weight: 800;
-                        cursor: pointer;
-                        font-family: 'Cairo', sans-serif;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-                        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-                        position: relative;
-                        overflow: hidden;
-                      " onmouseover="
-                        this.style.transform='scale(1.15) translateY(-2px)';
-                        this.style.boxShadow='0 8px 25px rgba(76, 175, 80, 0.5)';
-                      " onmouseout="
-                        this.style.transform='scale(1) translateY(0)';
-                        this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';
-                      ">+ 1 نقطة</button>
-                      <button onclick="removePointFromPlayer('${player.name}')" style="
-                        background: linear-gradient(135deg, #f44336, #d32f2f);
-                        color: white;
-                        border: none;
-                        border-radius: 12px;
-                        padding: 10px 18px;
-                        font-size: 13px;
-                        font-weight: 800;
-                        cursor: pointer;
-                        font-family: 'Cairo', sans-serif;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
-                        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-                        position: relative;
-                        overflow: hidden;
-                      " onmouseover="
-                        this.style.transform='scale(1.15) translateY(-2px)';
-                        this.style.boxShadow='0 8px 25px rgba(244, 67, 54, 0.5)';
-                      " onmouseout="
-                        this.style.transform='scale(1) translateY(0)';
-                        this.style.boxShadow='0 4px 15px rgba(244, 67, 54, 0.3)';
-                      ">- 1 -</button>
-                      <button onclick="deletePlayer('${player.name}')" style="
-                        background: linear-gradient(135deg, #666, #555);
-                        color: white;
-                        border: none;
-                        border-radius: 12px;
-                        padding: 10px 18px;
-                        font-size: 13px;
-                        font-weight: 800;
-                        cursor: pointer;
-                        font-family: 'Cairo', sans-serif;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(102, 102, 102, 0.3);
-                        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-                        position: relative;
-                        overflow: hidden;
-                      " onmouseover="
-                        this.style.transform='scale(1.15) translateY(-2px)';
-                        this.style.boxShadow='0 8px 25px rgba(102, 102, 102, 0.5)';
-                      " onmouseout="
-                        this.style.transform='scale(1) translateY(0)';
-                        this.style.boxShadow='0 4px 15px rgba(102, 102, 102, 0.3)';
-                      ">حذف 🗑️</button>
-                    </div>
-                  </td>
                 </tr>
               `).join('')
             }
@@ -576,29 +303,23 @@ function showLeaderboard() {
       
       <!-- Footer -->
       <div style="
-        background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
-        padding: 25px;
+        background: transparent;
+        padding: 20px;
         text-align: center;
-        border-top: 3px solid #FFD700;
-        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
       ">
         <button id="closeLeaderboardBtn" style="
-          background: linear-gradient(135deg, #ff4757, #ff3742);
-          color: white;
+          background: #FFD700;
+          color: #000;
           border: none;
-          border-radius: 15px;
-          padding: 18px 35px;
-          font-size: 18px;
-          font-weight: 800;
+          border-radius: 8px;
+          padding: 12px 24px;
+          font-size: 16px;
+          font-weight: bold;
           cursor: pointer;
           font-family: 'Cairo', sans-serif;
           transition: all 0.3s ease;
-          box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-          position: relative;
-          overflow: hidden;
-        " onmouseover="this.style.transform='scale(1.08)'; this.style.boxShadow='0 12px 35px rgba(255, 71, 87, 0.6)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(255, 71, 87, 0.4)'">
-          ✕ إغلاق النافذة
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+          إغلاق
         </button>
       </div>
     </div>
