@@ -630,10 +630,537 @@ function saveAllChanges() {
   alert('تم حفظ جميع التعديلات بنجاح!');
 }
 
+// Show control panel
+function showControlPanel() {
+  console.log('showControlPanel called');
+  const leaderboard = getLeaderboard();
+  console.log('Control Panel data:', leaderboard);
+  
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #8B1538;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    font-family: "Cairo", sans-serif;
+    padding: 0;
+  `;
+  
+  overlay.innerHTML = `
+    <style>
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .control-row {
+        animation: fadeInUp 0.6s ease-out;
+      }
+      
+      .control-row:nth-child(1) { animation-delay: 0.1s; }
+      .control-row:nth-child(2) { animation-delay: 0.2s; }
+      .control-row:nth-child(3) { animation-delay: 0.3s; }
+      .control-row:nth-child(4) { animation-delay: 0.4s; }
+      .control-row:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+    <div style="
+      background: #8B1538;
+      color: white;
+      width: 96vw;
+      height: 96vh;
+      border-radius: 0;
+      overflow: hidden;
+      font-family: 'Cairo', sans-serif;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    ">
+      <!-- Header -->
+      <div style="
+        background: transparent;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+      ">
+        <h1 style="
+          margin: 0; 
+          font-size: 24px; 
+          font-weight: 700; 
+          color: white;
+          letter-spacing: 1px;
+        ">
+          إدارة لوحة المتصدرين
+        </h1>
+      </div>
+      
+      <!-- Controls Section -->
+      <div style="
+        background: transparent;
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      ">
+        <!-- Add New Player -->
+        <div style="flex: 1; min-width: 300px;">
+          <h3 style="color: white; margin: 0 0 10px 0; font-size: 16px;">إضافة لاعب جديد (اختياري)</h3>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="newPlayerNameControl" placeholder="اسم اللاعب" style="
+              flex: 1;
+              padding: 12px 15px;
+              border: 2px solid #444;
+              border-radius: 8px;
+              background: white;
+              color: #000;
+              font-family: 'Cairo', sans-serif;
+              font-size: 14px;
+              outline: none;
+              transition: border-color 0.3s;
+            " onfocus="this.style.borderColor='#FFD700'" onblur="this.style.borderColor='#444'">
+            <button onclick="addNewPlayerControl()" style="
+              background: linear-gradient(135deg, #4CAF50, #45a049);
+              color: white;
+              border: none;
+              border-radius: 8px;
+              padding: 12px 20px;
+              font-size: 14px;
+              font-weight: bold;
+              cursor: pointer;
+              font-family: 'Cairo', sans-serif;
+              transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+              إضافة
+            </button>
+          </div>
+        </div>
+        
+        <!-- Search Player -->
+        <div style="flex: 1; min-width: 300px;">
+          <h3 style="color: white; margin: 0 0 10px 0; font-size: 16px;">ابحث عن لاعب</h3>
+          <div style="position: relative;">
+            <input type="text" id="searchPlayerControl" placeholder="اكتب اسم اللاعب...." style="
+              width: 100%;
+              padding: 12px 40px 12px 15px;
+              border: 2px solid #444;
+              border-radius: 8px;
+              background: white;
+              color: #000;
+              font-family: 'Cairo', sans-serif;
+              font-size: 14px;
+              outline: none;
+              transition: border-color 0.3s;
+            " onfocus="this.style.borderColor='#FFD700'" onblur="this.style.borderColor='#444'" oninput="searchPlayersControl()">
+            <span onclick="clearSearchControl()" style="
+              position: absolute;
+              right: 15px;
+              top: 50%;
+              transform: translateY(-50%);
+              color: #f44336;
+              cursor: pointer;
+              font-size: 18px;
+              font-weight: bold;
+            ">✕</span>
+          </div>
+        </div>
+        
+        <!-- Save Changes Button -->
+        <div>
+          <button onclick="saveAllChangesControl()" style="
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+          " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            💾 حفظ كل التعديلات
+          </button>
+        </div>
+      </div>
+      
+      <!-- Table Container -->
+      <div style="flex: 1; overflow-y: auto; padding: 0 20px 20px 20px;">
+        <table style="
+          width: 100%;
+          border-collapse: collapse;
+          background: #6B0F2A;
+          color: white;
+          font-size: 14px;
+          border-radius: 8px;
+          overflow: hidden;
+        ">
+          <thead>
+            <tr style="background: #5A0D24;">
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">#</th>
+              <th style="padding: 15px 10px; text-align: right; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">اسم اللاعب</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">عدد المباريات</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">فاز</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">خسر</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نسبة الفوز</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نقاط</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">التحكم</th>
+            </tr>
+          </thead>
+          <tbody id="controlTableBody">
+            ${leaderboard.length === 0 ? 
+              '<tr><td colspan="8" style="padding: 40px; text-align: center; color: #ccc; font-size: 18px;">لا توجد نتائج بعد. ابدأ اللعب!</td></tr>' :
+              leaderboard.map((player, index) => `
+                <tr class="control-row" style="
+                  border-bottom: 1px solid #4A0A1A;
+                  background: ${index % 2 === 0 ? '#6B0F2A' : '#5A0D24'};
+                ">
+                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${index + 1}</td>
+                  <td style="padding: 15px 10px; text-align: right; font-weight: bold; font-size: 16px; color: white;">${player.name}</td>
+                  <td style="padding: 15px 10px; text-align: center;">
+                    <input type="number" value="${player.games || 0}" min="0" style="
+                      width: 60px;
+                      padding: 5px;
+                      border: 1px solid #444;
+                      border-radius: 4px;
+                      background: white;
+                      color: #000;
+                      text-align: center;
+                      font-size: 14px;
+                    " onchange="updatePlayerData('${player.name}', 'games', this.value)">
+                  </td>
+                  <td style="padding: 15px 10px; text-align: center;">
+                    <input type="number" value="${player.wins || 0}" min="0" style="
+                      width: 60px;
+                      padding: 5px;
+                      border: 1px solid #444;
+                      border-radius: 4px;
+                      background: white;
+                      color: #000;
+                      text-align: center;
+                      font-size: 14px;
+                    " onchange="updatePlayerData('${player.name}', 'wins', this.value)">
+                  </td>
+                  <td style="padding: 15px 10px; text-align: center;">
+                    <input type="number" value="${player.losses || 0}" min="0" style="
+                      width: 60px;
+                      padding: 5px;
+                      border: 1px solid #444;
+                      border-radius: 4px;
+                      background: white;
+                      color: #000;
+                      text-align: center;
+                      font-size: 14px;
+                    " onchange="updatePlayerData('${player.name}', 'losses', this.value)">
+                  </td>
+                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${player.winRate || 0}%</td>
+                  <td style="padding: 15px 10px; text-align: center; color: white; font-weight: bold; font-size: 16px;">${player.points || 0}</td>
+                  <td style="padding: 15px 10px; text-align: center;">
+                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                      <button onclick="addPointToPlayerControl('${player.name}')" style="
+                        background: linear-gradient(135deg, #4CAF50, #45a049);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 8px 12px;
+                        font-size: 12px;
+                        font-weight: 800;
+                        cursor: pointer;
+                        font-family: 'Cairo', sans-serif;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                        position: relative;
+                        overflow: hidden;
+                      " onmouseover="
+                        this.style.transform='scale(1.15) translateY(-2px)';
+                        this.style.boxShadow='0 8px 25px rgba(76, 175, 80, 0.5)';
+                      " onmouseout="
+                        this.style.transform='scale(1) translateY(0)';
+                        this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';
+                      ">+1 نقطة</button>
+                      <button onclick="removePointFromPlayerControl('${player.name}')" style="
+                        background: linear-gradient(135deg, #f44336, #d32f2f);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 8px 12px;
+                        font-size: 12px;
+                        font-weight: 800;
+                        cursor: pointer;
+                        font-family: 'Cairo', sans-serif;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+                        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                        position: relative;
+                        overflow: hidden;
+                      " onmouseover="
+                        this.style.transform='scale(1.15) translateY(-2px)';
+                        this.style.boxShadow='0 8px 25px rgba(244, 67, 54, 0.5)';
+                      " onmouseout="
+                        this.style.transform='scale(1) translateY(0)';
+                        this.style.boxShadow='0 4px 15px rgba(244, 67, 54, 0.3)';
+                      ">-1 نقطة</button>
+                      <button onclick="deletePlayerControl('${player.name}')" style="
+                        background: linear-gradient(135deg, #666, #555);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 8px 12px;
+                        font-size: 12px;
+                        font-weight: 800;
+                        cursor: pointer;
+                        font-family: 'Cairo', sans-serif;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(102, 102, 102, 0.3);
+                        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                        position: relative;
+                        overflow: hidden;
+                      " onmouseover="
+                        this.style.transform='scale(1.15) translateY(-2px)';
+                        this.style.boxShadow='0 8px 25px rgba(102, 102, 102, 0.5)';
+                      " onmouseout="
+                        this.style.transform='scale(1) translateY(0)';
+                        this.style.boxShadow='0 4px 15px rgba(102, 102, 102, 0.3)';
+                      ">🗑️ حذف</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Footer -->
+      <div style="
+        background: transparent;
+        padding: 20px;
+        text-align: center;
+      ">
+        <button id="closeControlPanelBtn" style="
+          background: #FFD700;
+          color: #000;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 24px;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+          font-family: 'Cairo', sans-serif;
+          transition: all 0.3s ease;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // إضافة event listener لزر الإغلاق
+  setTimeout(() => {
+    const closeBtn = document.getElementById('closeControlPanelBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        overlay.remove();
+      });
+    }
+  }, 100);
+  
+  // إضافة إمكانية إغلاق النافذة بالضغط على الخلفية
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+  
+  // إضافة تأثير الظهور
+  overlay.style.opacity = '0';
+  overlay.style.transform = 'scale(0.8)';
+  
+  document.body.appendChild(overlay);
+  
+  // تأثير الظهور السلس
+  setTimeout(() => {
+    overlay.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    overlay.style.opacity = '1';
+    overlay.style.transform = 'scale(1)';
+  }, 10);
+}
+
+// Control Panel Functions
+function addNewPlayerControl() {
+  const playerNameInput = document.getElementById('newPlayerNameControl');
+  const playerName = playerNameInput.value.trim();
+  
+  if (!playerName) {
+    alert('يرجى إدخال اسم اللاعب');
+    return;
+  }
+  
+  if (playerName.length < 2) {
+    alert('اسم اللاعب يجب أن يكون حرفين على الأقل');
+    return;
+  }
+  
+  const leaderboardData = localStorage.getItem('leaderboard');
+  let players = leaderboardData ? JSON.parse(leaderboardData) : [];
+  
+  // التحقق من وجود اللاعب
+  if (players.find(p => p.name === playerName)) {
+    alert('اللاعب موجود بالفعل في القائمة');
+    return;
+  }
+  
+  // إضافة اللاعب الجديد
+  const newPlayer = {
+    name: playerName,
+    wins: 0,
+    losses: 0,
+    games: 0,
+    points: 0,
+    winRate: 0
+  };
+  
+  players.push(newPlayer);
+  saveLeaderboardData(players);
+  
+  // مسح حقل الإدخال
+  playerNameInput.value = '';
+  
+  // إعادة عرض القائمة
+  showControlPanel();
+  
+  console.log(`تم إضافة اللاعب الجديد: ${playerName}`);
+}
+
+function searchPlayersControl() {
+  const searchTerm = document.getElementById('searchPlayerControl').value.toLowerCase();
+  const tableBody = document.getElementById('controlTableBody');
+  
+  if (!tableBody) return;
+  
+  const rows = tableBody.querySelectorAll('tr');
+  
+  rows.forEach(row => {
+    const playerNameCell = row.querySelector('td:nth-child(2)');
+    if (playerNameCell) {
+      const playerName = playerNameCell.textContent.toLowerCase();
+      if (playerName.includes(searchTerm)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  });
+}
+
+function clearSearchControl() {
+  const searchInput = document.getElementById('searchPlayerControl');
+  searchInput.value = '';
+  searchPlayersControl();
+}
+
+function saveAllChangesControl() {
+  // البيانات محفوظة تلقائياً عند كل تعديل
+  alert('تم حفظ جميع التعديلات بنجاح!');
+}
+
+function updatePlayerData(playerName, field, value) {
+  const leaderboardData = localStorage.getItem('leaderboard');
+  if (!leaderboardData) return;
+  
+  const players = JSON.parse(leaderboardData);
+  const player = players.find(p => p.name === playerName);
+  
+  if (player) {
+    player[field] = parseInt(value) || 0;
+    
+    // إعادة حساب معدل الفوز
+    if (player.games > 0) {
+      player.winRate = Math.round((player.wins / player.games) * 100);
+    } else {
+      player.winRate = 0;
+    }
+    
+    saveLeaderboardData(players);
+    showControlPanel(); // إعادة عرض القائمة
+  }
+}
+
+function addPointToPlayerControl(playerName) {
+  const leaderboardData = localStorage.getItem('leaderboard');
+  if (!leaderboardData) return;
+  
+  const players = JSON.parse(leaderboardData);
+  let player = players.find(p => p.name === playerName);
+  
+  if (!player) {
+    player = { name: playerName, wins: 0, losses: 0, games: 0, points: 0, winRate: 0 };
+    players.push(player);
+  }
+  
+  // إضافة نقطة
+  player.points = (player.points || 0) + 1;
+  
+  saveLeaderboardData(players);
+  showControlPanel(); // إعادة عرض القائمة
+  
+  console.log(`تم إضافة نقطة للاعب ${playerName} في لوحة التحكم`);
+}
+
+function removePointFromPlayerControl(playerName) {
+  const leaderboardData = localStorage.getItem('leaderboard');
+  if (!leaderboardData) return;
+  
+  const players = JSON.parse(leaderboardData);
+  const player = players.find(p => p.name === playerName);
+  
+  if (player) {
+    // إزالة نقطة
+    player.points = Math.max(0, (player.points || 0) - 1);
+    
+    saveLeaderboardData(players);
+    showControlPanel(); // إعادة عرض القائمة
+    
+    console.log(`تم إزالة نقطة من اللاعب ${playerName} في لوحة التحكم`);
+  }
+}
+
+function deletePlayerControl(playerName) {
+  if (confirm(`هل أنت متأكد من حذف اللاعب "${playerName}"؟`)) {
+    const leaderboardData = localStorage.getItem('leaderboard');
+    if (!leaderboardData) return;
+    
+    const players = JSON.parse(leaderboardData);
+    const filteredPlayers = players.filter(p => p.name !== playerName);
+    saveLeaderboardData(filteredPlayers);
+    showControlPanel(); // إعادة عرض القائمة
+  }
+}
+
 // Make functions available globally
 window.nextStep = nextStep;
 window.saveProgress = saveProgress;
 window.showLeaderboard = showLeaderboard;
+window.showControlPanel = showControlPanel;
 window.addPointToPlayer = addPointToPlayer;
 window.removePointFromPlayer = removePointFromPlayer;
 window.deletePlayer = deletePlayer;
@@ -645,3 +1172,11 @@ window.addNewPlayer = addNewPlayer;
 window.searchPlayers = searchPlayers;
 window.clearSearch = clearSearch;
 window.saveAllChanges = saveAllChanges;
+window.addNewPlayerControl = addNewPlayerControl;
+window.searchPlayersControl = searchPlayersControl;
+window.clearSearchControl = clearSearchControl;
+window.saveAllChangesControl = saveAllChangesControl;
+window.updatePlayerData = updatePlayerData;
+window.addPointToPlayerControl = addPointToPlayerControl;
+window.removePointFromPlayerControl = removePointFromPlayerControl;
+window.deletePlayerControl = deletePlayerControl;
