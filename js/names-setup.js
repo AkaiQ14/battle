@@ -250,50 +250,42 @@ function showLeaderboard() {
     ">
       
       <!-- Table Container -->
-      <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
+      <div style="flex: 1; overflow-y: auto; padding: 20px;">
         <table style="
           width: 100%;
           border-collapse: collapse;
-          background: transparent;
+          background: #6B0F2A;
           color: white;
           font-size: 14px;
+          border-radius: 8px;
+          overflow: hidden;
         ">
-          <thead style="position: sticky; top: 0; z-index: 10;">
-            <tr style="background: transparent;">
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">#</th>
-              <th style="padding: 15px 10px; text-align: right; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">اسم اللاعب</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">عدد المباريات</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">فاز</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">خسر</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">نسبة الفوز</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 2px solid #FFD700; color: #FFD700; font-weight: bold;">نقاط</th>
+          <thead>
+            <tr style="background: #5A0D24;">
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">#</th>
+              <th style="padding: 15px 10px; text-align: right; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">اسم اللاعب</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">عدد المباريات</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">فاز</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">خسر</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نسبة الفوز</th>
+              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نقاط</th>
             </tr>
           </thead>
           <tbody id="leaderboardTableBody">
             ${leaderboard.length === 0 ? 
               '<tr><td colspan="7" style="padding: 40px; text-align: center; color: #ccc; font-size: 18px;">لا توجد نتائج بعد. ابدأ اللعب!</td></tr>' :
               leaderboard.map((player, index) => `
-                <tr class="leaderboard-row" style="
-                  border-bottom: 1px solid #444; 
-                  transition: all 0.3s ease;
-                  position: relative;
-                  overflow: hidden;
-                " onmouseover="
-                  this.style.backgroundColor='rgba(255, 215, 0, 0.1)';
-                  this.style.transform='translateX(5px)';
-                  this.style.boxShadow='0 5px 15px rgba(255, 215, 0, 0.2)';
-                " onmouseout="
-                  this.style.backgroundColor='transparent';
-                  this.style.transform='translateX(0)';
-                  this.style.boxShadow='none';
+                <tr style="
+                  border-bottom: 1px solid #4A0A1A;
+                  background: ${index % 2 === 0 ? '#6B0F2A' : '#5A0D24'};
                 ">
-                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: #FFD700;">${index + 1}</td>
-                  <td style="padding: 15px 10px; text-align: right; font-weight: bold; font-size: 16px;">${player.name}</td>
-                  <td style="padding: 15px 10px; text-align: center;">${player.games || 0}</td>
+                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${index + 1}</td>
+                  <td style="padding: 15px 10px; text-align: right; font-weight: bold; font-size: 16px; color: white;">${player.name}</td>
+                  <td style="padding: 15px 10px; text-align: center; color: white;">${player.games || 0}</td>
                   <td style="padding: 15px 10px; text-align: center; color: #4CAF50; font-weight: bold;">${player.wins || 0}</td>
                   <td style="padding: 15px 10px; text-align: center; color: #f44336; font-weight: bold;">${player.losses || 0}</td>
-                  <td style="padding: 15px 10px; text-align: center; font-weight: bold;">${player.winRate || 0}%</td>
-                  <td style="padding: 15px 10px; text-align: center; color: #FFD700; font-weight: bold; font-size: 16px;">${player.points || 0}</td>
+                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${player.winRate || 0}%</td>
+                  <td style="padding: 15px 10px; text-align: center; color: white; font-weight: bold; font-size: 16px;">${player.points || 0}</td>
                 </tr>
               `).join('')
             }
