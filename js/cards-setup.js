@@ -381,7 +381,7 @@ function generateRandomCards() {
     'images/ShanksCard.webm'
   ];
   
-  // نظام توزيع محسن: 70% شائعة، 20% ملحمية، 10% أسطورية بدون تكرار
+  // نظام توزيع محسن: توزيع فريد بدون تكرار
   const totalCardsNeeded = 40; // 20 لكل لاعب
   
   // خلط جميع مجموعات البطاقات أولاً
@@ -389,76 +389,75 @@ function generateRandomCards() {
   const shuffledEpic = [...epicCards].sort(() => Math.random() - 0.5);
   const shuffledLegendary = [...legendaryCards].sort(() => Math.random() - 0.5);
   
-  // حساب عدد البطاقات لكل نوع
-  const legendaryCount = 4; // 10% من 40 بطاقة
-  const epicCount = 8;      // 20% من 40 بطاقة
-  const commonCount = 28;   // 70% من 40 بطاقة
+  // حساب عدد البطاقات لكل نوع مضمون
+  const legendaryCount = Math.min(4, shuffledLegendary.length); // 4 أسطورية
+  const epicCount = Math.min(8, shuffledEpic.length);           // 8 ملحمية  
+  const commonCount = Math.min(28, shuffledCommon.length);     // 28 شائعة
   
-  console.log(`🎴 توزيع البطاقات: ${commonCount} شائعة، ${epicCount} ملحمية، ${legendaryCount} أسطورية`);
+  console.log(`🎴 توزيع البطاقات المضمون: ${commonCount} شائعة، ${epicCount} ملحمية، ${legendaryCount} أسطورية`);
   
-  // اختيار البطاقات بدون تكرار
-  const selectedCards = [];
+  // اختيار البطاقات بطريقة آمنة - جزء واحد فقط من كل مصفوفة
+  const selectedLegendaryCards = shuffledLegendary.slice(0, legendaryCount);
+  const selectedEpicCards = shuffledEpic.slice(0, epicCount);
+  const selectedCommonCards = shuffledCommon.slice(0, commonCount);
   
-  // اختيار البطاقات الأسطورية (4 بطاقات)
-  for (let i = 0; i < legendaryCount && i < shuffledLegendary.length; i++) {
-    selectedCards.push(shuffledLegendary[i]);
-  }
+  console.log(`🎴 تم انتخاب البطاقات الفريدة: ${selectedCommonCards.length} شائعة، ${selectedEpicCards.length} ملحمية، ${selectedLegendaryCards.length} أسطورية`);
   
-  // اختيار البطاقات الملحمية (8 بطاقات)
-  for (let i = 0; i < shuffledEpic.length; i++) {
-    selectedCards.push(shuffledEpic[i]);
-    if (selectedCards.filter(card => epicCards.includes(card)).length === epicCount) break;
-  }
-  
-  // اختيار البطاقات الشائعة (28 بطاقة)
-  for (let i = 0; i < shuffledCommon.length; i++) {
-    selectedCards.push(shuffledCommon[i]);
-    if (selectedCards.filter(card => commonCards.includes(card)).length === commonCount) break;
-  }
-  
-  console.log(`🎴 تم اختيار ${selectedCards.length} بطاقة إجمالية`);
-  
-  // تقسيم البطاقات حسب النوع مرة أخرى
-  const selectedLegendaryCards = selectedCards.filter(card => legendaryCards.includes(card));
-  const selectedEpicCards = selectedCards.filter(card => epicCards.includes(card));
-  const selectedCommonCards = selectedCards.filter(card => commonCards.includes(card));
-  
-  console.log(`🎴 البطاقات المختارة: ${selectedCommonCards.length} شائعة، ${selectedEpicCards.length} ملحمية، ${selectedLegendaryCards.length} أسطورية`);
-  
-  // توزيع متوازن بين اللاعبين
+  // توزيع متوازن وآمن بين اللاعبين
   const player1Cards = [];
   const player2Cards = [];
+  let player1CardCount = 0;
+  let player2CardCount = 0;
   
-  // توزيع البطاقات الأسطورية بالتناوب
-  selectedLegendaryCards.forEach((card, index) => {
-    if (index % 2 === 0) {
+  // دالة مساعدة للتوزيع بالتناوب
+  function addCardToPlayer(card) {
+    if (player1CardCount < player2CardCount) {
       player1Cards.push(card);
+      player1CardCount++;
     } else {
       player2Cards.push(card);
+      player2CardCount++;
     }
+  }
+  
+  // توزيع البطاقات الأسطورية بالتناوب المتوازن
+  selectedLegendaryCards.forEach((card) => {
+    addCardToPlayer(card);
   });
   
-  // توزيع البطاقات الملحمية بالتناوب
-  selectedEpicCards.forEach((card, index) => {
-    if (index % 2 === 0) {
-      player1Cards.push(card);
-    } else {
-      player2Cards.push(card);
-    }
+  // توزيع البطاقات الملحمية بالتناوب المتوازن
+  selectedEpicCards.forEach((card) => {
+    addCardToPlayer(card);
   });
   
-  // توزيع البطاقات الشائعة بالتناوب
-  selectedCommonCards.forEach((card, index) => {
-    if (index % 2 === 0) {
-      player1Cards.push(card);
-    } else {
-      player2Cards.push(card);
-    }
+  // توزيع البطاقات الشائعة بالتناوب المتوازن
+  selectedCommonCards.forEach((card) => {
+    addCardToPlayer(card);
   });
+  
+  // ضمان أن كل لاعب يحصل على 20 بطاقة بالضبط
+  const totalCards = player1Cards.length + player2Cards.length;
+  const remainingCards = totalCards - 40; // يجب أن نبقي على 40 بطاقة فقط (20 لكل لاعب)
+  
+  if (remainingCards !== 0) {
+    console.warn(`⚠️ عدد البطاقات غير صحيح: ${totalCards} بدلاً من 40`);
+    // تقليص البطاقات إذا كان هناك زيادة
+    while (player1Cards.length + player2Cards.length > 40) {
+      if (player1Cards.length > player2Cards.length) {
+        player1Cards.pop();
+        player1CardCount--;
+      } else {
+        player2Cards.pop();
+        player2CardCount--;
+      }
+    }
+  }
+  
+  console.log(`🎴 قبل التوزيع النهائي: اللاعب1=${player1Cards.length}, اللاعب2=${player2Cards.length}`);
   
   // خلط البطاقات لكل لاعب
-  gameState.player1Cards = player1Cards.slice(0, 20).sort(() => Math.random() - 0.5);
-  gameState.player2Cards = player2Cards.slice(0, 20).sort(() => Math.random() - 0.5);
+  gameState.player1Cards = [...player1Cards].sort(() => Math.random() - 0.5);
+  gameState.player2Cards = [...player2Cards].sort(() => Math.random() - 0.5);
   
   // إحصائيات التوزيع النهائي
   const player1Legendary = gameState.player1Cards.filter(card => legendaryCards.includes(card)).length;
@@ -472,13 +471,42 @@ function generateRandomCards() {
   console.log(`   اللاعب الأول: ${gameState.player1Cards.length} بطاقة (${player1Legendary} أسطورية، ${player1Epic} ملحمية، ${player1Common} شائعة)`);
   console.log(`   اللاعب الثاني: ${gameState.player2Cards.length} بطاقة (${player2Legendary} أسطورية، ${player2Epic} ملحمية، ${player2Common} شائعة)`);
   
-  // التحقق من عدم وجود تكرار
+  // التحقق من عدم وجود تكرار - فحص شامل
   const allCardsUsed = [...gameState.player1Cards, ...gameState.player2Cards];
-  const duplicates = allCardsUsed.filter((card, index) => allCardsUsed.indexOf(card) !== index);
-  if (duplicates.length > 0) {
-    console.warn(`⚠️ تم العثور على ${duplicates.length} بطاقة مكررة:`, duplicates);
-  } else {
-    console.log(`✅ لا توجد بطاقات مكررة - التوزيع نظيف`);
+  const cardSet = new Set(allCardsUsed);
+  
+  // فحص التكرار الداخلي لكل لاعب
+  const player1Duplicates = gameState.player1Cards.filter((card, index) => 
+    gameState.player1Cards.indexOf(card) !== index
+  );
+  const player2Duplicates = gameState.player2Cards.filter((card, index) => 
+    gameState.player2Cards.indexOf(card) !== index
+  );
+  
+  // فحص التكرار العام
+  const totalDuplicates = allCardsUsed.filter((card, index) => 
+    allCardsUsed.indexOf(card) !== index
+  );
+  
+  if (player1Duplicates.length > 0) {
+    console.error(`❌ تكرار في بطاقات اللاعب الأول: ${player1Duplicates.length} بطاقة مكررة`, player1Duplicates);
+  }
+  
+  if (player2Duplicates.length > 0) {
+    console.error(`❌ تكرار في بطاقات اللاعب الثاني: ${player2Duplicates.length} البطاقة مكررة`, player2Duplicates);
+  }
+  
+  // فحص العدد الصحيح
+  if (allCardsUsed.length !== 40) {
+    console.error(`❌ عدد البطاقات غير صحيح: ${allCardsUsed.length} بدلاً من 40`);
+  }
+  
+  if (cardSet.size !== allCardsUsed.length) {
+    console.error(`❌ توجد بطاقات مكررة بين اللاعبين: ${allCardsUsed.length - cardSet.size} تكرار`);
+  }
+  
+  if (player1Duplicates.length === 0 && player2Duplicates.length === 0 && cardSet.size === allCardsUsed.length && allCardsUsed.length === 40) {
+    console.log(`✅ توزيع مثالي: لا توجد بطاقات مكررة - 40 بطاقة فريدة بالتساوي`);
   }
   
   // Set available cards for current player
