@@ -186,7 +186,9 @@ class CardManager {
       'images/fubukii.png',
       'images/gounji.png',
       'images/Carasuma.png',
-      'images/Conan.png'
+      'images/Conan.png',
+      'images/Kidou.png',
+      'images/Shisui.png'
     ];
 
     // Legendary cards (5% of total)

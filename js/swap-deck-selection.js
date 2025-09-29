@@ -98,7 +98,7 @@ function generateSwapDeckOptions() {
       'images/Senjumaru-card.png', 'images/Arthur-card.png', 'images/Lemillion-card.png',
       'images/Fuegoleonn .png', 'images/Itchigo-card .png', 'images/Kaito-card .png',
       'images/DragonBB-67-card.png', 'images/Kuma-card.png', 'images/YujiroHanma-card.png',
-      'images/Dabi-card.png', 'images/fubukii.png', 'images/gounji.png', 'images/Carasuma.png', 'images/Conan.png',
+      'images/Dabi-card.png', 'images/fubukii.png', 'images/gounji.png', 'images/Carasuma.png', 'images/Conan.png', 'images/Kidou.png', 'images/Shisui.png',
       
       // Legendary cards
       'images/law.webm', 'images/Vegetto.webm', 'images/madara.webm',

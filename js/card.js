@@ -27,7 +27,7 @@ function getAllAvailableCards() {
     "images/Atsuya-card.png", "images/AyanokojiCard.webm", "images/Ban-card.png", "images/Bardooock.png", "images/bartolomeo-card.png",
     "images/BeastKing-card.png", "images/BigM.webp", "images/Bisky-card.png", "images/brook.png", "images/Btakuya-card.png",
     "images/caesar-card.png", "images/cardo20ppsd.webp", "images/CartTitan-card.png", "images/cavendish-card.png", "images/Charllotte-card.png",
-    "images/Choi-jong-in-.webp", "images/Conan.png", "images/Chopper-card.png", "images/ColossialTitan-card.png", "images/Dabi-card.png", "images/Danteee.png",
+    "images/Choi-jong-in-.webp", "images/Conan.png", "images/Kidou.png", "images/Shisui.png", "images/Chopper-card.png", "images/ColossialTitan-card.png", "images/Dabi-card.png", "images/Danteee.png",
     "images/dazai-card.png", "images/DiamondJozu.webp", "images/DragonBB-67-card.png", "images/edward elric.png", "images/Elfaria Albis.png",
     "images/Endeavor.png", "images/ErenCard.webm", "images/esdeath.webp", "images/Eso-card.png", "images/FemaleTitan-card.webp",
     "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp", "images/fubukii.png",
