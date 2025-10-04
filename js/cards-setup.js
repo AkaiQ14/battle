@@ -293,7 +293,13 @@ function generateRandomCards() {
     'images/rin.png',
     'images/kota izumi.png',
     'images/Lille-baroo-card.png',
-    'images/tenten.webp'
+    'images/tenten.webp',
+    'images/Feitan-card.webp',
+    'images/uraume-card.webp',
+    'images/Akaza-card.webp',
+    'images/Denki-card.webp',
+    'images/monet.webp',
+    'images/zabuza.webp'
   ];
   
   // Epic cards (part of 15% with Legendary) - منظم حسب المجلد المرفق
@@ -345,12 +351,17 @@ function generateRandomCards() {
     'images/Kuma-card.png',
     'images/YujiroHanma-card.png',
     'images/Dabi-card.png',
-    'images/fubukii.png',
     'images/gounji.png',
     'images/Carasuma.png',
     'images/Conan.png',
     'images/Kidou.png',
-    'images/Shisui.png'
+    'images/Shisui.png',
+    'images/Akaii.png',
+    'images/GTO_2.webp',
+    'images/sasukee.webp',
+    'images/gaara.webp',
+    'images/Cathleen-card.webp',
+    'images/Akaino-card.webp'
   ];
   
   // Legendary cards (part of 15% with Epic) - منظم حسب المجلد المرفق
@@ -378,7 +389,13 @@ function generateRandomCards() {
     'images/MeruemCard.webm',
     'images/SilverCard.webm',
     'images/Akai.webm',
-    'images/ShanksCard.webm'
+    'images/ShanksCard.webm',
+    'images/Ranpo.webm',
+    'images/Zenitsu.webm',
+    'images/Fubuki.webm',
+    'images/zoro.webm',
+    'images/killua.webm',
+    'images/Asta.webm'
   ];
   
   // نظام توزيع محسن: توزيع فريد بدون تكرار

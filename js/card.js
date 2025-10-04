@@ -30,7 +30,7 @@ function getAllAvailableCards() {
     "images/Choi-jong-in-.webp", "images/Conan.png", "images/Kidou.png", "images/Shisui.png", "images/Chopper-card.png", "images/ColossialTitan-card.png", "images/Dabi-card.png", "images/Danteee.png",
     "images/dazai-card.png", "images/DiamondJozu.webp", "images/DragonBB-67-card.png", "images/edward elric.png", "images/Elfaria Albis.png",
     "images/Endeavor.png", "images/ErenCard.webm", "images/esdeath.webp", "images/Eso-card.png", "images/FemaleTitan-card.webp",
-    "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp", "images/fubukii.png",
+    "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp",
     "images/Fuegoleonn .png", "images/Gadjah.webp", "images/GaiMou-card.png", "images/Galand-card.png", "images/Ganju-card.png",
     "images/Genthru-card.png", "images/geten.webp", "images/Geto-card.png", "images/ghiaccio.png", "images/Gilthunder.png",
     "images/Gin-freecss-card.png", "images/gloxinia.png", "images/Go-Gunhee-card.webm", "images/Gogeta.webm", "images/GojoCard.webm",
@@ -68,7 +68,7 @@ function getAllAvailableCards() {
     "images/Vegetto.webm", "images/Vengeance.png", "images/Videl-card.webp", "images/Vista-card.png", "images/WarHammerTitan-card.png",
     "images/whitebeard.webm", "images/Yoo-Jinho-card.png", "images/Yoruichi-card.webp", "images/YujiroHanma-card.png", "images/Yusaku.png",
     "images/Zagred-card.png", "images/Zamasuuu.webm", "images/zaratras.png", "images/Zeno kingdom.png", "images/Zeo Thorzeus.png",
-    "images/zetsu.png", "images/Zohakuten.png"
+    "images/zetsu.png", "images/Zohakuten.png", "images/GTO_2.webp", "images/sasukee.webp", "images/gaara.webp", "images/Cathleen-card.webp", "images/Feitan-card.webp", "images/uraume-card.webp", "images/Akaino-card.webp", "images/Akaza-card.webp", "images/Denki-card.webp", "images/monet.webp", "images/zabuza.webp", "images/Zenitsu.webm", "images/Fubuki.webm", "images/zoro.webm", "images/killua.webm", "images/Asta.webm"
   ];
   
   return allCards;
@@ -295,6 +295,311 @@ const rightNotes = document.querySelector(".right-panel .notes textarea");
 
 // Track shown notifications to avoid duplicates
 let shownNotifications = new Set();
+
+// Voice system for Legendary cards
+let voiceSystem = {
+  isEnabled: true,
+  volume: 0.7,
+  currentAudio: null,
+  audioQueue: [],
+  isPlaying: false,
+  
+  // Map card names to voice file names (excluding ranpo)
+  getVoiceFileName: function(cardPath) {
+    if (!cardPath) return null;
+    
+    // Extract card name from path
+    let cardName = cardPath.split('/').pop().split('.')[0];
+    
+    // Handle special cases and clean up the name
+    cardName = cardName.replace('-card', '').replace('Card', '');
+    
+    // Skip ranpo as requested
+    if (cardName.toLowerCase().includes('ranpo')) {
+      return null;
+    }
+    
+    return cardName;
+  },
+  
+  // Check if card is Legendary
+  isLegendaryCard: function(cardPath) {
+    if (!cardPath) return false;
+    return cardPath.includes('Legendary/') || 
+           cardPath.includes('images/') && this.isLegendaryByName(cardPath);
+  },
+  
+  // Check if card is legendary by name patterns - Updated with all voice files
+  isLegendaryByName: function(cardPath) {
+    // All legendary cards that have voice files in voice/ directory
+    const legendaryPatterns = [
+      'aizen', 'Akai', 'AllForOneCard', 'AyanokojiCard', 'Asta', 'ErenCard',
+      'fubuki', 'Gogeta', 'GojoCard', 'Goku UI', 'Hawks', 'joker', 'killua',
+      'law', 'LuffyGear5Card', 'madara', 'MeruemCard', 'NietroCard', 'obito',
+      'SakamotoCard', 'shikamaru', 'ShanksCard', 'SilverCard', 'UmibozoCard',
+      'Vegetto', 'whitebeard', 'zoro', 'Zenitsu'
+    ];
+    
+    const cardName = cardPath.split('/').pop().split('.')[0].toLowerCase();
+    return legendaryPatterns.some(pattern => cardName.includes(pattern.toLowerCase()));
+  },
+  
+  // Enhanced voice file name mapping - Exact match with voice files
+  getVoiceFileName: function(cardPath) {
+    if (!cardPath) return null;
+    
+    // Extract card name from path
+    let cardName = cardPath.split('/').pop().split('.')[0];
+    
+    // Skip ranpo as requested
+    if (cardName.toLowerCase().includes('ranpo')) {
+      return null;
+    }
+    
+    // Exact mapping to voice file names (case-sensitive)
+    const voiceFileMappings = {
+      // Direct matches
+      'aizen': 'aizen',
+      'Akai': 'Akai',
+      'AllForOneCard': 'AllForOneCard',
+      'AyanokojiCard': 'AyanokojiCard',
+      'Asta': 'Asta',
+      'ErenCard': 'ErenCard',
+      'fubuki': 'fubuki',
+      'Fubuki': 'fubuki',
+      'Gogeta': 'Gogeta',
+      'GojoCard': 'GojoCard',
+      'Goku UI': 'Goku UI',
+      'Hawks': 'Hawks',
+      'joker': 'joker',
+      'killua': 'killua',
+      'law': 'law',
+      'LuffyGear5Card': 'LuffyGear5Card',
+      'madara': 'madara',
+      'MeruemCard': 'MeruemCard',
+      'NietroCard': 'NietroCard',
+      'obito': 'obito',
+      'SakamotoCard': 'SakamotoCard',
+      'shikamaru': 'shikamaru',
+      'ShanksCard': 'ShanksCard',
+      'SilverCard': 'SilverCard',
+      'UmibozoCard': 'UmibozoCard',
+      'Vegetto': 'Vegetto',
+      'whitebeard': 'whitebeard',
+      'zoro': 'Zoro',
+      'Zoro': 'Zoro',
+      'Zenitsu': 'Zenitsu'
+    };
+    
+    // Check for exact match first
+    if (voiceFileMappings[cardName]) {
+      return voiceFileMappings[cardName];
+    }
+    
+    // Check for case-insensitive match
+    const lowerCardName = cardName.toLowerCase();
+    for (const [key, value] of Object.entries(voiceFileMappings)) {
+      if (key.toLowerCase() === lowerCardName) {
+        return value;
+      }
+    }
+    
+    // Handle common variations
+    const cleanedName = cardName.replace('-card', '').replace('Card', '');
+    if (voiceFileMappings[cleanedName]) {
+      return voiceFileMappings[cleanedName];
+    }
+    
+    // Final fallback - return original name (might work for simple cases)
+    return cardName;
+  },
+  
+  // Play voice for a card
+  playVoice: function(cardPath, playerName) {
+    if (!this.isEnabled || !this.isLegendaryCard(cardPath)) {
+      console.log(`🎵 Voice disabled or not legendary: ${cardPath}`);
+      return;
+    }
+    
+    const voiceFileName = this.getVoiceFileName(cardPath);
+    if (!voiceFileName) {
+      console.log(`🎵 No voice file found for: ${cardPath}`);
+      return;
+    }
+    
+    const audioPath = `voice/${voiceFileName}.mp3`;
+    console.log(`🎵 Playing voice for ${playerName}: ${audioPath}`);
+    
+    // Save last voice for this player
+    this.saveLastVoiceForPlayer(playerName, cardPath);
+    
+    // Add to queue
+    this.audioQueue.push({
+      path: audioPath,
+      playerName: playerName,
+      cardPath: cardPath,
+      voiceFileName: voiceFileName
+    });
+    
+    // Start playing if not already playing
+    if (!this.isPlaying) {
+      this.playNextInQueue();
+    }
+  },
+  
+  // Play next audio in queue
+  playNextInQueue: function() {
+    if (this.audioQueue.length === 0) {
+      this.isPlaying = false;
+      return;
+    }
+    
+    const audioData = this.audioQueue.shift();
+    this.isPlaying = true;
+    
+    // Stop current audio if playing
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+    }
+    
+    // Create new audio
+    this.currentAudio = new Audio(audioData.path);
+    this.currentAudio.volume = this.volume;
+    
+    // Handle audio events
+    this.currentAudio.onended = () => {
+      console.log(`🎵 Finished playing voice for ${audioData.playerName}`);
+      this.currentAudio = null;
+      this.playNextInQueue();
+    };
+    
+    this.currentAudio.onerror = (error) => {
+      console.warn(`🎵 Error playing voice ${audioData.path}:`, error);
+      this.currentAudio = null;
+      this.playNextInQueue();
+    };
+    
+    // Play the audio
+    this.currentAudio.play().catch(error => {
+      console.warn(`🎵 Failed to play voice ${audioData.path}:`, error);
+      this.currentAudio = null;
+      this.playNextInQueue();
+    });
+  },
+  
+  // Replay voice for a specific player
+  replayVoice: function(playerName) {
+    // Find the last played voice for this player
+    const lastVoice = this.getLastVoiceForPlayer(playerName);
+    if (lastVoice) {
+      console.log(`🎵 Replaying voice for ${playerName}`);
+      this.playVoice(lastVoice.cardPath, playerName);
+    }
+  },
+  
+  // Get last voice played for a player
+  getLastVoiceForPlayer: function(playerName) {
+    // Get the last played voice from localStorage
+    const lastVoiceKey = `lastVoice_${playerName}`;
+    const lastVoice = localStorage.getItem(lastVoiceKey);
+    
+    if (lastVoice) {
+      try {
+        return JSON.parse(lastVoice);
+      } catch (e) {
+        console.warn('Error parsing last voice data:', e);
+      }
+    }
+    
+    // Fallback to current round's card
+    const currentCard = this.getCurrentCardForPlayer(playerName);
+    if (currentCard && this.isLegendaryCard(currentCard)) {
+      return {
+        cardPath: currentCard,
+        playerName: playerName
+      };
+    }
+    return null;
+  },
+  
+  // Save last played voice for a player
+  saveLastVoiceForPlayer: function(playerName, cardPath) {
+    if (!this.isLegendaryCard(cardPath)) return;
+    
+    const voiceData = {
+      cardPath: cardPath,
+      playerName: playerName,
+      timestamp: Date.now()
+    };
+    
+    const lastVoiceKey = `lastVoice_${playerName}`;
+    localStorage.setItem(lastVoiceKey, JSON.stringify(voiceData));
+  },
+  
+  // Get current card for a player
+  getCurrentCardForPlayer: function(playerName) {
+    if (playerName === player1) {
+      return picks?.[player1]?.[round];
+    } else if (playerName === player2) {
+      return picks?.[player2]?.[round];
+    }
+    return null;
+  },
+  
+  // Stop current audio
+  stopAudio: function() {
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+    }
+    this.audioQueue = [];
+    this.isPlaying = false;
+  },
+  
+  // Set volume
+  setVolume: function(volume) {
+    this.volume = Math.max(0, Math.min(1, volume));
+    if (this.currentAudio) {
+      this.currentAudio.volume = this.volume;
+    }
+  },
+  
+  // Toggle mute
+  toggleMute: function() {
+    this.isEnabled = !this.isEnabled;
+    if (!this.isEnabled && this.currentAudio) {
+      this.stopAudio();
+    }
+    return this.isEnabled;
+  },
+  
+  // Test function to verify all legendary cards have voice files
+  testAllLegendaryVoices: function() {
+    console.log('🎵 Testing all legendary voice mappings...');
+    
+    const testCards = [
+      'images/aizen.webm', 'images/Akai.webm', 'images/AllForOneCard.webm',
+      'images/AyanokojiCard.webm', 'images/Asta.webm', 'images/ErenCard.webm',
+      'images/Fubuki.webm', 'images/Gogeta.webm', 'images/GojoCard.webm',
+      'images/Goku UI.webm', 'images/Hawks.webm', 'images/joker.webm',
+      'images/killua.webm', 'images/law.webm', 'images/LuffyGear5Card.webm',
+      'images/madara.webm', 'images/MeruemCard.webm', 'images/NietroCard.webm',
+      'images/obito.webm', 'images/SakamotoCard.webm', 'images/shikamaru.webm',
+      'images/ShanksCard.webm', 'images/SilverCard.webm', 'images/UmibozoCard.webm',
+      'images/Vegetto.webm', 'images/whitebeard.webm', 'images/zoro.webm',
+      'images/Zenitsu.webm'
+    ];
+    
+    testCards.forEach(cardPath => {
+      const isLegendary = this.isLegendaryCard(cardPath);
+      const voiceFileName = this.getVoiceFileName(cardPath);
+      const audioPath = voiceFileName ? `voice/${voiceFileName}.mp3` : 'N/A';
+      
+      console.log(`🎵 ${cardPath}: Legendary=${isLegendary}, Voice=${voiceFileName}, Path=${audioPath}`);
+    });
+  }
+};
 
 /* ---------------------- Toast ---------------------- */
 function showToast(message, actions = []) {
@@ -583,6 +888,11 @@ function renderVs(){
     const leftCardSrc = picks?.[player2]?.[round];
     if (leftCardSrc) {
       leftCard.appendChild(createMedia(leftCardSrc, ""));
+      
+      // Play voice for legendary card
+      if (voiceSystem.isLegendaryCard(leftCardSrc)) {
+        voiceSystem.playVoice(leftCardSrc, player2);
+      }
     } else {
       leftCard.innerHTML = '<div class="empty-hint">لا توجد بطاقة لهذه الجولة</div>';
     }
@@ -593,6 +903,11 @@ function renderVs(){
     const rightCardSrc = picks?.[player1]?.[round];
     if (rightCardSrc) {
       rightCard.appendChild(createMedia(rightCardSrc, ""));
+      
+      // Play voice for legendary card
+      if (voiceSystem.isLegendaryCard(rightCardSrc)) {
+        voiceSystem.playVoice(rightCardSrc, player1);
+      }
     } else {
       rightCard.innerHTML = '<div class="empty-hint">لا توجد بطاقة لهذه الجولة</div>';
     }
@@ -600,6 +915,191 @@ function renderVs(){
 
   // Update notes for current round
   updateNotesForRound();
+  
+  // Create voice control buttons
+  createVoiceControls();
+}
+
+// Create voice control buttons
+function createVoiceControls() {
+  // Remove existing voice controls to prevent duplicates
+  const existingControls = document.querySelectorAll('.voice-controls');
+  existingControls.forEach(control => control.remove());
+  
+  // Create voice controls container
+  const voiceControlsContainer = document.createElement('div');
+  voiceControlsContainer.className = 'voice-controls';
+  voiceControlsContainer.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #fff;
+    border-radius: 12px;
+    padding: 15px;
+    z-index: 2000;
+    font-family: "Cairo", sans-serif;
+    color: white;
+    min-width: 200px;
+  `;
+  
+  // Title
+  const title = document.createElement('div');
+  title.textContent = '🎵 تحكم الصوت';
+  title.style.cssText = `
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+  `;
+  voiceControlsContainer.appendChild(title);
+  
+  // Volume control
+  const volumeContainer = document.createElement('div');
+  volumeContainer.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  `;
+  
+  const volumeLabel = document.createElement('span');
+  volumeLabel.textContent = 'مستوى الصوت:';
+  volumeLabel.style.fontSize = '12px';
+  
+  const volumeSlider = document.createElement('input');
+  volumeSlider.type = 'range';
+  volumeSlider.min = '0';
+  volumeSlider.max = '100';
+  volumeSlider.value = voiceSystem.volume * 100;
+  volumeSlider.style.cssText = `
+    flex: 1;
+    height: 20px;
+  `;
+  volumeSlider.oninput = function() {
+    voiceSystem.setVolume(this.value / 100);
+  };
+  
+  volumeContainer.appendChild(volumeLabel);
+  volumeContainer.appendChild(volumeSlider);
+  voiceControlsContainer.appendChild(volumeContainer);
+  
+  // Mute button
+  const muteButton = document.createElement('button');
+  muteButton.textContent = voiceSystem.isEnabled ? '🔊 كتم' : '🔇 إلغاء كتم';
+  muteButton.style.cssText = `
+    width: 100%;
+    padding: 8px;
+    background: ${voiceSystem.isEnabled ? '#dc2626' : '#16a34a'};
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: "Cairo", sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+  `;
+  muteButton.onclick = function() {
+    const isEnabled = voiceSystem.toggleMute();
+    this.textContent = isEnabled ? '🔊 كتم' : '🔇 إلغاء كتم';
+    this.style.background = isEnabled ? '#dc2626' : '#16a34a';
+  };
+  voiceControlsContainer.appendChild(muteButton);
+  
+  // Stop button
+  const stopButton = document.createElement('button');
+  stopButton.textContent = '⏹️ إيقاف';
+  stopButton.style.cssText = `
+    width: 100%;
+    padding: 8px;
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: "Cairo", sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+  `;
+  stopButton.onclick = function() {
+    voiceSystem.stopAudio();
+  };
+  voiceControlsContainer.appendChild(stopButton);
+  
+  // Test button
+  const testButton = document.createElement('button');
+  testButton.textContent = '🧪 اختبار الأصوات';
+  testButton.style.cssText = `
+    width: 100%;
+    padding: 8px;
+    background: #7c3aed;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: "Cairo", sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+  `;
+  testButton.onclick = function() {
+    voiceSystem.testAllLegendaryVoices();
+  };
+  voiceControlsContainer.appendChild(testButton);
+  
+  // Player replay buttons
+  const replayContainer = document.createElement('div');
+  replayContainer.style.cssText = `
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+  `;
+  
+  // Player 1 replay button
+  const replayPlayer1 = document.createElement('button');
+  replayPlayer1.textContent = `🔄 ${player1}`;
+  replayPlayer1.style.cssText = `
+    flex: 1;
+    padding: 6px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: "Cairo", sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+  `;
+  replayPlayer1.onclick = function() {
+    voiceSystem.replayVoice(player1);
+  };
+  
+  // Player 2 replay button
+  const replayPlayer2 = document.createElement('button');
+  replayPlayer2.textContent = `🔄 ${player2}`;
+  replayPlayer2.style.cssText = `
+    flex: 1;
+    padding: 6px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: "Cairo", sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+  `;
+  replayPlayer2.onclick = function() {
+    voiceSystem.replayVoice(player2);
+  };
+  
+  replayContainer.appendChild(replayPlayer1);
+  replayContainer.appendChild(replayPlayer2);
+  voiceControlsContainer.appendChild(replayContainer);
+  
+  // Add to document
+  document.body.appendChild(voiceControlsContainer);
+  
+  console.log('🎵 Voice controls created');
 }
 
 // Update notes for current round
@@ -1388,6 +1888,16 @@ window.confirmTransfer = confirmTransfer;
 window.closeTransferModal = closeTransferModal;
 window.openTransferModal = openTransferModal;
 window.openRestoreModal = openRestoreModal;
+
+// Make voice system globally available
+window.voiceSystem = voiceSystem;
+window.createVoiceControls = createVoiceControls;
+
+// Auto-test voice system on load
+setTimeout(() => {
+  console.log('🎵 Voice system initialized - testing legendary cards...');
+  voiceSystem.testAllLegendaryVoices();
+}, 1000);
 
 
 

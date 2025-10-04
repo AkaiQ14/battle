@@ -131,7 +131,13 @@ class CardManager {
       'images/Picollooo.png',
       // Additional new common cards
       'images/Danteee.webp',
-      'images/tenten.webp'
+      'images/tenten.webp',
+      'images/Feitan-card.webp',
+      'images/uraume-card.webp',
+      'images/Akaza-card.webp',
+      'images/Denki-card.webp',
+      'images/monet.webp',
+      'images/zabuza.webp'
     ];
 
     // Epic cards (15% of total)
@@ -183,12 +189,17 @@ class CardManager {
       'images/Asui-card.webp',
       'images/Gadjah.webp',
       'images/naobito-card.webp',
-      'images/fubukii.png',
       'images/gounji.png',
       'images/Carasuma.png',
       'images/Conan.png',
       'images/Kidou.png',
-      'images/Shisui.png'
+      'images/Shisui.png',
+      'images/Akaii.png',
+      'images/GTO_2.webp',
+      'images/sasukee.webp',
+      'images/gaara.webp',
+      'images/Cathleen-card.webp',
+      'images/Akaino-card.webp'
     ];
 
     // Legendary cards (5% of total)
@@ -216,7 +227,13 @@ class CardManager {
       'images/whitebeard.webm',
       'images/SakamotoCard.webm',
       'images/GojoCard.webm',
-      'images/Gogeta.webm'
+      'images/Gogeta.webm',
+      'images/Ranpo.webm',
+      'images/Zenitsu.webm',
+      'images/Fubuki.webm',
+      'images/zoro.webm',
+      'images/killua.webm',
+      'images/Asta.webm'
     ];
   }
 

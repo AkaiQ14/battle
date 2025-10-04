@@ -322,7 +322,7 @@ class SwapDeckSystem {
         "images/Lille-baroo-card.png", "images/Mahoraga.png", "images/mansherry.png", "images/minato.png", "images/Nami.webp",
         "images/Orihime-card.png", "images/Queen-card.webp", "images/Senjumaru-card.png", "images/ShouHeiKun-card .png", "images/Teach-card.png",
         "images/Tier Harribel.png", "images/tobirama.png", "images/Vegapunk-crad.webp", "images/YujiroHanma-card.png", "images/Yusaku.png",
-        "images/Zagred-card.png", "images/fubukii.jpeg", "images/fubuki.webp", "images/fubukii.jpeg"
+        "images/Zagred-card.png", "images/fubuki.webp"
       ];
       
       console.log(`✅ Loaded ${this.availableCards.length} available cards`);

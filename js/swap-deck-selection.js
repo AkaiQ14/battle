@@ -89,6 +89,7 @@ function generateSwapDeckOptions() {
       'images/laxus.png', 'images/Videl-card.webp', 'images/Momo-hinamori-card.webp',
       'images/cardo20ppsd.webp', 'images/Krilin-card.webp', 'images/HakuKi-card.webp',
       'images/ArmorTitan-card.webp', 'images/Nachttt.webp', 'images/Tosen-card.webp',
+      'images/Feitan-card.webp', 'images/uraume-card.webp', 'images/Akaza-card.webp', 'images/Denki-card.webp', 'images/monet.webp', 'images/zabuza.webp',
       
       // Epic cards
       'images/minato.png', 'images/ShouHeiKun-card .png', 'images/KudoShinichi-card.png',
@@ -98,7 +99,7 @@ function generateSwapDeckOptions() {
       'images/Senjumaru-card.png', 'images/Arthur-card.png', 'images/Lemillion-card.png',
       'images/Fuegoleonn .png', 'images/Itchigo-card .png', 'images/Kaito-card .png',
       'images/DragonBB-67-card.png', 'images/Kuma-card.png', 'images/YujiroHanma-card.png',
-      'images/Dabi-card.png', 'images/fubukii.png', 'images/gounji.png', 'images/Carasuma.png', 'images/Conan.png', 'images/Kidou.png', 'images/Shisui.png',
+      'images/Dabi-card.png', 'images/gounji.png', 'images/Carasuma.png', 'images/Conan.png', 'images/Kidou.png', 'images/Shisui.png', 'images/Akaii.png', 'images/GTO_2.webp', 'images/sasukee.webp', 'images/gaara.webp', 'images/Cathleen-card.webp', 'images/Akaino-card.webp',
       
       // Legendary cards
       'images/law.webm', 'images/Vegetto.webm', 'images/madara.webm',
@@ -106,7 +107,7 @@ function generateSwapDeckOptions() {
       'images/AllForOneCard.webm', 'images/ErenCard.webm', 'images/LuffyGear5Card.webm',
       'images/joker.webm', 'images/AyanokojiCard.webm', 'images/UmibozoCard.webm',
       'images/MeruemCard.webm', 'images/SilverCard.webm', 'images/Akai.webm',
-      'images/ShanksCard.webm', 'images/shikamaru.webm', 'images/Goku UI.webm'
+      'images/ShanksCard.webm', 'images/shikamaru.webm', 'images/Goku UI.webm', 'images/Ranpo.webm', 'images/Zenitsu.webm', 'images/Fubuki.webm', 'images/zoro.webm', 'images/killua.webm', 'images/Asta.webm'
     ];
     
     // Get current player's selected cards
