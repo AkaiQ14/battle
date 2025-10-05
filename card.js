@@ -19,6 +19,8 @@ let voiceSystem = {
   currentAudio: null,
   audioQueue: [],
   isPlaying: false,
+  isMuted: false,
+  mutedVolume: 0.7,
   
   // Check if card is legendary by name patterns - Updated with all voice files
   isLegendaryByName: function(cardPath) {
@@ -125,17 +127,17 @@ let voiceSystem = {
       return;
     }
     
-    // Check if this voice is already playing or in queue to prevent duplicates
+    // Check if this exact voice is already playing or in queue to prevent duplicates
     const isAlreadyPlaying = this.audioQueue.some(audio => 
       audio.cardPath === cardPath && audio.playerName === playerName
-    );
+    ) || (this.currentAudio && this.currentAudio.dataset.cardPath === cardPath && this.currentAudio.dataset.playerName === playerName);
     
     if (isAlreadyPlaying && !forcePlay) {
       console.log(`🎵 Voice already playing or queued for ${playerName}: ${cardPath}`);
       return;
     }
     
-    const audioPath = `voice/${voiceFileName}.mp3`;
+    const audioPath = `images/voice/${voiceFileName}.mp3`;
     console.log(`🎵 Playing voice for ${playerName}: ${audioPath}`);
     
     // Save last voice for this player
@@ -174,6 +176,10 @@ let voiceSystem = {
     // Create new audio
     this.currentAudio = new Audio(audioData.path);
     this.currentAudio.volume = this.volume;
+    
+    // Store metadata for duplicate checking
+    this.currentAudio.dataset.cardPath = audioData.cardPath;
+    this.currentAudio.dataset.playerName = audioData.playerName;
     
     // Handle audio events
     this.currentAudio.onended = () => {
@@ -288,13 +294,27 @@ let voiceSystem = {
     }
   },
   
-  // Toggle mute
+  // Toggle mute (temporary mute, not disable system)
   toggleMute: function() {
-    this.isEnabled = !this.isEnabled;
-    if (!this.isEnabled && this.currentAudio) {
-      this.stopAudio();
+    this.isMuted = !this.isMuted;
+    
+    if (this.isMuted) {
+      // Mute: pause current audio and set volume to 0
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+      }
+      this.mutedVolume = this.volume; // Save current volume
+      this.volume = 0;
+    } else {
+      // Unmute: restore volume and resume if audio was playing
+      this.volume = this.mutedVolume || 0.7; // Restore saved volume or default
+      if (this.currentAudio) {
+        this.currentAudio.volume = this.volume;
+        this.currentAudio.play().catch(e => console.log('Could not resume audio:', e));
+      }
     }
-    return this.isEnabled;
+    
+    return !this.isMuted; // Return true if unmuted, false if muted
   },
   
   // Test function to verify all legendary cards have voice files
@@ -317,9 +337,35 @@ let voiceSystem = {
     testCards.forEach(cardPath => {
       const isLegendary = this.isLegendaryCard(cardPath);
       const voiceFileName = this.getVoiceFileName(cardPath);
-      const audioPath = voiceFileName ? `voice/${voiceFileName}.mp3` : 'N/A';
+      const audioPath = voiceFileName ? `images/voice/${voiceFileName}.mp3` : 'N/A';
       
       console.log(`🎵 ${cardPath}: Legendary=${isLegendary}, Voice=${voiceFileName}, Path=${audioPath}`);
+    });
+    
+    // Test actual audio loading
+    this.testAudioLoading();
+  },
+  
+  // Test actual audio file loading
+  testAudioLoading: function() {
+    console.log('🎵 Testing audio file accessibility...');
+    
+    const testVoiceFiles = ['aizen', 'Akai', 'law'];
+    
+    testVoiceFiles.forEach(voiceFile => {
+      const audioPath = `images/voice/${voiceFile}.mp3`;
+      const audio = new Audio(audioPath);
+      
+      audio.oncanplaythrough = () => {
+        console.log(`✅ Audio accessible: ${audioPath}`);
+      };
+      
+      audio.onerror = (error) => {
+        console.log(`❌ Audio not accessible: ${audioPath}`, error);
+      };
+      
+      // Trigger the check
+      audio.load();
     });
   }
 };
@@ -363,13 +409,13 @@ function createVoiceControls() {
   `;
   
   // Set initial icon based on mute state
-  muteButton.innerHTML = voiceSystem.isEnabled ? 
+  muteButton.innerHTML = !voiceSystem.isMuted ? 
     '<span style="color: #87CEEB;">🔊</span>' : 
     '<span style="color: #87CEEB;">🔇</span>';
   
   muteButton.onclick = function() {
-    const isEnabled = voiceSystem.toggleMute();
-    this.innerHTML = isEnabled ? 
+    const isUnmuted = voiceSystem.toggleMute();
+    this.innerHTML = isUnmuted ? 
       '<span style="color: #87CEEB;">🔊</span>' : 
       '<span style="color: #87CEEB;">🔇</span>';
   };
@@ -384,51 +430,23 @@ function createVoiceControls() {
     this.style.boxShadow = '0 4px 15px rgba(243, 194, 26, 0.3)';
   };
   
-  // Volume Control Container (Rounded Rectangle)
+  // Volume Control Container (Simple and Clean)
   const volumeContainer = document.createElement('div');
   volumeContainer.style.cssText = `
-    width: 140px;
-    height: 50px;
+    width: 120px;
+    height: 40px;
     border: 2px solid #f3c21a;
-    border-radius: 25px;
-    background: rgba(26, 10, 15, 0.95);
+    border-radius: 20px;
+    background: rgba(26, 10, 15, 0.9);
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
+    justify-content: center;
+    padding: 0 15px;
     box-sizing: border-box;
-    overflow: hidden;
-    backdrop-filter: blur(5px);
   `;
   
-  // Volume Track (Background)
-  const volumeTrack = document.createElement('div');
-  volumeTrack.style.cssText = `
-    position: absolute;
-    top: 50%;
-    left: 20px;
-    right: 20px;
-    height: 6px;
-    background: rgba(243, 194, 26, 0.3);
-    border-radius: 3px;
-    transform: translateY(-50%);
-  `;
-  
-  // Volume Fill (Active portion)
-  const volumeFill = document.createElement('div');
-  volumeFill.style.cssText = `
-    position: absolute;
-    top: 50%;
-    left: 20px;
-    height: 6px;
-    background: #f3c21a;
-    border-radius: 3px;
-    transform: translateY(-50%);
-    transition: width 0.1s ease;
-  `;
-  
-  // Volume Percentage Display (Above the slider)
+  // Volume Percentage Display
   const volumeDisplay = document.createElement('span');
   volumeDisplay.className = 'volume-display';
   volumeDisplay.textContent = Math.round(voiceSystem.volume * 100) + '%';
@@ -436,17 +454,12 @@ function createVoiceControls() {
     color: #f3c21a;
     font-family: "Cairo", sans-serif;
     font-weight: bold;
-    font-size: 16px;
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    pointer-events: none;
+    font-size: 14px;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
   `;
   
-  // Volume Slider (Visible and functional)
+  // Volume Slider (Native HTML5 range input)
   const volumeSlider = document.createElement('input');
   volumeSlider.type = 'range';
   volumeSlider.min = '0';
@@ -454,169 +467,42 @@ function createVoiceControls() {
   volumeSlider.value = Math.round(voiceSystem.volume * 100);
   volumeSlider.style.cssText = `
     position: absolute;
-    top: 50%;
-    left: 20px;
-    right: 20px;
-    width: calc(100% - 40px);
-    height: 6px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0;
     cursor: pointer;
     margin: 0;
-    z-index: 4;
+    z-index: 2;
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
-    transform: translateY(-50%);
   `;
   
-  // Volume Indicator Circle (Thumb)
-  const volumeIndicator = document.createElement('div');
-  volumeIndicator.className = 'volume-indicator';
-  volumeIndicator.style.cssText = `
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #f3c21a;
-    border: 3px solid #fff;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: all 0.1s ease;
-    z-index: 5;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-    cursor: grab;
-  `;
+  // Custom slider styling for webkit browsers
+  volumeSlider.style.webkitAppearance = 'none';
+  volumeSlider.style.appearance = 'none';
   
-  // Update volume display, fill, and indicator
+  // Update volume display
   function updateVolumeDisplay(value) {
     const percentage = Math.round(value);
     volumeDisplay.textContent = percentage + '%';
-    
-    // Calculate positions
-    const containerWidth = 140;
-    const padding = 20;
-    const trackWidth = containerWidth - (padding * 2);
-    const indicatorWidth = 20;
-    
-    // Update fill width
-    const fillWidth = (percentage / 100) * trackWidth;
-    volumeFill.style.width = `${fillWidth}px`;
-    
-    // Update indicator position
-    const indicatorPosition = padding + fillWidth - (indicatorWidth / 2);
-    volumeIndicator.style.left = `${indicatorPosition}px`;
-    
-    // Add hover effect to indicator
-    volumeIndicator.onmouseover = function() {
-      this.style.transform = 'translateY(-50%) scale(1.3)';
-      this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.5)';
-      this.style.cursor = 'grabbing';
-    };
-    
-    volumeIndicator.onmouseout = function() {
-      this.style.transform = 'translateY(-50%) scale(1)';
-      this.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.4)';
-      this.style.cursor = 'grab';
-    };
   }
   
   // Set initial position
   updateVolumeDisplay(voiceSystem.volume * 100);
   
-  // Smooth volume control with mouse events
-  let isDragging = false;
-  
+  // Volume control events
   volumeSlider.oninput = function() {
     const value = parseInt(this.value);
     voiceSystem.setVolume(value / 100);
     updateVolumeDisplay(value);
   };
   
-  // Mouse events for smooth dragging
-  volumeSlider.onmousedown = function() {
-    isDragging = true;
-    volumeIndicator.style.transform = 'translateY(-50%) scale(1.3)';
-    volumeIndicator.style.cursor = 'grabbing';
-    volumeIndicator.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.5)';
-  };
-  
-  volumeSlider.onmouseup = function() {
-    isDragging = false;
-    volumeIndicator.style.transform = 'translateY(-50%) scale(1)';
-    volumeIndicator.style.cursor = 'grab';
-    volumeIndicator.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.4)';
-  };
-  
-  volumeSlider.onmouseleave = function() {
-    if (!isDragging) {
-      volumeIndicator.style.transform = 'translateY(-50%) scale(1)';
-      volumeIndicator.style.cursor = 'grab';
-      volumeIndicator.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.4)';
-    }
-  };
-  
-  // Keyboard support for fine control
-  volumeSlider.onkeydown = function(e) {
-    let currentValue = parseInt(this.value);
-    let newValue = currentValue;
-    
-    switch(e.key) {
-      case 'ArrowUp':
-      case 'ArrowRight':
-        newValue = Math.min(100, currentValue + 1);
-        break;
-      case 'ArrowDown':
-      case 'ArrowLeft':
-        newValue = Math.max(0, currentValue - 1);
-        break;
-      case 'PageUp':
-        newValue = Math.min(100, currentValue + 10);
-        break;
-      case 'PageDown':
-        newValue = Math.max(0, currentValue - 10);
-        break;
-      case 'Home':
-        newValue = 0;
-        break;
-      case 'End':
-        newValue = 100;
-        break;
-      default:
-        return;
-    }
-    
-    e.preventDefault();
-    this.value = newValue;
-    voiceSystem.setVolume(newValue / 100);
-    updateVolumeDisplay(newValue);
-  };
-  
-  // Add click handler to volume container for easier interaction
-  volumeContainer.onclick = function(e) {
-    if (e.target === volumeContainer || e.target === volumeTrack || e.target === volumeFill) {
-      const rect = volumeContainer.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const padding = 20;
-      const trackStart = padding;
-      const trackEnd = rect.width - padding;
-      const trackWidth = trackEnd - trackStart;
-      
-      // Calculate percentage based on track position
-      const relativeX = Math.max(0, Math.min(trackWidth, clickX - trackStart));
-      const percentage = Math.round((relativeX / trackWidth) * 100);
-      
-      volumeSlider.value = percentage;
-      voiceSystem.setVolume(percentage / 100);
-      updateVolumeDisplay(percentage);
-    }
-  };
-  
   // Add elements to volume container
-  volumeContainer.appendChild(volumeTrack);
-  volumeContainer.appendChild(volumeFill);
   volumeContainer.appendChild(volumeDisplay);
   volumeContainer.appendChild(volumeSlider);
-  volumeContainer.appendChild(volumeIndicator);
   
   // Add elements to main container
   voiceControlsContainer.appendChild(muteButton);
@@ -628,11 +514,62 @@ function createVoiceControls() {
   console.log('🎵 Voice controls created with new design');
 }
 
+// Helper function to get player name from all possible sources
+function getPlayerName(playerNumber) {
+  try {
+    // Try to get from gameSetupProgress first
+    if (gameSetupProgress && gameSetupProgress[`player${playerNumber}`]?.name) {
+      console.log(`🎵 Found player ${playerNumber} name in gameSetupProgress.player${playerNumber}.name: ${gameSetupProgress[`player${playerNumber}`].name}`);
+      return gameSetupProgress[`player${playerNumber}`].name;
+    }
+    
+    // Try alternative naming convention
+    if (gameSetupProgress && gameSetupProgress[`player${playerNumber}Name`]) {
+      console.log(`🎵 Found player ${playerNumber} name in gameSetupProgress.player${playerNumber}Name: ${gameSetupProgress[`player${playerNumber}Name`]}`);
+      return gameSetupProgress[`player${playerNumber}Name`];
+    }
+    
+    // Try localStorage
+    const fromStorage = localStorage.getItem(`player${playerNumber}`);
+    if (fromStorage) {
+      console.log(`🎵 Found player ${playerNumber} name in localStorage: ${fromStorage}`);
+      return fromStorage;
+    }
+    
+    // Fallback to default
+    console.log(`🎵 Using fallback name for player ${playerNumber}: لاعب ${playerNumber}`);
+    return `لاعب ${playerNumber}`;
+  } catch (error) {
+    console.error(`Error getting player ${playerNumber} name:`, error);
+    return `لاعب ${playerNumber}`;
+  }
+}
+
 // Create replay buttons under abilities
 function createReplayButtons() {
   // Remove existing replay buttons
   const existingReplayButtons = document.querySelectorAll('.replay-buttons');
   existingReplayButtons.forEach(button => button.remove());
+  
+  // Debug: Print all player name sources
+  console.log('🎵 === PLAYER NAME DEBUG ===');
+  console.log('🎵 gameSetupProgress:', gameSetupProgress);
+  console.log('🎵 localStorage player1:', localStorage.getItem("player1"));
+  console.log('🎵 localStorage player2:', localStorage.getItem("player2"));
+  console.log('🎵 Current player1 variable:', player1);
+  console.log('🎵 Current player2 variable:', player2);
+  
+  // Check DOM elements
+  const rightPlayerNameElement = document.querySelector('.right-panel .name');
+  const leftPlayerNameElement = document.querySelector('.player-column .name');
+  console.log('🎵 Right panel player name (DOM):', rightPlayerNameElement ? rightPlayerNameElement.textContent.trim() : 'NOT FOUND');
+  console.log('🎵 Left panel player name (DOM):', leftPlayerNameElement ? leftPlayerNameElement.textContent.trim() : 'NOT FOUND');
+  
+  const debugPlayer1 = getPlayerName(1);
+  const debugPlayer2 = getPlayerName(2);
+  console.log('🎵 getPlayerName(1) result:', debugPlayer1);
+  console.log('🎵 getPlayerName(2) result:', debugPlayer2);
+  console.log('🎵 === END DEBUG ===');
   
   // Create replay button for player 1 (right side) - اللاعب الأول
   const replayPlayer1 = document.createElement('button');
@@ -656,8 +593,11 @@ function createReplayButtons() {
     transition: all 0.3s ease;
   `;
   replayPlayer1.onclick = function() {
-    // اللاعب الأول (player1) في اليمين
-    voiceSystem.replayVoice(player1);
+    // الزر الأيمن للاعب الأيسر - قراءة الاسم من العنصر الموجود على الشاشة
+    const leftPlayerNameElement = document.querySelector('.player-column .name');
+    const currentPlayer = leftPlayerNameElement ? leftPlayerNameElement.textContent.trim() : getPlayerName(2);
+    console.log(`🎵 Replay button clicked for Left Player (Right Button): ${currentPlayer}`);
+    voiceSystem.replayVoice(currentPlayer);
   };
   replayPlayer1.onmouseover = function() {
     this.style.transform = 'translateY(-2px)';
@@ -690,8 +630,11 @@ function createReplayButtons() {
     transition: all 0.3s ease;
   `;
   replayPlayer2.onclick = function() {
-    // اللاعب الثاني (player2) في اليسار
-    voiceSystem.replayVoice(player2);
+    // الزر الأيسر للاعب الأيمن - قراءة الاسم من العنصر الموجود على الشاشة
+    const rightPlayerNameElement = document.querySelector('.right-panel .name');
+    const currentPlayer = rightPlayerNameElement ? rightPlayerNameElement.textContent.trim() : getPlayerName(1);
+    console.log(`🎵 Replay button clicked for Right Player (Left Button): ${currentPlayer}`);
+    voiceSystem.replayVoice(currentPlayer);
   };
   replayPlayer2.onmouseover = function() {
     this.style.transform = 'translateY(-2px)';
@@ -3760,4 +3703,13 @@ window.createReplayButtons = createReplayButtons;
 setTimeout(() => {
   console.log('🎵 Voice system initialized - testing legendary cards...');
   voiceSystem.testAllLegendaryVoices();
+  
+  // Add manual test function to window for debugging
+  window.testVoice = function(cardName) {
+    console.log(`🎵 Testing voice for: ${cardName}`);
+    const testPath = `images/${cardName}.webm`;
+    voiceSystem.playVoice(testPath, 'Test Player', true);
+  };
+  
+  console.log('🎵 Use window.testVoice("aizen") to test voice playback');
 }, 1000);
