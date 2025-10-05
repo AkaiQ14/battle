@@ -30,7 +30,7 @@ let voiceSystem = {
       'fubuki', 'Gogeta', 'GojoCard', 'Goku UI', 'Hawks', 'joker', 'killua',
       'law', 'LuffyGear5Card', 'madara', 'MeruemCard', 'NietroCard', 'obito',
       'SakamotoCard', 'shikamaru', 'ShanksCard', 'SilverCard', 'UmibozoCard',
-      'Vegetto', 'whitebeard', 'zoro', 'Zenitsu'
+      'Vegetto', 'whitebeard', 'zoro', 'Zenitsu', 'Hashirama', 'Neiji'
     ];
     
     const cardName = cardPath.split('/').pop().split('.')[0].toLowerCase();
@@ -88,7 +88,9 @@ let voiceSystem = {
       'whitebeard': 'whitebeard',
       'zoro': 'Zoro',
       'Zoro': 'Zoro',
-      'Zenitsu': 'Zenitsu'
+      'Zenitsu': 'Zenitsu',
+      'Hashirama': 'Hashirama',
+      'Neiji': 'Neiji'
     };
     
     // Check for exact match first
@@ -331,7 +333,7 @@ let voiceSystem = {
       'images/obito.webm', 'images/SakamotoCard.webm', 'images/shikamaru.webm',
       'images/ShanksCard.webm', 'images/SilverCard.webm', 'images/UmibozoCard.webm',
       'images/Vegetto.webm', 'images/whitebeard.webm', 'images/zoro.webm',
-      'images/Zenitsu.webm'
+      'images/Zenitsu.webm', 'images/Hashirama.webm', 'images/Neiji.webm'
     ];
     
     testCards.forEach(cardPath => {

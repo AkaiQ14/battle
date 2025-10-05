@@ -233,7 +233,10 @@ class CardManager {
       'images/Fubuki.webm',
       'images/zoro.webm',
       'images/killua.webm',
-      'images/Asta.webm'
+      'images/Asta.webm',
+      // Latest legendary cards
+      'images/Hashirama.webm',
+      'images/Neiji.webm'
     ];
   }
 
