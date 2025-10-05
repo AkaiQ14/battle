@@ -137,7 +137,7 @@ let voiceSystem = {
       return;
     }
     
-    const audioPath = `images/voice/${voiceFileName}.mp3`;
+    const audioPath = `voice/${voiceFileName}.mp3`;
     console.log(`🎵 Playing voice for ${playerName}: ${audioPath}`);
     
     // Save last voice for this player
@@ -337,7 +337,7 @@ let voiceSystem = {
     testCards.forEach(cardPath => {
       const isLegendary = this.isLegendaryCard(cardPath);
       const voiceFileName = this.getVoiceFileName(cardPath);
-      const audioPath = voiceFileName ? `images/voice/${voiceFileName}.mp3` : 'N/A';
+      const audioPath = voiceFileName ? `voice/${voiceFileName}.mp3` : 'N/A';
       
       console.log(`🎵 ${cardPath}: Legendary=${isLegendary}, Voice=${voiceFileName}, Path=${audioPath}`);
     });
@@ -353,7 +353,7 @@ let voiceSystem = {
     const testVoiceFiles = ['aizen', 'Akai', 'law'];
     
     testVoiceFiles.forEach(voiceFile => {
-      const audioPath = `images/voice/${voiceFile}.mp3`;
+      const audioPath = `voice/${voiceFile}.mp3`;
       const audio = new Audio(audioPath);
       
       audio.oncanplaythrough = () => {
