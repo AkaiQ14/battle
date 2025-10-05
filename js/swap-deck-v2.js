@@ -948,6 +948,12 @@ class SwapDeckSystem {
       
       this.showToast(`✅ تم تبديل البطاقة بنجاح للاعب ${playerName}`);
       
+      // Play voice for legendary card if swapped card is legendary
+      if (window.voiceSystem && window.voiceSystem.isLegendaryCard(newCardSrc)) {
+        console.log(`🎵 Playing voice for swapped legendary card: ${newCardSrc}`);
+        window.voiceSystem.playVoice(newCardSrc, playerName, true); // forcePlay = true
+      }
+      
     } catch (error) {
       console.error('❌ Error confirming swap:', error);
     }
