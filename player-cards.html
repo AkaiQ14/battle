@@ -13,33 +13,36 @@
     #cardGrid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 1rem;
+      grid-template-rows: auto auto;
+      gap: 0.5rem;
       max-width: 1200px;
       margin: 0 auto;
+      place-items: center;
+      place-content: center;
     }
     
     /* First row: 7 cards */
     #cardGrid .card-wrapper:nth-child(-n+7) {
       grid-column: span 1;
+      grid-row: 1;
     }
     
-    /* Second row: 4 cards centered */
-    #cardGrid .card-wrapper:nth-child(n+8) {
-      grid-column: span 1;
-    }
-    
-    /* Center the second row cards exactly like the image */
+    /* Second row: 4 cards centered like the image */
     #cardGrid .card-wrapper:nth-child(8) {
       grid-column: 2;
+      grid-row: 2;
     }
     #cardGrid .card-wrapper:nth-child(9) {
       grid-column: 3;
+      grid-row: 2;
     }
     #cardGrid .card-wrapper:nth-child(10) {
       grid-column: 5;
+      grid-row: 2;
     }
     #cardGrid .card-wrapper:nth-child(11) {
       grid-column: 6;
+      grid-row: 2;
     }
     
     /* Mobile-specific styles */
@@ -50,6 +53,8 @@
         padding: 1rem;
         max-width: 100%;
         margin: 0 auto;
+        place-items: center;
+        place-content: center;
       }
       
       .card-wrapper {
@@ -58,15 +63,18 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         padding: 0.5rem;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: transparent;
+        border-radius: 0px;
+        border: none;
+        width: 100%;
+        height: 100%;
       }
       
       .card-wrapper:hover {
-        transform: scale(1.02);
-        background: rgba(0, 0, 0, 0.5);
+        transform: none;
+        background: transparent;
       }
       
       .position-indicator {
@@ -79,12 +87,11 @@
       
       .card-wrapper img,
       .card-wrapper video {
-        width: 100%;
-        height: auto;
-        max-height: 120px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        width: 100px;
+        height: 140px;
+        border-radius: 0px;
+        box-shadow: none;
+        border: none;
         object-fit: cover;
       }
       
@@ -146,6 +153,8 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
         padding: 0.75rem;
+        place-items: center;
+        place-content: center;
       }
       
       .card-wrapper {
@@ -154,7 +163,11 @@
       
       .card-wrapper img,
       .card-wrapper video {
-        max-height: 100px;
+        width: 80px;
+        height: 120px;
+        border: none;
+        box-shadow: none;
+        border-radius: 0px;
       }
       
       .position-indicator {
@@ -226,16 +239,16 @@
     
     /* Touch feedback */
     .card-wrapper:active {
-      transform: scale(0.98);
+      transform: none;
     }
     
     /* Drag feedback */
     .dragging {
-      transform: scale(1.05) !important;
+      transform: none !important;
       z-index: 1000 !important;
-      opacity: 0.8 !important;
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.8) !important;
-      border: 2px solid #3b82f6 !important;
+      opacity: 1 !important;
+      box-shadow: none !important;
+      border: none !important;
     }
     
     
@@ -260,7 +273,7 @@
     
   </style>
 </head>
-<body class="bg-[#4B0E1F] text-white p-6 min-h-screen flex flex-col items-center space-y-6" style="font-family: Cairo, sans-serif; background-image: url('images/min.png'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center center; border: 3px solid #ffffffe3; box-sizing: border-box; position: relative;">
+<body class="bg-[#4B0E1F] text-white p-6 min-h-screen flex flex-col items-center space-y-6" style="font-family: Cairo, sans-serif; background-image: url('images/QG14Background.png'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center center; box-sizing: border-box; position: relative;">
   <p id="instruction" class="text-xl relative z-10 mb-8">اللاعب اكاي رتب بطاقاتك</p>
 
   <div id="cardGrid" class="grid grid-cols-7 gap-4 w-full max-w-6xl mx-auto relative z-10">
@@ -268,7 +281,7 @@
   </div>
 
   <!-- Your abilities -->
-  <section id="abilitiesPanel" class="w-full max-w-6xl mx-auto mt-4 p-3 rounded bg-black/80 border border-white relative z-10">
+  <section id="abilitiesPanel" class="w-full max-w-6xl mx-auto mt-4 p-3 rounded bg-transparent border border-yellow-400 relative z-10">
     <p class="font-bold mb-2 text-center md:text-right">قدراتك (اضغط لطلب استخدامها):</p>
     <div id="playerAbilities" class="flex flex-wrap gap-2 justify-center md:justify-start">
       <!-- Abilities will be populated here -->
@@ -277,7 +290,7 @@
   </section>
 
   <!-- Opponent abilities (view-only) -->
-  <section id="opponentAbilitiesPanel" class="w-full max-w-6xl mx-auto mt-4 p-3 rounded bg-black/80 border border-white relative z-10 hidden">
+  <section id="opponentAbilitiesPanel" class="w-full max-w-6xl mx-auto mt-4 p-3 rounded bg-transparent border border-yellow-400 relative z-10 hidden">
     <p class="font-bold mb-2 text-center md:text-right">قدرات الخصم (عرض فقط):</p>
     <div id="opponentAbilities" class="flex flex-wrap gap-2 justify-center md:justify-start"></div>
   </section>

@@ -50,7 +50,6 @@
       justify-content: center;
       overflow: hidden;
       position: relative;
-      border: 3px solid #ffffffe3;
       box-sizing: border-box;
     }
     
@@ -94,7 +93,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      transform: scale(0.75);
+      transform: scale(0.95);
       transform-origin: center;
     }
     
@@ -289,6 +288,7 @@
       margin-top: 20px;
       display: flex;
       justify-content: center;
+      gap: 15px;
     }
     
     .btn-leaderboard {
@@ -402,8 +402,13 @@
       }
       
       .btn-leaderboard {
-        min-width: 240px;
+        min-width: 200px;
         height: 65px;
+        flex: 1;
+      }
+      
+      .leaderboard-section {
+        gap: 10px;
       }
       
       .leaderboard-icon {
@@ -430,7 +435,7 @@
   </style>
 </head>
 <body>
-  <div class="video-background" style="background-image: url('images/min.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+  <div class="video-background" style="background-image: url('images/QG14Background.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
   <div class="container">
     <div class="form-section">
       <div class="input-group">
@@ -490,9 +495,7 @@
           </div>
         </div>
       </button>
-    </div>
-    
-    <div class="leaderboard-section" style="margin-top: 10px;">
+      
       <button class="btn-leaderboard" onclick="showControlPanel()">
         <div class="leaderboard-content">
           <div class="leaderboard-icon">⚙️</div>

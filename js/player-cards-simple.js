@@ -1857,3 +1857,5 @@ window.submitPicks = submitPicks;
 window.clearOldGameData = clearOldGameData;
 window.clearUsedAbilities = clearUsedAbilities;
 window.openBattleView = openBattleView;
+
+

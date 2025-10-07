@@ -39,11 +39,11 @@
       z-index: -1;
       object-fit: cover;
     }
-    .frame{position:relative; min-height:100vh; padding:0px; border:3px solid #ffffff; box-sizing:border-box; overflow:hidden;}
+    .frame{position:relative; min-height:100vh; padding:0px; border:3px solid #f3c21a; box-sizing:border-box; overflow:hidden;}
     .frame:before{content:""; position:absolute; inset:0px; border:none; pointer-events:none; border-radius:0px}
 
-    .topbar{display:flex; justify-content:center; align-items:center; gap:12px; margin-top:4px; margin-bottom:6px}
-    .topbar h1{margin:0; font-size:24px; color:white; font-weight:700; letter-spacing:0.5px; position:absolute; top:44px; left:50%; transform:translateX(-50%); font-family:"Cairo", sans-serif; text-shadow:1px 1px 2px rgba(0,0,0,0.5)}
+    .topbar{display:flex; justify-content:center; align-items:center; gap:12px; margin-top:0; margin-bottom:0}
+    .topbar h1{margin:0; font-size:48px; color:var(--gold); font-weight:900; letter-spacing:1px; position:absolute; top:18px; left:50%; transform:translateX(-50%); font-family:"Cairo", sans-serif; text-shadow:2px 2px 4px rgba(0,0,0,0.45)}
     
     .topbar button {
       background: var(--gold);
@@ -65,12 +65,12 @@
       box-shadow: 0 8px 20px rgba(243, 194, 26, 0.3);
     }
 
-    .history-label{position:absolute; top:56px; font-size:14px; color:white; opacity:1; transition: opacity 0.3s ease; text-align:center; width:340px; font-weight:700; font-family:"Cairo", sans-serif; text-shadow:1px 1px 2px rgba(0,0,0,0.5)}
-    .hist-left{right:170px}
-    .hist-right{left:110px}
-    .history-row{position:absolute; top:110px; display:flex; gap:8px; transition: opacity 0.3s ease; justify-content:flex-start; flex-wrap:wrap; max-height:250px; overflow-y:auto; scrollbar-width:none; -ms-overflow-style:none}
-    .history-row.left{right:170px; width:340px}
-    .history-row.right{left:110px; width:340px}
+    .history-label{position:absolute; top:56px; font-size:20px; color:white; opacity:1; transition: opacity 0.3s ease; text-align:center; width:340px; font-weight:700; font-family:"Cairo", sans-serif; text-shadow:1px 1px 2px rgba(0,0,0,0.5)}
+    .hist-left{right:80px}
+    .hist-right{left:80px}
+    .history-row{position:absolute; top:110px; display:flex; gap:2px; transition: opacity 0.3s ease; justify-content:flex-start; flex-wrap:wrap; max-height:320px; overflow-y:auto; scrollbar-width:none; -ms-overflow-style:none}
+    .history-row.left{right:70px; width:360px}
+    .history-row.right{left:37px; width:360px}
     .history-row::-webkit-scrollbar{display:none}
     
     /* Hide history in first round */
@@ -78,28 +78,39 @@
       opacity: 0;
       pointer-events: none;
     }
-    .mini-card{width:90px; height:120px; background:linear-gradient(145deg,#771d2a,#3f0d15); border:1px solid white; border-radius:8px; box-shadow:var(--shadow); user-select:none; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none}
+    .mini-card{width:110px; height:140px; background:transparent; border:none; border-radius:0px; box-shadow:none; user-select:none; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; margin-right:-2px}
+    /* shift right player's mini cards to the right */
+    .history-row.right .mini-card{transform:translateX(0px)}
+    /* shift left player's mini cards to the left */
+    .history-row.left .mini-card{transform:translateX(0px)}
 
-    .arena{display:grid; grid-template-columns:1fr auto 1fr; align-items:start; gap:20px; max-width:600px; margin:0 auto; margin-top:140px; transform:scale(0.95); transform-origin:center top}
+    .arena{display:grid; grid-template-columns:1fr auto 1fr; align-items:start; gap:0px; max-width:1100px; margin:0 auto; margin-top:120px; transform:scale(0.92); transform-origin:center top}
 
-    .player-column{display:flex; flex-direction:column; align-items:center; gap:12px}
+    .player-column{display:flex; flex-direction:column; align-items:center; gap:12px; margin:0 -60px}
     .name{font-size:18px; color:#fff; font-weight:700; letter-spacing:0.3px}
 
-    .big-card{width:260px; height:360px; border:1px solid white; border-radius:15px; background:transparent; position:relative; box-shadow:var(--shadow); user-select:none; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; padding:1px; box-sizing:border-box}
-    .big-card .badge{position:absolute; bottom:8px; left:50%; transform:translateX(-50%); background:#3d0f17; color:#fff; padding:3px 10px; border:1px solid white; border-radius:999px; font-size:11px}
-    .big-card .empty-hint{position:absolute; inset:12px; border:2px dashed rgba(243,194,26,.35); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#ffd; opacity:.7}
+    .big-card{width:420px; height:520px; border:none; border-radius:18px; background:transparent; position:relative; box-shadow:none; user-select:none; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; padding:0; box-sizing:border-box}
+    .big-card .badge{display:none}
+    .big-card .empty-hint{position:absolute; inset:12px; border:none; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#ffd; opacity:.7}
+    /* shift only the right player's card to the right */
+    .arena .player-column.right-panel .big-card{transform:translateX(24px)}
+    /* shift only the left player's card to the left */
+    .arena .player-column:first-child .big-card{transform:translateX(-24px)}
 
-    .vs{display:flex; align-items:center; justify-content:center; margin-top:190px;}
-    .vs-circle{color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:36px; letter-spacing:2px; text-shadow:2px 2px 4px rgba(0,0,0,0.5)}
+    .vs{display:flex; align-items:center; justify-content:center; margin-top:260px;}
+    .vs-circle{color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:44px; letter-spacing:2px; text-shadow:2px 2px 4px rgba(0,0,0,0.45)}
 
-    .notes{width:260px; height:150px; background:rgba(0, 0, 0, 0.35); border:2px solid white; border-radius:10px; position:relative; padding:10px; box-sizing:border-box;}
+    .notes{width:360px; height:180px; background:transparent; border:2px solid #f3c21a; border-radius:10px; position:relative; padding:10px; box-sizing:border-box;}
+    /* align notes under each card horizontally */
+    .arena .player-column:first-child .notes{transform:translateX(-24px)}
+    .arena .player-column.right-panel .notes{transform:translateX(24px)}
     .notes textarea{width:100%; height:100%; background:transparent; border:none; outline:none; color:white; font-family:"Cairo", sans-serif; font-size:14px; font-weight:700; resize:none; padding:0; margin:0; line-height:1.4; text-shadow:1px 1px 2px rgba(0,0,0,0.8);}
     .notes textarea::placeholder{color:#888; opacity:0.7;}
 
-    .side-abilities{position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; pointer-events:none; z-index:10; transform:scale(0.8); transform-origin:center top}
-    .abilities{width:360px; background:rgba(0, 0, 0, 0.35); border:2px solid white; border-radius:15px; padding:12px; pointer-events:auto; transform:scale(1.0); transform-origin:center center; box-shadow:0 8px 25px rgba(0,0,0,0.4); height:380px; display:flex; flex-direction:column}
-    .left-abilities{margin-right:20px; margin-top:480px}
-    .right-abilities{margin-left:15px; margin-top:480px}
+    .side-abilities{position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; pointer-events:none; z-index:10; transform:scale(0.85); transform-origin:center top}
+    .abilities{width:360px; background:transparent !important; border:2px solid #f3c21a; border-radius:15px; padding:12px; pointer-events:auto; transform:scale(1.0); transform-origin:center center; box-shadow:0 8px 25px rgba(0,0,0,0.4); height:300px; display:flex; flex-direction:column}
+    .left-abilities{margin-right:-55px; margin-top:530px}
+    .right-abilities{margin-left:-45px; margin-top:530px}
     
     /* Scroll container for abilities */
     .abilities-scroll-container{
@@ -148,7 +159,7 @@
     
 
     .abilities .title{display:flex; justify-content:space-between; align-items:center; color:var(--gold); margin-bottom:12px; font-size:16px; font-weight:700; letter-spacing:0.3px; font-family:"Cairo", sans-serif; text-shadow:1px 1px 2px rgba(0,0,0,0.5); padding:8px 0; border-bottom:1px solid rgba(243,194,26,0.3)}
-    .abilities .title span.badge{background:linear-gradient(145deg, #32c675, #28a745); border:1px solid white; padding:4px 12px; border-radius:20px; font-size:12px; font-family:"Cairo", sans-serif; font-weight:600; color:white; box-shadow:0 2px 8px rgba(50, 198, 117, 0.3)}
+    .abilities .title span.badge{background:linear-gradient(145deg, #32c675, #28a745); border:1px solid #f3c21a; padding:4px 12px; border-radius:20px; font-size:12px; font-family:"Cairo", sans-serif; font-weight:600; color:white; box-shadow:0 2px 8px rgba(50, 198, 117, 0.3)}
     
     /* Card media styling */
     .card-media {
@@ -248,15 +259,15 @@
 
     .right-panel{display:flex; flex-direction:column; align-items:center; gap:12px}
 
-    .health{display:flex; align-items:center; gap:10px; margin-top:8px}
+    .health{display:flex; align-items:center; gap:14px; margin-top:8px}
     .round-btn{
-      width: 36px; 
-      height: 36px; 
+      width: 44px; 
+      height: 44px; 
       border-radius: 50%; 
       border: 2px solid var(--gold); 
       background: linear-gradient(145deg, #3a0d15, #2b0a11);
       color: #7ef7a2; 
-      font-size: 18px; 
+      font-size: 22px; 
       font-weight: 900; 
       display: flex; 
       align-items: center; 
@@ -289,14 +300,14 @@
       opacity: 1;
     }
     .health .value{
-      width: 52px; 
-      height: 52px; 
+      width: 64px; 
+      height: 64px; 
       border-radius: 50%; 
       background: linear-gradient(145deg, #3a0d15, #2b0a11);
       border: 3px solid var(--gold); 
       color: #ffe; 
       font-weight: 800; 
-      font-size: 18px; 
+      font-size: 22px; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
@@ -318,19 +329,22 @@
       border-radius: 50%;
     }
     .health .value.red{color:#ff6363}
+    
+    /* Position health controls under abilities boxes */
+    .arena .player-column:first-child .health{position:absolute; left:80px; top:780px; z-index:11; transform:translateX(100px)}
+    .arena .player-column.right-panel .health{position:absolute; right:80px; top:780px; z-index:11; transform:translateX(-100px)}
 
-    .confirm-wrap{display:flex; justify-content:center; margin-top:-35px; transform:scale(0.75); transform-origin:center top}
+    .confirm-wrap{display:flex; justify-content:center; position:fixed; left:0; right:0; bottom:50px; transform:scale(0.9); transform-origin:center bottom; z-index:50}
     .confirm{
-      background: linear-gradient(145deg, #e4a511, #b62929, #8a0e0e);
+      background: linear-gradient(145deg, #32c675, #28a745, #1e7e34);
       color: #fff; 
-      padding: 12px 32px; 
-      border-radius: 25px; 
-      border: 2px solid #e03737; 
-      font-size: 13px; 
-      font-weight: 800; 
-      box-shadow: 0 8px 20px rgba(182, 46, 46, 0.3);
+      padding: 16px 40px; 
+      border-radius: 20px; 
+      border: 2px solid #f3c21a; 
+      font-size: 16px; 
+      font-weight: 900; 
+      box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
       position: relative; 
-      top: -110px; 
       letter-spacing: 0.3px; 
       font-family: "Cairo", sans-serif;
       cursor: pointer;
@@ -1457,7 +1471,7 @@
   <!-- Socket.IO removed - using localStorage + Custom Events instead -->
 </head>
 <body>
-  <div class="video-background" style="background-image: url('images/min.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+  <div class="video-background" style="background-image: url('images/QG14Background.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
 
 
   <div class="frame">
@@ -1491,12 +1505,7 @@
           <div class="round-btn" onclick="changeHealth('player1', -1)" style="color:#ff6969">▼</div>
         </div>
         
-        <!-- Swap Deck Button for Player 1 -->
-        <div class="swap-deck-section">
-          <button class="swap-deck-btn" id="swapDeckBtn1" type="button" tabindex="0" title="انقر لفتح دكة البدلاء">
-            دكة البدلاء
-          </button>
-        </div>
+        
       </div>
 
       <div class="vs">
@@ -1517,12 +1526,7 @@
           <div class="round-btn" onclick="changeHealth('player2', -1)" style="color:#ff6969">▼</div>
         </div>
         
-        <!-- Swap Deck Button for Player 2 -->
-        <div class="swap-deck-section">
-          <button class="swap-deck-btn" id="swapDeckBtn2" type="button" tabindex="0" title="انقر لفتح دكة البدلاء">
-            دكة البدلاء
-          </button>
-        </div>
+        
       </div>
     </section>
 
@@ -1596,56 +1600,12 @@
       </div>
     </div>
 
-    <!-- Swap Deck Modal V2 - Advanced & Error-Free -->
-    <div class="swap-deck-modal-overlay" id="swapDeckModal">
-      <div class="swap-deck-modal">
-        <h3 id="swapDeckTitle">دكة البدلاء - اختر بطاقة للتبديل</h3>
-        
-        <div class="swap-deck-content">
-          <!-- Current Card Section -->
-          <div class="current-card-section">
-            <h4>البطاقة الحالية:</h4>
-            <div class="current-card-display" id="currentCardDisplay">
-              <div class="no-card">جاري التحميل...</div>
-            </div>
-          </div>
-          
-          <!-- Swap Cards Section -->
-          <div class="swap-cards-section">
-            <h4>اختر رقم البطاقة البديلة:</h4>
-            <div class="swap-cards-numbers" id="swapCardsNumbers">
-              <!-- Card numbers will be populated here -->
-            </div>
-            <div class="selected-card-display" id="selectedCardDisplay" style="display: none;">
-              <h5>البطاقة المختارة:</h5>
-              <div class="selected-card-preview" id="selectedCardPreview">
-                <!-- Selected card will be shown here -->
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Modal Buttons - Complete Rebuild -->
-        <div class="modal-buttons-container">
-          <div class="button-wrapper">
-            <button class="confirm-button" id="confirmSwapBtn" onclick="confirmSwap()" disabled>
-              تأكيد التبديل
-            </button>
-          </div>
-          <div class="button-wrapper">
-            <button class="cancel-button" onclick="closeSwapDeckModal()">
-              إلغاء
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    
 
 
   </div>
 
 
-<script src="card.js"></script>
-<script src="js/swap-deck-v2.js"></script>
+<script src="js/card.js"></script>
 </body>
 </html>

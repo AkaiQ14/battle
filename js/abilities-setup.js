@@ -188,24 +188,95 @@ function distributeAbilities() {
     return;
   }
   
-  // Create a copy of available abilities
+  // إنشاء نسخة من القدرات المتاحة مع خلط مكثف
   const availableAbilities = [...gameState.defaultAbilities];
-  const selectedAbilities = [];
   
-  // Select 6 unique abilities randomly
-  while (selectedAbilities.length < 6 && availableAbilities.length > 0) {
-    const randomIndex = Math.floor(Math.random() * availableAbilities.length);
-    selectedAbilities.push(availableAbilities.splice(randomIndex, 1)[0]);
+  // خلط مكثف للقدرات باستخدام خوارزمية Fisher-Yates
+  for (let i = availableAbilities.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [availableAbilities[i], availableAbilities[j]] = [availableAbilities[j], availableAbilities[i]];
   }
   
-  // Distribute abilities to players
-  gameState.player1.abilities = selectedAbilities.slice(0, 3);
-  gameState.player2.abilities = selectedAbilities.slice(3, 6);
+  // خلط إضافي باستخدام Math.random() مع عوامل عشوائية متعددة
+  const shuffledAbilities = availableAbilities.sort(() => {
+    const random1 = Math.random();
+    const random2 = Math.random();
+    const random3 = Math.random();
+    return (random1 + random2 + random3) / 3 - 0.5;
+  });
+  
+  // اختيار 6 قدرات فريدة تماماً مع ضمان عدم التكرار
+  const selectedAbilities = [];
+  const usedIndices = new Set();
+  
+  while (selectedAbilities.length < 6 && usedIndices.size < shuffledAbilities.length) {
+    // استخدام عدة مصادر عشوائية لضمان التنويع
+    const randomSeed1 = Math.random();
+    const randomSeed2 = Date.now() % 1000;
+    const randomSeed3 = Math.floor(Math.random() * 10000);
+    
+    const combinedRandom = (randomSeed1 + randomSeed2 + randomSeed3) % shuffledAbilities.length;
+    const randomIndex = Math.floor(combinedRandom);
+    
+    if (!usedIndices.has(randomIndex)) {
+      selectedAbilities.push(shuffledAbilities[randomIndex]);
+      usedIndices.add(randomIndex);
+    }
+  }
+  
+  // ضمان أن لدينا 6 قدرات فريدة تماماً
+  if (selectedAbilities.length < 6) {
+    console.error('لا يمكن اختيار 6 قدرات فريدة - عدد القدرات المتاحة غير كافي');
+    return;
+  }
+  
+  // تقسيم القدرات إلى مجموعتين منفصلتين تماماً (بدون تكرار مطلق)
+  const player1Abilities = selectedAbilities.slice(0, 3);
+  const player2Abilities = selectedAbilities.slice(3, 6);
+  
+  // التحقق من عدم وجود تكرار بين اللاعبين
+  const player1Set = new Set(player1Abilities);
+  const player2Set = new Set(player2Abilities);
+  
+  // التحقق من عدم التكرار داخل كل لاعب
+  if (player1Set.size !== player1Abilities.length) {
+    console.error('توجد قدرات مكررة في اللاعب الأول!');
+    return;
+  }
+  
+  if (player2Set.size !== player2Abilities.length) {
+    console.error('توجد قدرات مكررة في اللاعب الثاني!');
+    return;
+  }
+  
+  // التحقق من عدم التكرار بين اللاعبين
+  const intersection = [...player1Set].filter(ability => player2Set.has(ability));
+  if (intersection.length > 0) {
+    console.error('توجد قدرات مكررة بين اللاعبين!', intersection);
+    return;
+  }
+  
+  // خلط نهائي لقدرات كل لاعب (مع الحفاظ على عدم التكرار)
+  gameState.player1.abilities = player1Abilities.sort(() => Math.random() - 0.5);
+  gameState.player2.abilities = player2Abilities.sort(() => Math.random() - 0.5);
+  
+  // التحقق النهائي من عدم التكرار
+  const finalCheck1 = new Set(gameState.player1.abilities);
+  const finalCheck2 = new Set(gameState.player2.abilities);
+  const finalIntersection = [...finalCheck1].filter(ability => finalCheck2.has(ability));
+  
+  if (finalIntersection.length > 0) {
+    console.error('فشل التحقق النهائي - توجد قدرات مكررة!', finalIntersection);
+    return;
+  }
   
   displayAbilities();
   saveProgress();
   
-  console.log('تم توزيع 3 قدرات عشوائية لكل لاعب من القائمة المحفوظة - القدرات الأصلية تبقى محفوظة');
+  console.log('✅ تم توزيع 3 قدرات فريدة تماماً لكل لاعب - بدون أي تكرار');
+  console.log('اللاعب الأول:', gameState.player1.abilities);
+  console.log('اللاعب الثاني:', gameState.player2.abilities);
+  console.log('✅ تأكيد: لا توجد قدرات مكررة بين اللاعبين');
 }
 
 function displayAbilities() {

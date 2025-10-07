@@ -204,7 +204,7 @@ function showLeaderboard() {
     left: 0;
     right: 0;
     bottom: 0;
-    background: #8B1538;
+    background: url('images/QG14Background.png') center/cover no-repeat, #8B1538;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -237,7 +237,7 @@ function showLeaderboard() {
       .leaderboard-row:nth-child(5) { animation-delay: 0.5s; }
     </style>
     <div style="
-      background: #8B1538;
+      background: transparent;
       color: white;
       width: 96vw;
       height: 96vh;
@@ -249,26 +249,228 @@ function showLeaderboard() {
       flex-direction: column;
     ">
       
+      <!-- Title -->
+      <div style="
+        background: transparent;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+      ">
+        <h1 style="
+          margin: 0; 
+          font-size: 28px; 
+          font-weight: 700; 
+          color: white;
+          letter-spacing: 1px;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        ">
+          المتصدرين
+        </h1>
+      </div>
+      
+      <!-- Top 3 Podium -->
+      <div style="
+        background: transparent;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 20px;
+      ">
+        <!-- 2nd Place -->
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        ">
+          <div style="
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px;
+            color: white;
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            border: 3px solid #C0C0C0;
+          ">
+            2
+          </div>
+          <div style="
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            max-width: 100px;
+          ">
+            ${leaderboard.length >= 2 ? leaderboard[1].name : '---'}
+          </div>
+          <div style="
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 12px;
+          ">
+            ${leaderboard.length >= 2 ? (leaderboard[1].points || 0) + ' نقطة' : '0 نقطة'}
+          </div>
+        </div>
+        
+        <!-- 1st Place -->
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          transform: translateY(-10px);
+        ">
+          <div style="
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 28px;
+            color: white;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            border: 4px solid #FFD700;
+          ">
+            1
+          </div>
+          <div style="
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            max-width: 120px;
+          ">
+            ${leaderboard.length >= 1 ? leaderboard[0].name : '---'}
+          </div>
+          <div style="
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 14px;
+          ">
+            ${leaderboard.length >= 1 ? (leaderboard[0].points || 0) + ' نقطة' : '0 نقطة'}
+          </div>
+        </div>
+        
+        <!-- 3rd Place -->
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        ">
+          <div style="
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px;
+            color: white;
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            border: 3px solid #CD7F32;
+          ">
+            3
+          </div>
+          <div style="
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            max-width: 100px;
+          ">
+            ${leaderboard.length >= 3 ? leaderboard[2].name : '---'}
+          </div>
+          <div style="
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 12px;
+          ">
+            ${leaderboard.length >= 3 ? (leaderboard[2].points || 0) + ' نقطة' : '0 نقطة'}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Scroll Indicators -->
+      <div id="scrollTopIndicator" style="
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 215, 0, 0.8);
+        color: #000;
+        padding: 5px 15px;
+        border-radius: 0 0 10px 10px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      ">
+        ↑ المزيد أعلاه
+      </div>
+      
+      <div id="scrollBottomIndicator" style="
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 215, 0, 0.8);
+        color: #000;
+        padding: 5px 15px;
+        border-radius: 10px 10px 0 0;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      ">
+        ↓ المزيد أدناه
+      </div>
+      
       <!-- Table Container -->
-      <div style="flex: 1; overflow-y: auto; padding: 20px;">
+      <div style="
+        flex: 1; 
+        overflow-y: auto; 
+        padding: 20px;
+        max-height: 60vh;
+        position: relative;
+      " 
+      onscroll="handleTableScroll(this)"
+      id="leaderboardTableContainer">
         <table style="
           width: 100%;
           border-collapse: collapse;
-          background: #6B0F2A;
+          background: rgba(107, 15, 42, 0.7);
           color: white;
           font-size: 14px;
           border-radius: 8px;
           overflow: hidden;
         ">
           <thead>
-            <tr style="background: #5A0D24;">
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">#</th>
-              <th style="padding: 15px 10px; text-align: right; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">اسم اللاعب</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">عدد المباريات</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">فاز</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">خسر</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نسبة الفوز</th>
-              <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نقاط</th>
+            <tr style="background: rgba(90, 13, 36, 0.8);">
+              <th style="padding: 15px 3px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">#</th>
+              <th style="padding: 15px 3px; text-align: right; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">اسم اللاعب</th>
+              <th style="padding: 15px 3px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">عدد المباريات</th>
+              <th style="padding: 15px 3px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">فاز</th>
+              <th style="padding: 15px 3px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">خسر</th>
+              <th style="padding: 15px 3px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نسبة الفوز</th>
+              <th style="padding: 15px 3px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">نقاط</th>
             </tr>
           </thead>
           <tbody id="leaderboardTableBody">
@@ -277,15 +479,15 @@ function showLeaderboard() {
               leaderboard.map((player, index) => `
                 <tr style="
                   border-bottom: 1px solid #4A0A1A;
-                  background: ${index % 2 === 0 ? '#6B0F2A' : '#5A0D24'};
+                  background: ${index % 2 === 0 ? 'rgba(107, 15, 42, 0.6)' : 'rgba(90, 13, 36, 0.6)'};
                 ">
-                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${index + 1}</td>
-                  <td style="padding: 15px 10px; text-align: right; font-weight: bold; font-size: 16px; color: white;">${player.name}</td>
-                  <td style="padding: 15px 10px; text-align: center; color: white;">${player.games || 0}</td>
-                  <td style="padding: 15px 10px; text-align: center; color: #4CAF50; font-weight: bold;">${player.wins || 0}</td>
-                  <td style="padding: 15px 10px; text-align: center; color: #f44336; font-weight: bold;">${player.losses || 0}</td>
-                  <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${player.winRate || 0}%</td>
-                  <td style="padding: 15px 10px; text-align: center; color: white; font-weight: bold; font-size: 16px;">${player.points || 0}</td>
+                  <td style="padding: 15px 3px; text-align: center; font-weight: bold; color: white;">${index + 1}</td>
+                  <td style="padding: 15px 3px; text-align: right; font-weight: bold; font-size: 16px; color: white;">${player.name}</td>
+                  <td style="padding: 15px 3px; text-align: center; color: white;">${player.games || 0}</td>
+                  <td style="padding: 15px 3px; text-align: center; color: #4CAF50; font-weight: bold;">${player.wins || 0}</td>
+                  <td style="padding: 15px 3px; text-align: center; color: #f44336; font-weight: bold;">${player.losses || 0}</td>
+                  <td style="padding: 15px 3px; text-align: center; font-weight: bold; color: white;">${player.winRate || 0}%</td>
+                  <td style="padding: 15px 3px; text-align: center; color: white; font-weight: bold; font-size: 16px;">${player.points || 0}</td>
                 </tr>
               `).join('')
             }
@@ -643,7 +845,7 @@ function showControlPanel() {
     left: 0;
     right: 0;
     bottom: 0;
-    background: #8B1538;
+    background: url('images/QG14Background.png') center/cover no-repeat, #8B1538;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -676,7 +878,7 @@ function showControlPanel() {
       .control-row:nth-child(5) { animation-delay: 0.5s; }
     </style>
     <div style="
-      background: #8B1538;
+      background: transparent;
       color: white;
       width: 96vw;
       height: 96vh;
@@ -804,14 +1006,14 @@ function showControlPanel() {
         <table style="
           width: 100%;
           border-collapse: collapse;
-          background: #6B0F2A;
+          background: rgba(107, 15, 42, 0.7);
           color: white;
           font-size: 14px;
           border-radius: 8px;
           overflow: hidden;
         ">
           <thead>
-            <tr style="background: #5A0D24;">
+            <tr style="background: rgba(90, 13, 36, 0.8);">
               <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">#</th>
               <th style="padding: 15px 10px; text-align: right; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">اسم اللاعب</th>
               <th style="padding: 15px 10px; text-align: center; border-bottom: 1px solid #FFD700; color: white; font-weight: bold;">عدد المباريات</th>
@@ -828,7 +1030,7 @@ function showControlPanel() {
               leaderboard.map((player, index) => `
                 <tr class="control-row" style="
                   border-bottom: 1px solid #4A0A1A;
-                  background: ${index % 2 === 0 ? '#6B0F2A' : '#5A0D24'};
+                  background: ${index % 2 === 0 ? 'rgba(107, 15, 42, 0.6)' : 'rgba(90, 13, 36, 0.6)'};
                 ">
                   <td style="padding: 15px 10px; text-align: center; font-weight: bold; color: white;">${index + 1}</td>
                   <td style="padding: 15px 10px; text-align: right; font-weight: bold; font-size: 16px; color: white;">${player.name}</td>
@@ -1180,3 +1382,32 @@ window.updatePlayerData = updatePlayerData;
 window.addPointToPlayerControl = addPointToPlayerControl;
 window.removePointFromPlayerControl = removePointFromPlayerControl;
 window.deletePlayerControl = deletePlayerControl;
+
+// Handle table scroll indicators
+function handleTableScroll(container) {
+  const topIndicator = document.getElementById('scrollTopIndicator');
+  const bottomIndicator = document.getElementById('scrollBottomIndicator');
+  
+  if (!topIndicator || !bottomIndicator) return;
+  
+  const scrollTop = container.scrollTop;
+  const scrollHeight = container.scrollHeight;
+  const clientHeight = container.clientHeight;
+  
+  // Show/hide top indicator
+  if (scrollTop > 10) {
+    topIndicator.style.opacity = '1';
+  } else {
+    topIndicator.style.opacity = '0';
+  }
+  
+  // Show/hide bottom indicator
+  if (scrollTop < scrollHeight - clientHeight - 10) {
+    bottomIndicator.style.opacity = '1';
+  } else {
+    bottomIndicator.style.opacity = '0';
+  }
+}
+
+// Make scroll handler available globally
+window.handleTableScroll = handleTableScroll;

@@ -7,294 +7,10 @@
 // - الملاحظات تُحفظ في localStorage وتبقى عبر الجولات
 // - عند إعادة تحميل الصفحة تبقى الملاحظات محفوظة
 
-// Load game data from gameSetupProgress with error handling
-let gameSetupProgress = {};
-try {
-  gameSetupProgress = JSON.parse(localStorage.getItem("gameSetupProgress") || "{}");
-} catch (error) {
-  console.warn("Error parsing gameSetupProgress:", error);
-  gameSetupProgress = {};
-}
-
-
-// Get all available cards from the images directory
-function getAllAvailableCards() {
-  const allCards = [
-    "images/ShanksCard.webm", "images/Akai.webm", "images/madara.webm", "images/Nana-card.png", "images/Vengeance.png",
-    "images/Crocodile.png", "images/MeiMei-card.png", "images/Elizabeth.png", "images/ace.png", "images/Adult-gon-card.webp",
-    "images/aizen.webm", "images/Aizetsu-card.webp", "images/Akutagawa-card.png", "images/alex20armstrong.webp", "images/AllForOneCard.webm",
-    "images/Alluka-card.png", "images/Android18-card.png", "images/ArmorTitan-card.webp", "images/Arthur-card.png", "images/Asui-card.png",
-    "images/Atsuya-card.png", "images/AyanokojiCard.webm", "images/Ban-card.png", "images/Bardooock.png", "images/bartolomeo-card.png",
-    "images/BeastKing-card.png", "images/BigM.webp", "images/Bisky-card.png", "images/brook.png", "images/Btakuya-card.png",
-    "images/caesar-card.png", "images/cardo20ppsd.webp", "images/CartTitan-card.png", "images/cavendish-card.png", "images/Charllotte-card.png",
-    "images/Choi-jong-in-.webp", "images/Conan.png", "images/Kidou.png", "images/Shisui.png", "images/Chopper-card.png", "images/ColossialTitan-card.png", "images/Dabi-card.png", "images/Danteee.png",
-    "images/dazai-card.png", "images/DiamondJozu.webp", "images/DragonBB-67-card.png", "images/edward elric.png", "images/Elfaria Albis.png",
-    "images/Endeavor.png", "images/ErenCard.webm", "images/esdeath.webp", "images/Eso-card.png", "images/FemaleTitan-card.webp",
-    "images/franklin_card.png", "images/Franky-card.png", "images/Frierennnnn.png", "images/Friezaaa.webp", "images/fubuki.webp",
-    "images/Fuegoleonn .png", "images/Gadjah.webp", "images/GaiMou-card.png", "images/Galand-card.png", "images/Ganju-card.png",
-    "images/Genthru-card.png", "images/geten.webp", "images/Geto-card.png", "images/ghiaccio.png", "images/Gilthunder.png",
-    "images/Gin-freecss-card.png", "images/gloxinia.png", "images/Go-Gunhee-card.webm", "images/Gogeta.webm", "images/GojoCard.webm",
-    "images/Goku UI.webm", "images/Gordon-card.png", "images/Hachigen-card.png", "images/HakuKi-card.webp", "images/Hantengu-card.png",
-    "images/Haruta jjk.png", "images/Haschwalth-card.png", "images/Hawk-card.png", "images/Hawks.webm", "images/hinata.png",
-    "images/Hisagi-card.png", "images/Ichibe-card.png", "images/Igris-card.webp", "images/ino.png", "images/Inosuke-card.png",
-    "images/Inumaki-card.png", "images/Ippo-card.png", "images/Iron-card.png", "images/Isaac mcdougal.png", "images/Ishida-card.webp",
-    "images/Itadori-card.png", "images/Itchigo-card .png", "images/Jack-card.png", "images/Jaw-card.webp", "images/Jirobo.webp",
-    "images/Johan-card.png", "images/joker.webm", "images/Jozi jjk.png", "images/judarr.webp", "images/jugo.png",
-    "images/julius wistoria.png", "images/Kaguraaaa.png", "images/Kaito-card .png", "images/Kalluto-card.png", "images/Karaku-card.png",
-    "images/KeiSha-card.png", "images/kenjaku-card.png", "images/Kenzo-card.png", "images/kimimaro.png", "images/Kingkaiii.png",
-    "images/Kirach.png", "images/KiSui-card.png", "images/Knov-card.png", "images/konan.png", "images/konohamaru.webp",
-    "images/kota izumi.png", "images/Krilin-card.webp", "images/KudoShinichi-card.png", "images/Kukoshibo-card.png", "images/Kuma-card.png",
-    "images/Kurapika-card.png", "images/kurenai.png", "images/Kurogiri-card.png", "images/Kyoga-card.png", "images/Langriiss.webp",
-    "images/law.webm", "images/laxus.png", "images/Lemillion-card.png", "images/Lille-baroo-card.png", "images/Lily-card.png",
-    "images/Lucci-card.png", "images/Luck.png", "images/LuffyGear5Card.webm", "images/lumiere silvamillion.png", "images/lyon vastia.png",
-    "images/obito.webm", "images/mahito-card.png", "images/Mahoraga.png", "images/Mai-card.png", "images/Maki zenen.png",
-    "images/Makio-card.png", "images/mansherry.png", "images/Masamichi-card.png", "images/Matsumoto-card.webp", "images/Mayuri-card.webp",
-    "images/MeiMei-card.png", "images/Meleoron-card.png", "images/Merlin-card.webp", "images/MeruemCard.webm", "images/MetalBat-card.png",
-    "images/Mezo-card.webp", "images/Min-Byung-Gyu-card.png", "images/Mina-card.png", "images/minato.png", "images/Miruku bnha.png",
-    "images/Momo-hinamori-card.webp", "images/MomoYaorozu-card.webp", "images/Monspeet-card.png", "images/MouBu-card.png", "images/MouGou-card.png",
-    "images/Nachttt.webp", "images/Nami.webp", "images/Nana-card.png", "images/nanami-card.png", "images/naobito-card.webp",
-    "images/Nejire-card.png", "images/NietroCard.webm", "images/Noelll.png", "images/Oden-card.png", "images/Okabe-card.png",
-    "images/Orihime-card.png", "images/Overhaul-card.png", "images/Panda-card.webp", "images/Paragusss.png", "images/Pariston-card.png",
-    "images/Picollooo.png", "images/pizarro.webp", "images/poseidon.png", "images/Queen-card.webp", "images/Raditzz.png",
-    "images/RaiDo%20kingdom.webp", "images/RaiDokingdom.webp", "images/Renpa-card.png", "images/Rhyaa.png", "images/Rika-card.png",
-    "images/rin.png", "images/Rojuro-card.png", "images/Roy Mustang.png", "images/Runge-card.png", "images/Runge-card.webp",
-    "images/sai.png", "images/SakamotoCard.webm", "images/Senjumaru-card.png", "images/Senritsu-card.webp", "images/ShanksCard.webm",
-    "images/shikamaru.webm", "images/Shin-card.png", "images/Shinji-card.webp", "images/shino.png", "images/Shinobu-card.png",
-    "images/Shinpei-card.webp", "images/Shizuku-card.png", "images/ShouBunKun-card.png", "images/ShouHeiKun-card .png", "images/silver%20fullbuster.webp",
-    "images/SilverCard.webm", "images/silverfullbuster.webp", "images/Stain-card.png", "images/Stark-card.png", "images/sting eucliffe.png",
-    "images/suzuno.png", "images/takuma-card.webp", "images/Tank-card.png", "images/Teach-card.png", "images/Tenma-card.png",
-    "images/tenten.webp", "images/Tier Harribel.png", "images/tobirama.png", "images/Todoroki.png", "images/Tosen-card.webp",
-    "images/UmibozoCard.webm", "images/Ur.png", "images/Uvogin-card.png", "images/VanAugur-card.webp", "images/Vegapunk-crad.webp",
-    "images/Vegetto.webm", "images/Vengeance.png", "images/Videl-card.webp", "images/Vista-card.png", "images/WarHammerTitan-card.png",
-    "images/whitebeard.webm", "images/Yoo-Jinho-card.png", "images/Yoruichi-card.webp", "images/YujiroHanma-card.png", "images/Yusaku.png",
-    "images/Zagred-card.png", "images/Zamasuuu.webm", "images/zaratras.png", "images/Zeno kingdom.png", "images/Zeo Thorzeus.png",
-    "images/zetsu.png", "images/Zohakuten.png", "images/GTO_2.webp", "images/sasukee.webp", "images/gaara.webp", "images/Cathleen-card.webp", "images/Feitan-card.webp", "images/uraume-card.webp", "images/Akaino-card.webp", "images/Akaza-card.webp", "images/Denki-card.webp", "images/monet.webp", "images/zabuza.webp", "images/Zenitsu.webm", "images/Fubuki.webm", "images/zoro.webm", "images/killua.webm", "images/Asta.webm"
-  ];
-  
-  return allCards;
-}
-
-
-
-
-// Load round count from gameSetupProgress
-let roundCount = 5;
-let startingHP = 5;
-
-try {
-  if (gameSetupProgress.rounds) {
-    roundCount = gameSetupProgress.rounds;
-    startingHP = gameSetupProgress.rounds;
-  } else if (localStorage.getItem("totalRounds")) {
-    roundCount = parseInt(localStorage.getItem("totalRounds"));
-    startingHP = parseInt(localStorage.getItem("totalRounds"));
-  }
-} catch (e) {
-  console.error('Error loading round count:', e);
-}
-
-// Load player names from gameSetupProgress
-let player1 = "لاعب 1";
-let player2 = "لاعب 2";
-
-try {
-  if (gameSetupProgress.player1?.name) {
-    player1 = gameSetupProgress.player1.name;
-  } else if (gameSetupProgress.player1Name) {
-    player1 = gameSetupProgress.player1Name;
-  } else if (localStorage.getItem("player1")) {
-    player1 = localStorage.getItem("player1");
-  }
-  
-  if (gameSetupProgress.player2?.name) {
-    player2 = gameSetupProgress.player2.name;
-  } else if (gameSetupProgress.player2Name) {
-    player2 = gameSetupProgress.player2Name;
-  } else if (localStorage.getItem("player2")) {
-    player2 = localStorage.getItem("player2");
-  }
-  
-  console.log('Loaded player names:', { player1, player2 });
-} catch (e) {
-  console.error('Error loading player names:', e);
-}
-
-// Load round count first
-let round = parseInt(localStorage.getItem("currentRound") || "0");
-
-// Apply swap deck modifications to picks
-function applySwapDeckModifications(picks) {
-  try {
-    console.log('🔄 Applying swap deck modifications to picks');
-    
-    // Apply modifications for player1
-    if (picks[player1]) {
-      for (let i = 0; i < picks[player1].length; i++) {
-        const swapKey = `player1SwapRound${i}`;
-        const swappedCard = localStorage.getItem(swapKey);
-        if (swappedCard) {
-          const originalCard = picks[player1][i];
-          picks[player1][i] = swappedCard;
-          console.log(`🔄 Applied swap for player1 round ${i}: ${originalCard} → ${swappedCard}`);
-        }
-      }
-    }
-    
-    // Apply modifications for player2
-    if (picks[player2]) {
-      for (let i = 0; i < picks[player2].length; i++) {
-        const swapKey = `player2SwapRound${i}`;
-        const swappedCard = localStorage.getItem(swapKey);
-        if (swappedCard) {
-          const originalCard = picks[player2][i];
-          picks[player2][i] = swappedCard;
-          console.log(`🔄 Applied swap for player2 round ${i}: ${originalCard} → ${swappedCard}`);
-        }
-      }
-    }
-    
-    console.log('✅ Swap deck modifications applied successfully');
-  } catch (error) {
-    console.error('❌ Error applying swap deck modifications:', error);
-  }
-}
-
-// Dynamic picks loading function
-function loadPlayerPicks() {
-  console.log('📋 loadPlayerPicks called');
-  let picks = {};
-  
-  try {
-    // First priority: Load from StrategicOrdered (final arrangement from player-cards.html)
-    const player1Order = localStorage.getItem('player1StrategicOrdered');
-    const player2Order = localStorage.getItem('player2StrategicOrdered');
-    
-    if (player1Order && player2Order) {
-      try {
-        const player1Ordered = JSON.parse(player1Order);
-        const player2Ordered = JSON.parse(player2Order);
-        
-        if (Array.isArray(player1Ordered) && Array.isArray(player2Ordered) && 
-            player1Ordered.length > 0 && player2Ordered.length > 0) {
-          picks[player1] = [...player1Ordered];
-          picks[player2] = [...player2Ordered];
-          console.log('Loaded picks from StrategicOrdered:', { player1: picks[player1], player2: picks[player2] });
-          
-          // Apply swap deck modifications to the loaded picks
-          applySwapDeckModifications(picks);
-          return picks;
-        }
-      } catch (e) {
-        console.warn('Error parsing StrategicOrdered:', e);
-      }
-    }
-    
-    // Second priority: Load from StrategicPicks (selected cards from cards-setup.js)
-    const player1Picks = localStorage.getItem('player1StrategicPicks');
-    const player2Picks = localStorage.getItem('player2StrategicPicks');
-    
-    if (player1Picks && player2Picks) {
-      try {
-        const player1Cards = JSON.parse(player1Picks);
-        const player2Cards = JSON.parse(player2Picks);
-        
-        if (Array.isArray(player1Cards) && Array.isArray(player2Cards) && 
-            player1Cards.length > 0 && player2Cards.length > 0) {
-          picks[player1] = [...player1Cards];
-          picks[player2] = [...player2Cards];
-          console.log('Loaded picks from StrategicPicks:', { player1: picks[player1], player2: picks[player2] });
-          
-          // Apply swap deck modifications to the loaded picks
-          applySwapDeckModifications(picks);
-          return picks;
-        }
-      } catch (e) {
-        console.warn('Error parsing StrategicPicks:', e);
-      }
-    }
-    
-    // Third priority: Load from gameCardSelection
-    const cardSelection = localStorage.getItem('gameCardSelection');
-    if (cardSelection) {
-      try {
-        const cardData = JSON.parse(cardSelection);
-        if (cardData.player1Cards && cardData.player2Cards) {
-          picks[player1] = [...cardData.player1Cards];
-          picks[player2] = [...cardData.player2Cards];
-          console.log('Loaded picks from gameCardSelection:', { player1: picks[player1], player2: picks[player2] });
-          
-          // Apply swap deck modifications to the loaded picks
-          applySwapDeckModifications(picks);
-          return picks;
-        }
-      } catch (e) {
-        console.warn('Error parsing gameCardSelection:', e);
-      }
-    }
-    
-  } catch (error) {
-    console.warn("Error loading picks:", error);
-  }
-  
-  // Ensure picks has valid data for both players
-  if (!picks[player1] || !Array.isArray(picks[player1]) || picks[player1].length === 0) {
-    picks[player1] = ["cards/ShanksCard.webm", "cards/Akai.webm", "cards/madara.webm", "cards/Nana-card.png", "cards/Vengeance.png"];
-    console.log('Using fallback cards for player1:', picks[player1]);
-  }
-  if (!picks[player2] || !Array.isArray(picks[player2]) || picks[player2].length === 0) {
-    picks[player2] = ["cards/Akai.webm", "cards/ShanksCard.webm", "cards/Crocodile.png", "cards/MeiMei-card.png", "cards/Elizabeth.png"];
-    console.log('Using fallback cards for player2:', picks[player2]);
-  }
-  
-  // Apply swap deck modifications to fallback cards as well
-  applySwapDeckModifications(picks);
-  
-  console.log('📋 loadPlayerPicks result:', picks);
-  return picks;
-}
-
-// Load picks dynamically
-let picks = loadPlayerPicks();
-console.log('📋 Initial picks loaded:', picks);
-console.log('📋 Player names:', { player1, player2 });
-console.log('📋 Current round:', round);
-
-// Scores init/persist with error handling
-let scores = {};
-try {
-  scores = JSON.parse(localStorage.getItem("scores") || "{}");
-} catch (error) {
-  console.warn("Error parsing scores:", error);
-  scores = {};
-}
-
-if (Object.keys(scores).length === 0 || round === 0) {
-  scores[player1] = startingHP;
-  scores[player2] = startingHP;
-}
-
-// Storage keys
-const P1_ABILITIES_KEY = "player1Abilities";
-const P2_ABILITIES_KEY = "player2Abilities";
-// ✅ مفتاح حفظ الملاحظات - تبقى محفوظة للجولات التالية
-const NOTES_KEY = (name, roundNumber = null) => {
-  const currentRound = roundNumber !== null ? roundNumber : round;
-  return `notes:${name}:round${currentRound}`;
-};
-const USED_ABILITIES_KEY = "usedAbilities";
-const ABILITY_REQUESTS_KEY = "abilityRequests";
-
-// ---- UI roots ----
-const roundTitle = document.querySelector(".topbar h1");
-const leftName   = document.querySelector(".player-column .name");
-const rightName  = document.querySelector(".right-panel .name");
-const leftCard   = document.querySelector(".player-column .big-card");
-const rightCard  = document.querySelector(".right-panel .big-card");
-const leftNotes  = document.querySelector(".player-column .notes textarea");
-const rightNotes = document.querySelector(".right-panel .notes textarea");
-
-// Track shown notifications to avoid duplicates
-let shownNotifications = new Set();
+// ✅ نظام دكة البدلاء المحسن
+// - يحتفظ بالبطاقات العشوائية عبر تحديثات الصفحة
+// - يعيد تعيين النظام فقط عند بدء لعبة جديدة حقيقية
+// - يتحقق من حالة اللعبة قبل إعادة التعيين
 
 // Voice system for Legendary cards
 let voiceSystem = {
@@ -303,31 +19,8 @@ let voiceSystem = {
   currentAudio: null,
   audioQueue: [],
   isPlaying: false,
-  
-  // Map card names to voice file names (excluding ranpo)
-  getVoiceFileName: function(cardPath) {
-    if (!cardPath) return null;
-    
-    // Extract card name from path
-    let cardName = cardPath.split('/').pop().split('.')[0];
-    
-    // Handle special cases and clean up the name
-    cardName = cardName.replace('-card', '').replace('Card', '');
-    
-    // Skip ranpo as requested
-    if (cardName.toLowerCase().includes('ranpo')) {
-      return null;
-    }
-    
-    return cardName;
-  },
-  
-  // Check if card is Legendary
-  isLegendaryCard: function(cardPath) {
-    if (!cardPath) return false;
-    return cardPath.includes('Legendary/') || 
-           cardPath.includes('images/') && this.isLegendaryByName(cardPath);
-  },
+  isMuted: false,
+  mutedVolume: 0.7,
   
   // Check if card is legendary by name patterns - Updated with all voice files
   isLegendaryByName: function(cardPath) {
@@ -337,11 +30,18 @@ let voiceSystem = {
       'fubuki', 'Gogeta', 'GojoCard', 'Goku UI', 'Hawks', 'joker', 'killua',
       'law', 'LuffyGear5Card', 'madara', 'MeruemCard', 'NietroCard', 'obito',
       'SakamotoCard', 'shikamaru', 'ShanksCard', 'SilverCard', 'UmibozoCard',
-      'Vegetto', 'whitebeard', 'zoro', 'Zenitsu'
+      'Vegetto', 'whitebeard', 'zoro', 'Zenitsu', 'Hashirama', 'Neiji'
     ];
     
     const cardName = cardPath.split('/').pop().split('.')[0].toLowerCase();
     return legendaryPatterns.some(pattern => cardName.includes(pattern.toLowerCase()));
+  },
+  
+  // Check if card is Legendary
+  isLegendaryCard: function(cardPath) {
+    if (!cardPath) return false;
+    return cardPath.includes('Legendary/') || 
+           cardPath.includes('images/') && this.isLegendaryByName(cardPath);
   },
   
   // Enhanced voice file name mapping - Exact match with voice files
@@ -388,7 +88,9 @@ let voiceSystem = {
       'whitebeard': 'whitebeard',
       'zoro': 'Zoro',
       'Zoro': 'Zoro',
-      'Zenitsu': 'Zenitsu'
+      'Zenitsu': 'Zenitsu',
+      'Hashirama': 'Hashirama',
+      'Neiji': 'Neiji'
     };
     
     // Check for exact match first
@@ -415,7 +117,7 @@ let voiceSystem = {
   },
   
   // Play voice for a card
-  playVoice: function(cardPath, playerName) {
+  playVoice: function(cardPath, playerName, forcePlay = false) {
     if (!this.isEnabled || !this.isLegendaryCard(cardPath)) {
       console.log(`🎵 Voice disabled or not legendary: ${cardPath}`);
       return;
@@ -424,6 +126,16 @@ let voiceSystem = {
     const voiceFileName = this.getVoiceFileName(cardPath);
     if (!voiceFileName) {
       console.log(`🎵 No voice file found for: ${cardPath}`);
+      return;
+    }
+    
+    // Check if this exact voice is already playing or in queue to prevent duplicates
+    const isAlreadyPlaying = this.audioQueue.some(audio => 
+      audio.cardPath === cardPath && audio.playerName === playerName
+    ) || (this.currentAudio && this.currentAudio.dataset.cardPath === cardPath && this.currentAudio.dataset.playerName === playerName);
+    
+    if (isAlreadyPlaying && !forcePlay) {
+      console.log(`🎵 Voice already playing or queued for ${playerName}: ${cardPath}`);
       return;
     }
     
@@ -467,6 +179,10 @@ let voiceSystem = {
     this.currentAudio = new Audio(audioData.path);
     this.currentAudio.volume = this.volume;
     
+    // Store metadata for duplicate checking
+    this.currentAudio.dataset.cardPath = audioData.cardPath;
+    this.currentAudio.dataset.playerName = audioData.playerName;
+    
     // Handle audio events
     this.currentAudio.onended = () => {
       console.log(`🎵 Finished playing voice for ${audioData.playerName}`);
@@ -494,7 +210,7 @@ let voiceSystem = {
     const lastVoice = this.getLastVoiceForPlayer(playerName);
     if (lastVoice) {
       console.log(`🎵 Replaying voice for ${playerName}`);
-      this.playVoice(lastVoice.cardPath, playerName);
+      this.playVoice(lastVoice.cardPath, playerName, true); // forcePlay = true
     }
   },
   
@@ -557,6 +273,21 @@ let voiceSystem = {
     this.isPlaying = false;
   },
   
+  // Clear previous voices for new round
+  clearPreviousVoices: function() {
+    // Stop current audio
+    this.stopAudio();
+    
+    // Clear localStorage for both players
+    try {
+      localStorage.removeItem(`lastVoice_${player1}`);
+      localStorage.removeItem(`lastVoice_${player2}`);
+      console.log('🎵 Previous voices cleared for new round');
+    } catch (error) {
+      console.warn('Error clearing previous voices:', error);
+    }
+  },
+  
   // Set volume
   setVolume: function(volume) {
     this.volume = Math.max(0, Math.min(1, volume));
@@ -565,13 +296,27 @@ let voiceSystem = {
     }
   },
   
-  // Toggle mute
+  // Toggle mute (temporary mute, not disable system)
   toggleMute: function() {
-    this.isEnabled = !this.isEnabled;
-    if (!this.isEnabled && this.currentAudio) {
-      this.stopAudio();
+    this.isMuted = !this.isMuted;
+    
+    if (this.isMuted) {
+      // Mute: pause current audio and set volume to 0
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+      }
+      this.mutedVolume = this.volume; // Save current volume
+      this.volume = 0;
+    } else {
+      // Unmute: restore volume and resume if audio was playing
+      this.volume = this.mutedVolume || 0.7; // Restore saved volume or default
+      if (this.currentAudio) {
+        this.currentAudio.volume = this.volume;
+        this.currentAudio.play().catch(e => console.log('Could not resume audio:', e));
+      }
     }
-    return this.isEnabled;
+    
+    return !this.isMuted; // Return true if unmuted, false if muted
   },
   
   // Test function to verify all legendary cards have voice files
@@ -579,16 +324,7 @@ let voiceSystem = {
     console.log('🎵 Testing all legendary voice mappings...');
     
     const testCards = [
-      'images/aizen.webm', 'images/Akai.webm', 'images/AllForOneCard.webm',
-      'images/AyanokojiCard.webm', 'images/Asta.webm', 'images/ErenCard.webm',
-      'images/Fubuki.webm', 'images/Gogeta.webm', 'images/GojoCard.webm',
-      'images/Goku UI.webm', 'images/Hawks.webm', 'images/joker.webm',
-      'images/killua.webm', 'images/law.webm', 'images/LuffyGear5Card.webm',
-      'images/madara.webm', 'images/MeruemCard.webm', 'images/NietroCard.webm',
-      'images/obito.webm', 'images/SakamotoCard.webm', 'images/shikamaru.webm',
-      'images/ShanksCard.webm', 'images/SilverCard.webm', 'images/UmibozoCard.webm',
-      'images/Vegetto.webm', 'images/whitebeard.webm', 'images/zoro.webm',
-      'images/Zenitsu.webm'
+      // All card data has been removed - ready for new cards
     ];
     
     testCards.forEach(cardPath => {
@@ -598,8 +334,536 @@ let voiceSystem = {
       
       console.log(`🎵 ${cardPath}: Legendary=${isLegendary}, Voice=${voiceFileName}, Path=${audioPath}`);
     });
+    
+    // Test actual audio loading
+    this.testAudioLoading();
+  },
+  
+  // Test actual audio file loading
+  testAudioLoading: function() {
+    console.log('🎵 Testing audio file accessibility...');
+    
+    const testVoiceFiles = ['aizen', 'Akai', 'law'];
+    
+    testVoiceFiles.forEach(voiceFile => {
+      const audioPath = `voice/${voiceFile}.mp3`;
+      const audio = new Audio(audioPath);
+      
+      audio.oncanplaythrough = () => {
+        console.log(`✅ Audio accessible: ${audioPath}`);
+      };
+      
+      audio.onerror = (error) => {
+        console.log(`❌ Audio not accessible: ${audioPath}`, error);
+      };
+      
+      // Trigger the check
+      audio.load();
+    });
   }
 };
+
+// Create voice control buttons
+function createVoiceControls() {
+  // Remove existing voice controls to prevent duplicates
+  const existingControls = document.querySelectorAll('.voice-controls');
+  existingControls.forEach(control => control.remove());
+  
+  // Create voice controls container
+  const voiceControlsContainer = document.createElement('div');
+  voiceControlsContainer.className = 'voice-controls';
+  voiceControlsContainer.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  `;
+  
+  // Mute/Unmute Button (Circular)
+  const muteButton = document.createElement('button');
+  muteButton.className = 'mute-button';
+  muteButton.style.cssText = `
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid #f3c21a;
+    background: #f3c21a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(243, 194, 26, 0.3);
+  `;
+  
+  // Set initial icon based on mute state
+  muteButton.innerHTML = !voiceSystem.isMuted ? 
+    '<span style="color: #87CEEB;">🔊</span>' : 
+    '<span style="color: #87CEEB;">🔇</span>';
+  
+  muteButton.onclick = function() {
+    const isUnmuted = voiceSystem.toggleMute();
+    this.innerHTML = isUnmuted ? 
+      '<span style="color: #87CEEB;">🔊</span>' : 
+      '<span style="color: #87CEEB;">🔇</span>';
+  };
+  
+  muteButton.onmouseover = function() {
+    this.style.transform = 'scale(1.05)';
+    this.style.boxShadow = '0 6px 20px rgba(243, 194, 26, 0.4)';
+  };
+  
+  muteButton.onmouseout = function() {
+    this.style.transform = 'scale(1)';
+    this.style.boxShadow = '0 4px 15px rgba(243, 194, 26, 0.3)';
+  };
+  
+  // Volume Control Container (Simple and Clean)
+  const volumeContainer = document.createElement('div');
+  volumeContainer.style.cssText = `
+    width: 120px;
+    height: 40px;
+    border: 2px solid #f3c21a;
+    border-radius: 20px;
+    background: rgba(26, 10, 15, 0.9);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    box-sizing: border-box;
+  `;
+  
+  // Volume Percentage Display
+  const volumeDisplay = document.createElement('span');
+  volumeDisplay.className = 'volume-display';
+  volumeDisplay.textContent = Math.round(voiceSystem.volume * 100) + '%';
+  volumeDisplay.style.cssText = `
+    color: #f3c21a;
+    font-family: "Cairo", sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  `;
+  
+  // Volume Slider (Native HTML5 range input)
+  const volumeSlider = document.createElement('input');
+  volumeSlider.type = 'range';
+  volumeSlider.min = '0';
+  volumeSlider.max = '100';
+  volumeSlider.value = Math.round(voiceSystem.volume * 100);
+  volumeSlider.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    margin: 0;
+    z-index: 2;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  `;
+  
+  // Custom slider styling for webkit browsers
+  volumeSlider.style.webkitAppearance = 'none';
+  volumeSlider.style.appearance = 'none';
+  
+  // Update volume display
+  function updateVolumeDisplay(value) {
+    const percentage = Math.round(value);
+    volumeDisplay.textContent = percentage + '%';
+  }
+  
+  // Set initial position
+  updateVolumeDisplay(voiceSystem.volume * 100);
+  
+  // Volume control events
+  volumeSlider.oninput = function() {
+    const value = parseInt(this.value);
+    voiceSystem.setVolume(value / 100);
+    updateVolumeDisplay(value);
+  };
+  
+  // Add elements to volume container
+  volumeContainer.appendChild(volumeDisplay);
+  volumeContainer.appendChild(volumeSlider);
+  
+  // Add elements to main container
+  voiceControlsContainer.appendChild(muteButton);
+  voiceControlsContainer.appendChild(volumeContainer);
+  
+  // Add to document
+  document.body.appendChild(voiceControlsContainer);
+  
+  console.log('🎵 Voice controls created with new design');
+}
+
+// Helper function to get player name from all possible sources
+function getPlayerName(playerNumber) {
+  try {
+    // Try to get from gameSetupProgress first
+    if (gameSetupProgress && gameSetupProgress[`player${playerNumber}`]?.name) {
+      console.log(`🎵 Found player ${playerNumber} name in gameSetupProgress.player${playerNumber}.name: ${gameSetupProgress[`player${playerNumber}`].name}`);
+      return gameSetupProgress[`player${playerNumber}`].name;
+    }
+    
+    // Try alternative naming convention
+    if (gameSetupProgress && gameSetupProgress[`player${playerNumber}Name`]) {
+      console.log(`🎵 Found player ${playerNumber} name in gameSetupProgress.player${playerNumber}Name: ${gameSetupProgress[`player${playerNumber}Name`]}`);
+      return gameSetupProgress[`player${playerNumber}Name`];
+    }
+    
+    // Try localStorage
+    const fromStorage = localStorage.getItem(`player${playerNumber}`);
+    if (fromStorage) {
+      console.log(`🎵 Found player ${playerNumber} name in localStorage: ${fromStorage}`);
+      return fromStorage;
+    }
+    
+    // Fallback to default
+    console.log(`🎵 Using fallback name for player ${playerNumber}: لاعب ${playerNumber}`);
+    return `لاعب ${playerNumber}`;
+  } catch (error) {
+    console.error(`Error getting player ${playerNumber} name:`, error);
+    return `لاعب ${playerNumber}`;
+  }
+}
+
+// Create replay buttons under abilities
+function createReplayButtons() {
+  // Remove existing replay buttons
+  const existingReplayButtons = document.querySelectorAll('.replay-buttons');
+  existingReplayButtons.forEach(button => button.remove());
+  
+  // Debug: Print all player name sources
+  console.log('🎵 === PLAYER NAME DEBUG ===');
+  console.log('🎵 gameSetupProgress:', gameSetupProgress);
+  console.log('🎵 localStorage player1:', localStorage.getItem("player1"));
+  console.log('🎵 localStorage player2:', localStorage.getItem("player2"));
+  console.log('🎵 Current player1 variable:', player1);
+  console.log('🎵 Current player2 variable:', player2);
+  
+  // Check DOM elements
+  const rightPlayerNameElement = document.querySelector('.right-panel .name');
+  const leftPlayerNameElement = document.querySelector('.player-column .name');
+  console.log('🎵 Right panel player name (DOM):', rightPlayerNameElement ? rightPlayerNameElement.textContent.trim() : 'NOT FOUND');
+  console.log('🎵 Left panel player name (DOM):', leftPlayerNameElement ? leftPlayerNameElement.textContent.trim() : 'NOT FOUND');
+  
+  const debugPlayer1 = getPlayerName(1);
+  const debugPlayer2 = getPlayerName(2);
+  console.log('🎵 getPlayerName(1) result:', debugPlayer1);
+  console.log('🎵 getPlayerName(2) result:', debugPlayer2);
+  console.log('🎵 === END DEBUG ===');
+  
+  // Create replay button for player 1 (right side) - اللاعب الأول
+  const replayPlayer1 = document.createElement('button');
+  replayPlayer1.className = 'replay-buttons';
+  replayPlayer1.textContent = '🔄 إعادة التشغيل';
+  replayPlayer1.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    color: white;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    font-family: "Cairo", sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 1500;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+  `;
+  replayPlayer1.onclick = function() {
+    // الزر الأيمن للاعب الأيسر - قراءة الاسم من العنصر الموجود على الشاشة
+    const leftPlayerNameElement = document.querySelector('.player-column .name');
+    const currentPlayer = leftPlayerNameElement ? leftPlayerNameElement.textContent.trim() : getPlayerName(2);
+    console.log(`🎵 Replay button clicked for Left Player (Right Button): ${currentPlayer}`);
+    voiceSystem.replayVoice(currentPlayer);
+  };
+  replayPlayer1.onmouseover = function() {
+    this.style.transform = 'translateY(-2px)';
+    this.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+  };
+  replayPlayer1.onmouseout = function() {
+    this.style.transform = 'translateY(0)';
+    this.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)';
+  };
+  
+  // Create replay button for player 2 (left side) - اللاعب الثاني
+  const replayPlayer2 = document.createElement('button');
+  replayPlayer2.className = 'replay-buttons';
+  replayPlayer2.textContent = '🔄 إعادة التشغيل';
+  replayPlayer2.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 10px 15px;
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    color: white;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    font-family: "Cairo", sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 1500;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+  `;
+  replayPlayer2.onclick = function() {
+    // الزر الأيسر للاعب الأيمن - قراءة الاسم من العنصر الموجود على الشاشة
+    const rightPlayerNameElement = document.querySelector('.right-panel .name');
+    const currentPlayer = rightPlayerNameElement ? rightPlayerNameElement.textContent.trim() : getPlayerName(1);
+    console.log(`🎵 Replay button clicked for Right Player (Left Button): ${currentPlayer}`);
+    voiceSystem.replayVoice(currentPlayer);
+  };
+  replayPlayer2.onmouseover = function() {
+    this.style.transform = 'translateY(-2px)';
+    this.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+  };
+  replayPlayer2.onmouseout = function() {
+    this.style.transform = 'translateY(0)';
+    this.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)';
+  };
+  
+  // Add to document
+  document.body.appendChild(replayPlayer1);
+  document.body.appendChild(replayPlayer2);
+  
+  console.log('🎵 Replay buttons created');
+}
+
+/**
+ * Reset swap deck system for new games only
+ */
+function resetSwapDeckSystem() {
+  try {
+    // Check if this is a real new game
+    const gameSetupProgress = localStorage.getItem('gameSetupProgress');
+    
+    if (gameSetupProgress === 'completed') {
+      // Game is in progress, don't reset
+      console.log('🎴 Game in progress, keeping swap deck data');
+      return;
+    }
+    
+    // This is a new game, reset swap deck system
+    console.log('🎴 New game detected, resetting swap deck system');
+    
+    // Reset swap deck system if available
+    if (window.swapDeckSystem && typeof window.swapDeckSystem.resetSwapDeckSystem === 'function') {
+      window.swapDeckSystem.resetSwapDeckSystem();
+    }
+    
+    // Clear generated cards to force regeneration for new game
+    localStorage.removeItem('generatedCards');
+    
+    // Reset global card generation variables
+    if (window.gameCardsGenerated) {
+      window.gameCardsGenerated = false;
+      window.gameCardsData = {
+        player1Cards: [],
+        player2Cards: []
+      };
+      console.log('🔄 Reset global card generation variables');
+    }
+    
+    console.log('✅ Swap deck system reset for new game');
+    
+  } catch (error) {
+    console.error('❌ Error resetting swap deck system:', error);
+  }
+}
+
+// Call reset function when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  resetSwapDeckSystem();
+});
+
+// Load game data from gameSetupProgress with error handling
+let gameSetupProgress = {};
+try {
+  gameSetupProgress = JSON.parse(localStorage.getItem("gameSetupProgress") || "{}");
+} catch (error) {
+  console.warn("Error parsing gameSetupProgress:", error);
+  gameSetupProgress = {};
+}
+
+// Load round count from gameSetupProgress
+let roundCount = 5;
+let startingHP = 5;
+
+try {
+  if (gameSetupProgress.rounds) {
+    roundCount = gameSetupProgress.rounds;
+    startingHP = gameSetupProgress.rounds;
+  } else if (localStorage.getItem("totalRounds")) {
+    roundCount = parseInt(localStorage.getItem("totalRounds"));
+    startingHP = parseInt(localStorage.getItem("totalRounds"));
+  }
+} catch (e) {
+  console.error('Error loading round count:', e);
+}
+
+// Load player names from gameSetupProgress
+let player1 = "لاعب 1";
+let player2 = "لاعب 2";
+
+try {
+  if (gameSetupProgress.player1?.name) {
+    player1 = gameSetupProgress.player1.name;
+  } else if (gameSetupProgress.player1Name) {
+    player1 = gameSetupProgress.player1Name;
+  } else if (localStorage.getItem("player1")) {
+    player1 = localStorage.getItem("player1");
+  }
+  
+  if (gameSetupProgress.player2?.name) {
+    player2 = gameSetupProgress.player2.name;
+  } else if (gameSetupProgress.player2Name) {
+    player2 = gameSetupProgress.player2Name;
+  } else if (localStorage.getItem("player2")) {
+    player2 = localStorage.getItem("player2");
+  }
+  
+  console.log('Loaded player names:', { player1, player2 });
+} catch (e) {
+  console.error('Error loading player names:', e);
+}
+
+// Dynamic picks loading function
+function loadPlayerPicks() {
+  let picks = {};
+  
+  try {
+    // First priority: Load from StrategicOrdered (final arrangement from player-cards.html)
+    const player1Order = localStorage.getItem('player1StrategicOrdered');
+    const player2Order = localStorage.getItem('player2StrategicOrdered');
+    
+    if (player1Order && player2Order) {
+      try {
+        const player1Ordered = JSON.parse(player1Order);
+        const player2Ordered = JSON.parse(player2Order);
+        
+        if (Array.isArray(player1Ordered) && Array.isArray(player2Ordered) && 
+            player1Ordered.length > 0 && player2Ordered.length > 0) {
+          picks[player1] = [...player1Ordered];
+          picks[player2] = [...player2Ordered];
+          console.log('Loaded picks from StrategicOrdered:', { player1: picks[player1], player2: picks[player2] });
+          return picks;
+        }
+      } catch (e) {
+        console.warn('Error parsing StrategicOrdered:', e);
+      }
+    }
+    
+    // Second priority: Load from StrategicPicks (selected cards from cards-setup.js)
+    const player1Picks = localStorage.getItem('player1StrategicPicks');
+    const player2Picks = localStorage.getItem('player2StrategicPicks');
+    
+    if (player1Picks && player2Picks) {
+      try {
+        const player1Cards = JSON.parse(player1Picks);
+        const player2Cards = JSON.parse(player2Picks);
+        
+        if (Array.isArray(player1Cards) && Array.isArray(player2Cards) && 
+            player1Cards.length > 0 && player2Cards.length > 0) {
+          picks[player1] = [...player1Cards];
+          picks[player2] = [...player2Cards];
+          console.log('Loaded picks from StrategicPicks:', { player1: picks[player1], player2: picks[player2] });
+          return picks;
+        }
+      } catch (e) {
+        console.warn('Error parsing StrategicPicks:', e);
+      }
+    }
+    
+    // Third priority: Load from gameCardSelection
+    const cardSelection = localStorage.getItem('gameCardSelection');
+    if (cardSelection) {
+      try {
+        const cardData = JSON.parse(cardSelection);
+        if (cardData.player1Cards && cardData.player2Cards) {
+          picks[player1] = [...cardData.player1Cards];
+          picks[player2] = [...cardData.player2Cards];
+          console.log('Loaded picks from gameCardSelection:', { player1: picks[player1], player2: picks[player2] });
+          return picks;
+        }
+      } catch (e) {
+        console.warn('Error parsing gameCardSelection:', e);
+      }
+    }
+    
+  } catch (error) {
+    console.warn("Error loading picks:", error);
+  }
+  
+  // Ensure picks has valid data for both players
+  if (!picks[player1] || !Array.isArray(picks[player1]) || picks[player1].length === 0) {
+    picks[player1] = []; // All card data has been removed - ready for new cards
+    console.log('Using empty cards for player1:', picks[player1]);
+  }
+  if (!picks[player2] || !Array.isArray(picks[player2]) || picks[player2].length === 0) {
+    picks[player2] = []; // All card data has been removed - ready for new cards
+    console.log('Using empty cards for player2:', picks[player2]);
+  }
+  
+  return picks;
+}
+
+// Load picks dynamically
+let picks = loadPlayerPicks();
+
+let round = parseInt(localStorage.getItem("currentRound") || "0");
+
+// Scores init/persist with error handling
+let scores = {};
+try {
+  scores = JSON.parse(localStorage.getItem("scores") || "{}");
+} catch (error) {
+  console.warn("Error parsing scores:", error);
+  scores = {};
+}
+
+if (Object.keys(scores).length === 0 || round === 0) {
+  scores[player1] = startingHP;
+  scores[player2] = startingHP;
+}
+
+// Storage keys
+const P1_ABILITIES_KEY = "player1Abilities";
+const P2_ABILITIES_KEY = "player2Abilities";
+// ✅ مفتاح حفظ الملاحظات - تبقى محفوظة للجولات التالية
+const NOTES_KEY = (name, roundNumber = null) => {
+  const currentRound = roundNumber !== null ? roundNumber : round;
+  return `notes:${name}:round${currentRound}`;
+};
+const USED_ABILITIES_KEY = "usedAbilities";
+const ABILITY_REQUESTS_KEY = "abilityRequests";
+
+// ---- UI roots ----
+const roundTitle = document.querySelector(".topbar h1");
+const leftName   = document.querySelector(".player-column .name");
+const rightName  = document.querySelector(".right-panel .name");
+const leftCard   = document.querySelector(".player-column .big-card");
+const rightCard  = document.querySelector(".right-panel .big-card");
+const leftNotes  = document.querySelector(".player-column .notes textarea");
+const rightNotes = document.querySelector(".right-panel .notes textarea");
+
+// Track shown notifications to avoid duplicates
+let shownNotifications = new Set();
 
 /* ---------------------- Toast ---------------------- */
 function showToast(message, actions = []) {
@@ -821,11 +1085,6 @@ function createMedia(url, className){
     }
   }
   
-  // Ensure the path is correct for images folder
-  if (fixedUrl && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('images/')) {
-    fixedUrl = 'images/' + fixedUrl;
-  }
-  
   const isWebm = /\.webm(\?|#|$)/i.test(fixedUrl || "");
   if (isWebm){
     const v=document.createElement("video");
@@ -883,14 +1142,18 @@ function renderVs(){
     rightName.textContent = player1;
   }
 
+  // Smooth card loading without clearing first
   if (leftCard) {
-    leftCard.innerHTML = "";
     const leftCardSrc = picks?.[player2]?.[round];
     if (leftCardSrc) {
-      leftCard.appendChild(createMedia(leftCardSrc, ""));
+      // Create new media element
+      const newMedia = createMedia(leftCardSrc, "");
+      // Replace content smoothly
+      leftCard.innerHTML = "";
+      leftCard.appendChild(newMedia);
       
       // Play voice for legendary card
-      if (voiceSystem.isLegendaryCard(leftCardSrc)) {
+      if (voiceSystem && voiceSystem.isLegendaryCard(leftCardSrc)) {
         voiceSystem.playVoice(leftCardSrc, player2);
       }
     } else {
@@ -899,13 +1162,16 @@ function renderVs(){
   }
   
   if (rightCard) {
-    rightCard.innerHTML = "";
     const rightCardSrc = picks?.[player1]?.[round];
     if (rightCardSrc) {
-      rightCard.appendChild(createMedia(rightCardSrc, ""));
+      // Create new media element
+      const newMedia = createMedia(rightCardSrc, "");
+      // Replace content smoothly
+      rightCard.innerHTML = "";
+      rightCard.appendChild(newMedia);
       
       // Play voice for legendary card
-      if (voiceSystem.isLegendaryCard(rightCardSrc)) {
+      if (voiceSystem && voiceSystem.isLegendaryCard(rightCardSrc)) {
         voiceSystem.playVoice(rightCardSrc, player1);
       }
     } else {
@@ -917,189 +1183,14 @@ function renderVs(){
   updateNotesForRound();
   
   // Create voice control buttons
-  createVoiceControls();
-}
-
-// Create voice control buttons
-function createVoiceControls() {
-  // Remove existing voice controls to prevent duplicates
-  const existingControls = document.querySelectorAll('.voice-controls');
-  existingControls.forEach(control => control.remove());
+  if (voiceSystem && createVoiceControls) {
+    createVoiceControls();
+  }
   
-  // Create voice controls container
-  const voiceControlsContainer = document.createElement('div');
-  voiceControlsContainer.className = 'voice-controls';
-  voiceControlsContainer.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #fff;
-    border-radius: 12px;
-    padding: 15px;
-    z-index: 2000;
-    font-family: "Cairo", sans-serif;
-    color: white;
-    min-width: 200px;
-  `;
-  
-  // Title
-  const title = document.createElement('div');
-  title.textContent = '🎵 تحكم الصوت';
-  title.style.cssText = `
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
-    font-size: 14px;
-  `;
-  voiceControlsContainer.appendChild(title);
-  
-  // Volume control
-  const volumeContainer = document.createElement('div');
-  volumeContainer.style.cssText = `
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  `;
-  
-  const volumeLabel = document.createElement('span');
-  volumeLabel.textContent = 'مستوى الصوت:';
-  volumeLabel.style.fontSize = '12px';
-  
-  const volumeSlider = document.createElement('input');
-  volumeSlider.type = 'range';
-  volumeSlider.min = '0';
-  volumeSlider.max = '100';
-  volumeSlider.value = voiceSystem.volume * 100;
-  volumeSlider.style.cssText = `
-    flex: 1;
-    height: 20px;
-  `;
-  volumeSlider.oninput = function() {
-    voiceSystem.setVolume(this.value / 100);
-  };
-  
-  volumeContainer.appendChild(volumeLabel);
-  volumeContainer.appendChild(volumeSlider);
-  voiceControlsContainer.appendChild(volumeContainer);
-  
-  // Mute button
-  const muteButton = document.createElement('button');
-  muteButton.textContent = voiceSystem.isEnabled ? '🔊 كتم' : '🔇 إلغاء كتم';
-  muteButton.style.cssText = `
-    width: 100%;
-    padding: 8px;
-    background: ${voiceSystem.isEnabled ? '#dc2626' : '#16a34a'};
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: "Cairo", sans-serif;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 10px;
-  `;
-  muteButton.onclick = function() {
-    const isEnabled = voiceSystem.toggleMute();
-    this.textContent = isEnabled ? '🔊 كتم' : '🔇 إلغاء كتم';
-    this.style.background = isEnabled ? '#dc2626' : '#16a34a';
-  };
-  voiceControlsContainer.appendChild(muteButton);
-  
-  // Stop button
-  const stopButton = document.createElement('button');
-  stopButton.textContent = '⏹️ إيقاف';
-  stopButton.style.cssText = `
-    width: 100%;
-    padding: 8px;
-    background: #6b7280;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: "Cairo", sans-serif;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 10px;
-  `;
-  stopButton.onclick = function() {
-    voiceSystem.stopAudio();
-  };
-  voiceControlsContainer.appendChild(stopButton);
-  
-  // Test button
-  const testButton = document.createElement('button');
-  testButton.textContent = '🧪 اختبار الأصوات';
-  testButton.style.cssText = `
-    width: 100%;
-    padding: 8px;
-    background: #7c3aed;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: "Cairo", sans-serif;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 10px;
-  `;
-  testButton.onclick = function() {
-    voiceSystem.testAllLegendaryVoices();
-  };
-  voiceControlsContainer.appendChild(testButton);
-  
-  // Player replay buttons
-  const replayContainer = document.createElement('div');
-  replayContainer.style.cssText = `
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
-  `;
-  
-  // Player 1 replay button
-  const replayPlayer1 = document.createElement('button');
-  replayPlayer1.textContent = `🔄 ${player1}`;
-  replayPlayer1.style.cssText = `
-    flex: 1;
-    padding: 6px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-family: "Cairo", sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-  `;
-  replayPlayer1.onclick = function() {
-    voiceSystem.replayVoice(player1);
-  };
-  
-  // Player 2 replay button
-  const replayPlayer2 = document.createElement('button');
-  replayPlayer2.textContent = `🔄 ${player2}`;
-  replayPlayer2.style.cssText = `
-    flex: 1;
-    padding: 6px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-family: "Cairo", sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-  `;
-  replayPlayer2.onclick = function() {
-    voiceSystem.replayVoice(player2);
-  };
-  
-  replayContainer.appendChild(replayPlayer1);
-  replayContainer.appendChild(replayPlayer2);
-  voiceControlsContainer.appendChild(replayContainer);
-  
-  // Add to document
-  document.body.appendChild(voiceControlsContainer);
-  
-  console.log('🎵 Voice controls created');
+  // Create replay buttons
+  if (voiceSystem && createReplayButtons) {
+    createReplayButtons();
+  }
 }
 
 // Update notes for current round
@@ -1112,55 +1203,26 @@ function updateNotesForRound() {
     return;
   }
   
-  // Clear existing event listeners to prevent duplicates
-  leftNotes.replaceWith(leftNotes.cloneNode(true));
-  rightNotes.replaceWith(rightNotes.cloneNode(true));
-  
-  // Get fresh references after cloning
-  const leftNotesNew = document.getElementById("player1Notes");
-  const rightNotesNew = document.getElementById("player2Notes");
-  
-  // ✅ تحميل الملاحظات المحفوظة من localStorage
+  // Smooth update without replacing elements
   try {
     const player1Notes = localStorage.getItem('notes:player1') || '';
     const player2Notes = localStorage.getItem('notes:player2') || '';
     
-    leftNotesNew.value = player1Notes;
-    rightNotesNew.value = player2Notes;
+    // Update values smoothly
+    leftNotes.value = player1Notes;
+    rightNotes.value = player2Notes;
     
-    console.log(`Notes loaded for round ${round + 1} from localStorage`);
+    console.log(`Notes updated smoothly for round ${round + 1}`);
   } catch (error) {
-    console.error('Error loading notes from localStorage:', error);
-    leftNotesNew.value = "";
-    rightNotesNew.value = "";
+    console.error('Error updating notes:', error);
+    leftNotes.value = "";
+    rightNotes.value = "";
   }
 }
 
 /* ---------------------- Previous cards ---------------------- */
 function renderPrev(){
-  // Get previous cards with swap deck modifications
-  const getPrev = (name) => {
-    const baseCards = Array.isArray(picks?.[name]) ? picks[name] : [];
-    const prevCards = baseCards.filter((_, i) => i < round);
-    
-    // Check for swap deck modifications in previous rounds
-    console.log(`🔍 Checking swap modifications for ${name}, base cards:`, prevCards);
-    for (let i = 0; i < prevCards.length; i++) {
-      // Determine player key based on name
-      const playerKey = name === player1 ? 'player1' : 'player2';
-      const swapKey = `${playerKey}SwapRound${i}`;
-      const swappedCard = localStorage.getItem(swapKey);
-      console.log(`🔍 Checking ${swapKey}: ${swappedCard}`);
-      if (swappedCard) {
-        const originalCard = prevCards[i];
-        prevCards[i] = swappedCard;
-        console.log(`✅ Using swapped card for ${name} (${playerKey}) round ${i}: ${originalCard} → ${swappedCard}`);
-      }
-    }
-    
-    return prevCards;
-  };
-  
+  const getPrev = (name)=> (Array.isArray(picks?.[name])?picks[name]:[]).filter((_,i)=>i<round);
   const leftRow  = document.getElementById("historyRowLeft");
   const rightRow = document.getElementById("historyRowRight");
   const leftLbl  = document.getElementById("historyLabelLeft");
@@ -1174,20 +1236,20 @@ function renderPrev(){
     return;
   }
   
+  // Show history smoothly
   if (leftRow) leftRow.classList.remove("history-hidden");
   if (rightRow) rightRow.classList.remove("history-hidden");
   if (leftLbl) leftLbl.classList.remove("history-hidden");
   if (rightLbl) rightLbl.classList.remove("history-hidden");
 
+  // Clear and rebuild smoothly
   if (leftRow) leftRow.innerHTML=""; 
   if (rightRow) rightRow.innerHTML="";
   
   // Show previous cards for player2 (left side)
   const player2Prev = getPrev(player2);
-  console.log(`🎴 Player2 (${player2}) previous cards:`, player2Prev);
   if (player2Prev.length > 0 && leftRow) {
-    player2Prev.forEach((src, index) => {
-      console.log(`🎴 Adding player2 card ${index}: ${src}`);
+    player2Prev.forEach(src=>{
       const mini=document.createElement("div");
       mini.className="mini-card";
       mini.appendChild(createMedia(src,""));
@@ -1197,10 +1259,8 @@ function renderPrev(){
   
   // Show previous cards for player1 (right side)
   const player1Prev = getPrev(player1);
-  console.log(`🎴 Player1 (${player1}) previous cards:`, player1Prev);
   if (player1Prev.length > 0 && rightRow) {
-    player1Prev.forEach((src, index) => {
-      console.log(`🎴 Adding player1 card ${index}: ${src}`);
+    player1Prev.forEach(src=>{
       const mini=document.createElement("div");
       mini.className="mini-card";
       mini.appendChild(createMedia(src,""));
@@ -1428,7 +1488,7 @@ function renderPanels(){
     const player1Title = document.getElementById("player1AbilitiesTitle");
     const player2Title = document.getElementById("player2AbilitiesTitle");
     
-    // Update ability titles
+    // Update ability titles smoothly
     if (player1Title) {
       player1Title.textContent = `قدرات ${player1}`;
     }
@@ -1436,7 +1496,7 @@ function renderPanels(){
       player2Title.textContent = `قدرات ${player2}`;
     }
     
-    // Clear containers before re-rendering to prevent duplicates
+    // Clear and rebuild containers smoothly
     if (player1Container) {
       player1Container.innerHTML = '';
       renderAbilitiesPanel(P1_ABILITIES_KEY, player1Container, player1, player2);
@@ -1705,6 +1765,9 @@ function approveAbilityRequest(requestId){
       
       shownNotifications.delete(requestId);
       
+      // Navigate to player page after approving ability request
+      navigateToPlayerPage(request.playerParam, request.playerName);
+      
       console.log(`Approved ability: ${request.abilityText} for ${request.playerName}`);
     }
   } catch(error) {
@@ -1874,6 +1937,293 @@ function restoreAbility(abilityText, playerName) {
   }
 }
 
+/* ---------------------- Add Ability Modal ---------------------- */
+function openAddAbilityModal(playerParam) {
+  const playerName = playerParam === 'player1' ? player1 : player2;
+  
+  // Get the modal from HTML
+  const modal = document.getElementById("addAbilityModal");
+  if (!modal) {
+    console.error('Add ability modal not found in HTML');
+    return;
+  }
+  
+  // Update title
+  const title = document.getElementById("addAbilityTitle");
+  title.textContent = `إضافة قدرة جديدة - ${playerName}`;
+  
+  // Clear inputs
+  document.getElementById("newAbilityInput").value = "";
+  document.getElementById("bulkAbilitiesInput").value = "";
+  
+  // Store player parameter
+  modal.dataset.playerParam = playerParam;
+  
+  // Show modal
+  modal.classList.add("active");
+  
+  // Focus on input and setup keyboard shortcuts
+  setTimeout(() => {
+    const input = document.getElementById("newAbilityInput");
+    const textarea = document.getElementById("bulkAbilitiesInput");
+    
+    input.focus();
+    
+    // Remove existing event listeners to prevent duplicates
+    input.removeEventListener('keypress', handleEnterKey);
+    textarea.removeEventListener('keydown', handleCtrlEnter);
+    
+    // Add new event listeners
+    input.addEventListener('keypress', handleEnterKey);
+    textarea.addEventListener('keydown', handleCtrlEnter);
+    
+    function handleEnterKey(e) {
+      if (e.key === 'Enter') {
+        confirmAddAbility();
+      }
+    }
+    
+    function handleCtrlEnter(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        confirmAddAbility();
+      }
+    }
+  }, 100);
+}
+
+function closeAddAbilityModal() {
+  const modal = document.getElementById("addAbilityModal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+}
+
+function confirmAddAbility() {
+  const modal = document.getElementById("addAbilityModal");
+  const playerParam = modal.dataset.playerParam;
+  const playerName = playerParam === 'player1' ? player1 : player2;
+  
+  const singleInput = document.getElementById("newAbilityInput");
+  const bulkInput = document.getElementById("bulkAbilitiesInput");
+  
+  const singleAbility = singleInput.value.trim();
+  const bulkAbilities = bulkInput.value.trim();
+  
+  // Check if both fields are empty
+  if (!singleAbility && !bulkAbilities) {
+    showToast("! يرجى إدخال قدرة واحدة أو عدة قدرات", 'error');
+    return;
+  }
+  
+  let abilitiesToAdd = [];
+  
+  // Process single ability
+  if (singleAbility) {
+    abilitiesToAdd.push(singleAbility);
+  }
+  
+  // Process bulk abilities
+  if (bulkAbilities) {
+    const bulkList = bulkAbilities
+      .split('\n')
+      .map(ability => ability.trim())
+      .filter(ability => ability.length > 0);
+    abilitiesToAdd.push(...bulkList);
+  }
+  
+  if (abilitiesToAdd.length === 0) {
+    showToast("! لم يتم العثور على قدرات صحيحة", 'error');
+    return;
+  }
+  
+  try {
+    // 1. Add to player's abilities
+    const playerAbilitiesKey = `${playerParam}Abilities`;
+    const currentAbilities = JSON.parse(localStorage.getItem(playerAbilitiesKey) || '[]');
+    
+    // Check for duplicates within player's abilities
+    const newAbilities = [];
+    const duplicates = [];
+    
+    abilitiesToAdd.forEach(ability => {
+      const exists = currentAbilities.some(existing => {
+        const existingText = typeof existing === 'string' ? existing : existing.text;
+        return existingText === ability;
+      });
+      
+      if (exists) {
+        duplicates.push(ability);
+      } else {
+        newAbilities.push(ability);
+      }
+    });
+    
+    // Add new abilities to player
+    if (newAbilities.length > 0) {
+      newAbilities.forEach(ability => {
+        currentAbilities.push({ text: ability, used: false });
+      });
+      localStorage.setItem(playerAbilitiesKey, JSON.stringify(currentAbilities));
+    }
+    
+    // 2. Add to global abilities library (savedAbilities)
+    const savedAbilities = JSON.parse(localStorage.getItem('savedAbilities') || '[]');
+    const globalNewAbilities = [];
+    const globalDuplicates = [];
+    
+    abilitiesToAdd.forEach(ability => {
+      if (savedAbilities.includes(ability)) {
+        globalDuplicates.push(ability);
+      } else {
+        globalNewAbilities.push(ability);
+      }
+    });
+    
+    // Add new abilities to global library
+    if (globalNewAbilities.length > 0) {
+      savedAbilities.push(...globalNewAbilities);
+      localStorage.setItem('savedAbilities', JSON.stringify(savedAbilities));
+    }
+    
+    // 3. Update gameSetupProgress if it exists
+    const gameSetupProgress = JSON.parse(localStorage.getItem('gameSetupProgress') || '{}');
+    if (gameSetupProgress[playerParam] && gameSetupProgress[playerParam].abilities) {
+      const gameSetupAbilities = gameSetupProgress[playerParam].abilities;
+      abilitiesToAdd.forEach(ability => {
+        if (!gameSetupAbilities.includes(ability)) {
+          gameSetupAbilities.push(ability);
+        }
+      });
+      localStorage.setItem('gameSetupProgress', JSON.stringify(gameSetupProgress));
+    }
+    
+    // 4. Update global abilities lists (P1_ABILITIES_KEY, P2_ABILITIES_KEY)
+    const globalKey = playerParam === 'player1' ? P1_ABILITIES_KEY : P2_ABILITIES_KEY;
+    const globalAbilities = JSON.parse(localStorage.getItem(globalKey) || '[]');
+    
+    abilitiesToAdd.forEach(ability => {
+      const exists = globalAbilities.some(existing => {
+        const existingText = typeof existing === 'string' ? existing : existing.text;
+        return existingText === ability;
+      });
+      
+      if (!exists) {
+        globalAbilities.push({ text: ability, used: false });
+      }
+    });
+    
+    localStorage.setItem(globalKey, JSON.stringify(globalAbilities));
+    
+    // 5. Re-render panels
+    renderPanels();
+    
+    // 6. Close modal
+    closeAddAbilityModal();
+    
+    // 7. Show success message
+    const successMessage = `تم إضافة ${newAbilities.length} قدرة جديدة للاعب ${playerName}`;
+    showToast(successMessage, 'success');
+    
+    // 8. Show info about duplicates if any
+    if (duplicates.length > 0) {
+      console.log(`تم تجاهل ${duplicates.length} قدرة مكررة للاعب: ${duplicates.join(', ')}`);
+    }
+    
+    if (globalNewAbilities.length > 0) {
+      console.log(`تم إضافة ${globalNewAbilities.length} قدرة جديدة للمكتبة العامة`);
+    }
+    
+    console.log(`✅ تمت إضافة القدرات بنجاح للاعب ${playerName}:`, newAbilities);
+    
+    // 9. Trigger storage events to notify other pages
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: playerAbilitiesKey,
+      newValue: localStorage.getItem(playerAbilitiesKey),
+      oldValue: localStorage.getItem(playerAbilitiesKey),
+      storageArea: localStorage
+    }));
+    
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'savedAbilities',
+      newValue: localStorage.getItem('savedAbilities'),
+      oldValue: localStorage.getItem('savedAbilities'),
+      storageArea: localStorage
+    }));
+    
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: globalKey,
+      newValue: localStorage.getItem(globalKey),
+      oldValue: localStorage.getItem(globalKey),
+      storageArea: localStorage
+    }));
+    
+    // 10. Notify abilities-setup.html page if it's open
+    try {
+      // Send message to abilities-setup page
+      const message = {
+        type: 'ABILITIES_ADDED',
+        playerParam: playerParam,
+        abilities: newAbilities,
+        globalAbilities: globalNewAbilities,
+        timestamp: Date.now()
+      };
+      
+      // Try to send to parent window
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(message, '*');
+      }
+      
+      // Try to send to opener window
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage(message, '*');
+      }
+      
+      // Try BroadcastChannel if available
+      if (window.broadcastChannel) {
+        window.broadcastChannel.postMessage(message);
+      }
+      
+      console.log('📤 تم إرسال إشعار لصفحة abilities-setup:', message);
+    } catch (e) {
+      console.log('لم يتم إرسال الإشعار لصفحة abilities-setup:', e);
+    }
+    
+    // 11. Notify player-cards.html page if it's open
+    try {
+      const playerCardsMessage = {
+        type: 'PLAYER_ABILITIES_UPDATED',
+        playerParam: playerParam,
+        playerName: playerName,
+        abilities: newAbilities,
+        timestamp: Date.now()
+      };
+      
+      // Try to send to parent window
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(playerCardsMessage, '*');
+      }
+      
+      // Try to send to opener window
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage(playerCardsMessage, '*');
+      }
+      
+      // Try BroadcastChannel if available
+      if (window.broadcastChannel) {
+        window.broadcastChannel.postMessage(playerCardsMessage);
+      }
+      
+      console.log('📤 تم إرسال إشعار لصفحة player-cards:', playerCardsMessage);
+    } catch (e) {
+      console.log('لم يتم إرسال الإشعار لصفحة player-cards:', e);
+    }
+    
+  } catch (error) {
+    console.error('Error adding abilities:', error);
+    showToast("! حدث خطأ في إضافة القدرات", 'error');
+  }
+}
+
 // Make functions globally available
 window.approveAbilityRequest = approveAbilityRequest;
 window.rejectAbilityRequest = rejectAbilityRequest;
@@ -1888,18 +2238,13 @@ window.confirmTransfer = confirmTransfer;
 window.closeTransferModal = closeTransferModal;
 window.openTransferModal = openTransferModal;
 window.openRestoreModal = openRestoreModal;
+window.openAddAbilityModal = openAddAbilityModal;
+window.closeAddAbilityModal = closeAddAbilityModal;
+window.confirmAddAbility = confirmAddAbility;
 
-// Make voice system globally available
-window.voiceSystem = voiceSystem;
-window.createVoiceControls = createVoiceControls;
+// Swap deck functions will be defined later in the file
 
-// Auto-test voice system on load
-setTimeout(() => {
-  console.log('🎵 Voice system initialized - testing legendary cards...');
-  voiceSystem.testAllLegendaryVoices();
-}, 1000);
-
-
+/* ---------------------- Swap Deck System REMOVED ---------------------- */
 
 /* ---------------------- Transfer modal ---------------------- */
 function openTransferModal(fromKey, fromName, toName){
@@ -2035,7 +2380,10 @@ function renderRound(){
   // Reload picks dynamically before rendering
   picks = loadPlayerPicks();
   
+  // Update round title smoothly
   roundTitle.textContent = `الجولة ${round + 1}`;
+  
+  // Render all components smoothly
   renderVs();
   renderPrev();
   
@@ -2066,17 +2414,25 @@ function renderRound(){
     newConfirmBtn.onclick = confirmResult;
     newConfirmBtn.id = "confirm-result-btn";
     console.log('Confirm button wired successfully');
+
+    // Nudge the confirm button down slightly for better spacing
+    try {
+      const confirmWrap = document.querySelector('.confirm-wrap');
+      if (confirmWrap) {
+        if (!confirmWrap.style.marginTop || parseInt(confirmWrap.style.marginTop) < 20) {
+          confirmWrap.style.marginTop = '24px';
+        }
+      } else if (newConfirmBtn && (!newConfirmBtn.style.marginTop || parseInt(newConfirmBtn.style.marginTop) < 16)) {
+        newConfirmBtn.style.marginTop = '16px';
+      }
+    } catch (e) {
+      console.warn('Could not adjust confirm button spacing:', e);
+    }
   } else {
     console.warn('Confirm button not found');
   }
   
-  // ✅ Update swap deck button states after page reload
-  if (window.swapDeckSystem && typeof window.swapDeckSystem.forceRefreshButtonStates === 'function') {
-    console.log('🎴 Force refreshing swap deck button states after page reload...');
-    window.swapDeckSystem.forceRefreshButtonStates();
-  }
   
-  // Confirm button wired successfully
 }
 
 function confirmWinner(){
@@ -2103,18 +2459,6 @@ function confirmWinner(){
     
     // Reset for new battle
     localStorage.setItem('currentRound', '0');
-    
-    // Clear swap deck round keys for new game
-    for (let i = 0; i < roundCount; i++) {
-      localStorage.removeItem(`player1SwapRound${i}`);
-      localStorage.removeItem(`player2SwapRound${i}`);
-    }
-    console.log('✅ Cleared swap deck round keys for new game');
-    
-    // Clear swap deck usage data for new game
-    localStorage.removeItem('swapDeckUsageData');
-    console.log('✅ Cleared swap deck usage data for new game');
-    
     location.href="final-result.html";
   } else {
     // ✅ لا نمسح الملاحظات عند الانتقال للجولة التالية
@@ -2122,8 +2466,13 @@ function confirmWinner(){
     localStorage.removeItem(ABILITY_REQUESTS_KEY);
     shownNotifications.clear();
     
-    // ✅ لا نمسح swapDeckUsageData عند الانتقال للجولة التالية - يبقى معطل حتى نهاية التحدي
-    console.log('✅ Preserving swap deck usage data for next round');
+    // Clear previous voices for new round
+    if (voiceSystem && voiceSystem.clearPreviousVoices) {
+      voiceSystem.clearPreviousVoices();
+    }
+    
+    // ✅ الحفاظ على حالة استخدام دكة البدلاء عبر الجولات
+    console.log('🎴 Preserving swap deck usage state across rounds');
     
     // Notify player views of round update BEFORE reload
     console.log('Notifying player views of round update...');
@@ -2136,7 +2485,49 @@ function confirmWinner(){
       detail: { round, scores, player1, player2 }
     }));
     
-    // Small delay to allow player views to receive the update
+    // Update the page content without reloading to avoid flash
+    updatePageContent();
+  }
+}
+
+// Update page content without reloading
+function updatePageContent() {
+  try {
+    // Update round title smoothly
+    const roundTitle = document.querySelector('.topbar h1');
+    if (roundTitle) {
+      roundTitle.textContent = `الجولة ${round}`;
+    }
+    
+    // Update health values smoothly
+    const health1Element = document.getElementById('health1');
+    const health2Element = document.getElementById('health2');
+    if (health1Element) health1Element.textContent = scores[player1];
+    if (health2Element) health2Element.textContent = scores[player2];
+    
+    // Update health colors smoothly
+    if (health1Element) {
+      health1Element.classList.toggle("red", scores[player1] <= Math.ceil(startingHP/2));
+    }
+    if (health2Element) {
+      health2Element.classList.toggle("red", scores[player2] <= Math.ceil(startingHP/2));
+    }
+    
+    // Reset confirm button smoothly
+    const confirmBtn = document.querySelector('.confirm');
+    if (confirmBtn) {
+      confirmBtn.textContent = 'تأكيد النتيجة';
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = '1';
+    }
+    
+    // Update cards and other elements smoothly
+    renderRound();
+    
+    console.log('Page content updated smoothly for round', round);
+  } catch (error) {
+    console.error('Error updating page content:', error);
+    // Fallback to reload if update fails
     setTimeout(() => {
       location.reload();
     }, 100);
@@ -2270,12 +2661,6 @@ function refreshCardData() {
   picks = loadPlayerPicks();
   console.log('Updated picks:', picks);
   renderRound();
-  
-  // ✅ Update swap deck button states after data refresh
-  if (window.swapDeckSystem && typeof window.swapDeckSystem.forceRefreshButtonStates === 'function') {
-    console.log('🎴 Force refreshing swap deck button states after data refresh...');
-    window.swapDeckSystem.forceRefreshButtonStates();
-  }
 }
 
 // Initialize and render with error handling
@@ -2287,20 +2672,9 @@ try {
   const currentRound = parseInt(localStorage.getItem('currentRound') || '0');
   if (currentRound === 0) {
     clearUsedAbilities();
-    console.log('New game detected - clearing used abilities');
-  } else {
-    console.log('Continuing existing game');
   }
   
   renderRound();
-  
-  // ✅ Update swap deck button states after initial render
-  setTimeout(() => {
-    if (window.swapDeckSystem && typeof window.swapDeckSystem.forceRefreshButtonStates === 'function') {
-      console.log('🎴 Force refreshing swap deck button states after initial render...');
-      window.swapDeckSystem.forceRefreshButtonStates();
-    }
-  }, 500);
   
   // Listen for changes in used abilities from other pages
   window.addEventListener('storage', function(e) {
@@ -2800,6 +3174,9 @@ function approveAbilityRequest(player, ability, requestId = null) {
     const playerName = player === 'player1' ? player1 : player2;
     console.log(`تم الموافقة على استخدام "${ability}" من ${playerName}`);
     
+    // Navigate to player page after approving ability request
+    navigateToPlayerPage(player, playerName);
+    
     console.log(`Ability request approved: ${player} - ${ability}`);
     
   } catch (error) {
@@ -2865,7 +3242,6 @@ function removeAllAbilityNotifications() {
 
 // Show toast notification
 function showToast(message, type = 'info') {
-  console.log('🍞 showToast called:', message, type);
   const wrap = document.createElement("div");
   wrap.style.cssText = `
     position:fixed; left:50%; transform:translateX(-50%);
@@ -2903,8 +3279,6 @@ function showToast(message, type = 'info') {
       wrap.parentNode.removeChild(wrap);
     }
   }, 3000);
-  
-  console.log('🍞 Toast notification created and added to DOM');
 }
 
 // Initialize BroadcastChannel if available
@@ -2918,16 +3292,6 @@ try {
 
 // Socket.IO removed - using localStorage + Custom Events instead
 
-// Socket.IO removed - using localStorage + Custom Events instead
-  
-  console.log('Processing ability request:', { playerName, abilityText, requestId });
-  
-  // Show notification to host
-  showAbilityRequestNotification({
-    player: playerName,
-    ability: abilityText,
-    requestId: requestId
-  });
 // Start ability request monitoring
 let lastProcessedRequests = new Set();
 function startAbilityRequestMonitoring() {
@@ -2952,3 +3316,122 @@ window.resetArrangement = resetArrangement;
 window.approveAbilityRequest = approveAbilityRequest;
 window.rejectAbilityRequest = rejectAbilityRequest;
 window.showToast = showToast;
+
+// ==================== SWAP DECK RESET SYSTEM ====================
+
+/**
+ * Reset swap deck system for new game
+ */
+function resetSwapDeckSystem() {
+  try {
+    console.log('🔄 Resetting swap deck system for new game...');
+    
+    // Clear swap deck usage
+    localStorage.removeItem('swapDeckUsage');
+    
+    // Clear swap deck data
+    localStorage.removeItem('swapDeckData');
+    
+    // Reset swap deck system if available
+    if (window.swapDeckSystem && typeof window.swapDeckSystem.resetSwapDeckUsage === 'function') {
+      window.swapDeckSystem.resetSwapDeckUsage();
+    }
+    
+    console.log('✅ Swap deck system reset successfully');
+    
+  } catch (error) {
+    console.error('❌ Error resetting swap deck system:', error);
+  }
+}
+
+/**
+ * Complete game reset (for new games)
+ */
+function resetGameForNewMatch() {
+  try {
+    console.log('🔄 Resetting game for new match...');
+    
+    // Reset swap deck system
+    resetSwapDeckSystem();
+    
+    // Clear game-specific data
+    localStorage.removeItem('currentRound');
+    localStorage.removeItem('player1Notes');
+    localStorage.removeItem('player2Notes');
+    localStorage.removeItem('health1');
+    localStorage.removeItem('health2');
+    
+    // Reset ability system
+    localStorage.removeItem('abilityRequests');
+    localStorage.removeItem('lastProcessedRequests');
+    
+    console.log('✅ Game reset for new match completed');
+    
+  } catch (error) {
+    console.error('❌ Error resetting game for new match:', error);
+  }
+}
+
+// Make reset functions available globally
+window.resetSwapDeckSystem = resetSwapDeckSystem;
+window.resetGameForNewMatch = resetGameForNewMatch;
+
+// Make voice system globally available
+window.voiceSystem = voiceSystem;
+window.createVoiceControls = createVoiceControls;
+window.createReplayButtons = createReplayButtons;
+
+// Auto-test voice system on load
+setTimeout(() => {
+  console.log('🎵 Voice system initialized - testing legendary cards...');
+  voiceSystem.testAllLegendaryVoices();
+  
+  // Add manual test function to window for debugging
+  window.testVoice = function(cardName) {
+    console.log(`🎵 Testing voice for: ${cardName}`);
+    const testPath = `images/${cardName}.webm`;
+    voiceSystem.playVoice(testPath, 'Test Player', true);
+  };
+  
+  console.log('🎵 Use window.testVoice("aizen") to test voice playback');
+}, 1000);
+
+// Navigate to player page after approving ability request
+function navigateToPlayerPage(playerParam, playerName) {
+  try {
+    // Get current game ID
+    const gameId = localStorage.getItem('currentGameId') || 'default';
+    
+    // Determine player number
+    const playerNumber = playerParam === 'player1' ? '1' : '2';
+    
+    // Generate the player view URL
+    const baseUrl = window.location.origin + window.location.pathname.replace('card.html', '');
+    const playerViewUrl = `${baseUrl}player-view.html?player=${playerNumber}&gameId=${gameId}`;
+    
+    console.log(`Navigating to player page for ${playerName}: ${playerViewUrl}`);
+    
+    // Open player view page in new tab
+    const newWindow = window.open(playerViewUrl, `player-view-${playerParam}`, 
+      'width=1200,height=800,scrollbars=yes,resizable=yes');
+    
+    if (!newWindow) {
+      console.warn('تم منع النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+      // Fallback: try to redirect current window
+      if (confirm(`تم قبول طلب القدرة من ${playerName}. هل تريد الانتقال إلى صفحة اللاعب؟`)) {
+        window.location.href = playerViewUrl;
+      }
+      return;
+    }
+    
+    // Focus the new window
+    newWindow.focus();
+    
+    // Show success message
+    showToast(`تم فتح صفحة اللاعب ${playerName} بنجاح!`, 'success');
+    
+  } catch (error) {
+    console.error('Error navigating to player page:', error);
+    showToast('حدث خطأ في الانتقال إلى صفحة اللاعب', 'error');
+  }
+}
